@@ -46,19 +46,40 @@ CREATE TABLE IF NOT EXISTS grados (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
+-- TABLA: campos
+-- Descripción: Campos de saberes y conocimientos del currículo boliviano
+-- =====================================================
+CREATE TABLE IF NOT EXISTS campos (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    color VARCHAR(7) COMMENT 'Color en hexadecimal para UI',
+    icono VARCHAR(50) COMMENT 'Nombre del icono para UI',
+    estado ENUM('activo', 'inactivo') DEFAULT 'activo',
+    orden INT DEFAULT 0,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_nombre (nombre),
+    INDEX idx_nombre (nombre),
+    INDEX idx_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
 -- TABLA: materias
 -- Descripción: Asignaturas del currículo educativo
 -- =====================================================
 CREATE TABLE IF NOT EXISTS materias (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(100) NOT NULL,
+    campo_id INT UNSIGNED NOT NULL COMMENT 'Campo de saberes y conocimientos',
+    nombre VARCHAR(150) NOT NULL,
     sigla VARCHAR(20) NOT NULL,
     descripcion TEXT,
     color VARCHAR(7) COMMENT 'Color en hexadecimal para UI',
     icono VARCHAR(50) COMMENT 'Nombre del icono para UI',
     estado ENUM('activo', 'inactivo') DEFAULT 'activo',
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (campo_id) REFERENCES campos(id) ON DELETE RESTRICT,
     UNIQUE KEY unique_sigla (sigla),
+    INDEX idx_campo (campo_id),
     INDEX idx_nombre (nombre),
     INDEX idx_estado (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
