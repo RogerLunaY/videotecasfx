@@ -1,0 +1,311 @@
+/**
+ * Página de Materias
+ * Mosaico de materias con iconos representativos y navegación bidireccional
+ */
+
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { getMaterias } from '../services/materiaService';
+import { getGradoById } from '../services/gradoService';
+
+// Iconos SVG representativos para cada materia
+const MateriaIcon = ({ nombre }) => {
+  const iconClass = "w-12 h-12";
+
+  // Determinar icono según el nombre de la materia
+  if (nombre.toLowerCase().includes('matemática') || nombre.toLowerCase().includes('matematica')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('física') || nombre.toLowerCase().includes('fisica')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('química') || nombre.toLowerCase().includes('quimica')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('biología') || nombre.toLowerCase().includes('biologia')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('historia')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('geografía') || nombre.toLowerCase().includes('geografia')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('inglés') || nombre.toLowerCase().includes('ingles')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('literatura') || nombre.toLowerCase().includes('lengua')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('computación') || nombre.toLowerCase().includes('informática')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('música') || nombre.toLowerCase().includes('musica')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+      </svg>
+    );
+  } else if (nombre.toLowerCase().includes('educación física') || nombre.toLowerCase().includes('fisica')) {
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h8m-6-8h.01M15 6h.01M18 9h.01M6 9h.01M9 21c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z" />
+      </svg>
+    );
+  } else {
+    // Icono por defecto para otras materias
+    return (
+      <svg className={iconClass} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+      </svg>
+    );
+  }
+};
+
+const MateriasPage = () => {
+  const [materias, setMaterias] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  // Obtener grado seleccionado previamente (si viene desde CursosPage)
+  const gradoId = searchParams.get('grado');
+  const [gradoSeleccionado, setGradoSeleccionado] = useState(null);
+
+  useEffect(() => {
+    loadMaterias();
+    if (gradoId) {
+      loadGrado();
+    }
+  }, [gradoId]);
+
+  const loadMaterias = async () => {
+    try {
+      setLoading(true);
+      const data = await getMaterias();
+      setMaterias(data || []);
+    } catch (error) {
+      console.error('Error loading materias:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadGrado = async () => {
+    try {
+      const grado = await getGradoById(gradoId);
+      setGradoSeleccionado(grado);
+    } catch (error) {
+      console.error('Error loading grado:', error);
+    }
+  };
+
+  const handleMateriaClick = (materiaId) => {
+    if (gradoId) {
+      // Si ya hay un grado seleccionado, ir a videos filtrados
+      navigate(`/videos?materia_id=${materiaId}&grado_id=${gradoId}`);
+    } else {
+      // Si no hay grado, ir a página de cursos con esta materia
+      navigate(`/cursos?materia=${materiaId}`);
+    }
+  };
+
+  // Colores para las materias
+  const materiaColors = [
+    { from: 'from-blue-400', to: 'to-blue-600', bg: 'bg-blue-500', hover: 'hover:from-blue-500 hover:to-blue-700' },
+    { from: 'from-purple-400', to: 'to-purple-600', bg: 'bg-purple-500', hover: 'hover:from-purple-500 hover:to-purple-700' },
+    { from: 'from-pink-400', to: 'to-pink-600', bg: 'bg-pink-500', hover: 'hover:from-pink-500 hover:to-pink-700' },
+    { from: 'from-red-400', to: 'to-red-600', bg: 'bg-red-500', hover: 'hover:from-red-500 hover:to-red-700' },
+    { from: 'from-orange-400', to: 'to-orange-600', bg: 'bg-orange-500', hover: 'hover:from-orange-500 hover:to-orange-700' },
+    { from: 'from-salesiano-amarillo-400', to: 'to-salesiano-amarillo-600', bg: 'bg-salesiano-amarillo-500', hover: 'hover:from-salesiano-amarillo-500 hover:to-salesiano-amarillo-700' },
+    { from: 'from-green-400', to: 'to-green-600', bg: 'bg-green-500', hover: 'hover:from-green-500 hover:to-green-700' },
+    { from: 'from-teal-400', to: 'to-teal-600', bg: 'bg-teal-500', hover: 'hover:from-teal-500 hover:to-teal-700' },
+    { from: 'from-cyan-400', to: 'to-cyan-600', bg: 'bg-cyan-500', hover: 'hover:from-cyan-500 hover:to-cyan-700' },
+    { from: 'from-indigo-400', to: 'to-indigo-600', bg: 'bg-indigo-500', hover: 'hover:from-indigo-500 hover:to-indigo-700' },
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-salesiano-azul-500 to-salesiano-azul-600 text-white py-12">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            {/* Icono */}
+            <div className="mb-6 flex justify-center">
+              <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center">
+                <svg className="w-12 h-12 text-salesiano-azul-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+            </div>
+
+            <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
+              SELECCIONE LA MATERIA
+            </h1>
+            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+              Elija la asignatura para encontrar videos educativos
+            </p>
+
+            {/* Grado Seleccionado (si existe) */}
+            {gradoSeleccionado && (
+              <div className="mt-6 inline-flex items-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="font-semibold">Curso seleccionado: {gradoSeleccionado.nombre}</span>
+                <Link
+                  to="/cursos"
+                  className="ml-3 text-sm underline hover:no-underline"
+                >
+                  Cambiar
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Breadcrumb */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="container mx-auto px-4 py-3">
+          <nav className="flex items-center space-x-2 text-sm">
+            <Link to="/" className="text-salesiano-azul-600 hover:text-salesiano-azul-700">
+              Inicio
+            </Link>
+            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+            {gradoSeleccionado ? (
+              <>
+                <Link to="/cursos" className="text-salesiano-azul-600 hover:text-salesiano-azul-700">
+                  Cursos
+                </Link>
+                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </>
+            ) : null}
+            <span className="text-gray-600">Materias</span>
+          </nav>
+        </div>
+      </div>
+
+      {/* Grid de Materias */}
+      <div className="container mx-auto px-4 py-12">
+        {loading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-salesiano-azul-600"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            {materias.map((materia, index) => {
+              const colors = materiaColors[index % materiaColors.length];
+
+              return (
+                <button
+                  key={materia.id}
+                  onClick={() => handleMateriaClick(materia.id)}
+                  className={`group relative overflow-hidden bg-gradient-to-br ${colors.from} ${colors.to} ${colors.hover} rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 p-6 text-white`}
+                >
+                  <div className="text-center">
+                    {/* Icono */}
+                    <div className="mb-4 flex justify-center">
+                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
+                        <MateriaIcon nombre={materia.nombre} />
+                      </div>
+                    </div>
+
+                    {/* Nombre de la materia */}
+                    <h3 className="text-xl font-bold mb-2">
+                      {materia.nombre}
+                    </h3>
+
+                    {/* Descripción */}
+                    {materia.descripcion && (
+                      <p className="text-sm text-white/80 mb-4">
+                        {materia.descripcion}
+                      </p>
+                    )}
+
+                    {/* Icono de flecha */}
+                    <div className="flex justify-center mt-4">
+                      <div className="w-10 h-10 bg-white/20 group-hover:bg-white rounded-full flex items-center justify-center transition-all duration-300">
+                        <svg className={`w-5 h-5 group-hover:${colors.bg.replace('bg-', 'text-')}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Mensaje si no hay materias */}
+        {!loading && materias.length === 0 && (
+          <div className="text-center py-12">
+            <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+            </svg>
+            <p className="text-xl text-gray-600">No hay materias disponibles</p>
+          </div>
+        )}
+      </div>
+
+      {/* Información adicional */}
+      <div className="bg-white py-8 border-t border-gray-200">
+        <div className="container mx-auto px-4 text-center">
+          <p className="text-gray-600">
+            Selecciona una materia para {gradoSeleccionado ? 'ver los videos filtrados' : 'continuar con la selección de curso'}
+          </p>
+          <div className="mt-4 flex justify-center gap-4">
+            <Link
+              to="/"
+              className="text-salesiano-azul-600 hover:text-salesiano-azul-700 font-medium"
+            >
+              ← Volver al inicio
+            </Link>
+            {!gradoSeleccionado && (
+              <Link
+                to="/cursos"
+                className="text-salesiano-azul-600 hover:text-salesiano-azul-700 font-medium"
+              >
+                O explorar por cursos →
+              </Link>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MateriasPage;

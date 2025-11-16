@@ -10,6 +10,9 @@ import { useAuth } from './context/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import MateriasPage from './pages/MateriasPage';
+import CursosPage from './pages/CursosPage';
+import AcercaDePage from './pages/AcercaDePage';
 import DashboardPage from './pages/DashboardPage';
 import VideosPage from './pages/VideosPage';
 import VideoDetailPage from './pages/VideoDetailPage';
@@ -19,6 +22,8 @@ import PerfilPage from './pages/PerfilPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Components
+import Navbar from './components/Layout/Navbar';
+import Footer from './components/Layout/Footer';
 import LoadingSpinner from './components/Common/LoadingSpinner';
 
 /**
@@ -53,12 +58,17 @@ function App() {
   }
 
   return (
-    <Routes>
-      {/* Rutas públicas */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/" element={<HomePage />} />
-      <Route path="/videos" element={<VideosPage />} />
-      <Route path="/videos/:id" element={<VideoDetailPage />} />
+    <>
+      <Navbar />
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/" element={<HomePage />} />
+        <Route path="/materias" element={<MateriasPage />} />
+        <Route path="/cursos" element={<CursosPage />} />
+        <Route path="/acerca-de" element={<AcercaDePage />} />
+        <Route path="/videos" element={<VideosPage />} />
+        <Route path="/videos/:id" element={<VideoDetailPage />} />
 
       {/* Rutas protegidas - Solo autenticados */}
       <Route
@@ -116,9 +126,11 @@ function App() {
         }
       />
 
-      {/* 404 */}
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        {/* 404 */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+      <Footer />
+    </>
   );
 }
 
