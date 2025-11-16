@@ -1,0 +1,51 @@
+# Videos y archivos grandes
+backend/uploads/videos/*.mp4
+backend/uploads/videos/*.avi
+backend/uploads/videos/*.mkv
+backend/uploads/videos/*.webm
+backend/uploads/videos/*.mov
+backend/uploads/thumbnails/*.jpg
+backend/uploads/thumbnails/*.png
+!backend/uploads/videos/.gitkeep
+!backend/uploads/thumbnails/.gitkeep
+
+# Archivos de configuración con datos sensibles
+backend/.env
+backend/config/.env
+frontend-web/.env
+frontend-web/.env.local
+mobile-app/.env
+
+# Logs
+backend/logs/*.log
+*.log
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build
+frontend-web/dist/
+frontend-web/build/
+mobile-app/.expo/
+mobile-app/dist/
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporal
+tmp/
+temp/
+*.tmp

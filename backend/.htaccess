@@ -1,0 +1,167 @@
+# =====================================================
+# .htaccess para Backend API
+# Sistema de Biblioteca Digital de Videos Educativos
+# U.E. San Francisco Xavier
+# =====================================================
+
+# Habilitar el motor de reescritura
+RewriteEngine On
+
+# Prevenir listado de directorios
+Options -Indexes
+
+# Seguir enlaces simbólicos
+Options +FollowSymLinks
+
+# Establecer archivo index por defecto
+DirectoryIndex index.php
+
+# =====================================================
+# CORS Headers
+# =====================================================
+
+# Permitir orígenes específicos (configurado en PHP)
+# Los headers CORS se manejan en el archivo config/cors.php
+
+# =====================================================
+# Reescritura de URLs
+# =====================================================
+
+# Si el archivo o directorio existe, servir directamente
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redireccionar todas las peticiones a index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# =====================================================
+# Protección de Archivos Sensibles
+# =====================================================
+
+# Denegar acceso a archivos .env
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Denegar acceso a archivos de configuración PHP
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# =====================================================
+# Compresión GZIP
+# =====================================================
+
+<IfModule mod_deflate.c>
+    # Comprimir HTML, CSS, JavaScript, Text, XML y fuentes
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE application/x-javascript
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/xml
+</IfModule>
+
+# =====================================================
+# Cache de Archivos Estáticos
+# =====================================================
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+
+    # Imágenes
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+
+    # Videos (no cachear, streaming)
+    ExpiresByType video/mp4 "access plus 0 seconds"
+    ExpiresByType video/webm "access plus 0 seconds"
+
+    # JavaScript y CSS
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/css "access plus 1 month"
+
+    # Por defecto
+    ExpiresDefault "access plus 2 days"
+</IfModule>
+
+# =====================================================
+# Configuración de PHP
+# =====================================================
+
+<IfModule mod_php7.c>
+    # Tamaño máximo de archivo subido (500MB)
+    php_value upload_max_filesize 500M
+    php_value post_max_size 500M
+
+    # Tiempo máximo de ejecución (10 minutos para procesamiento de videos)
+    php_value max_execution_time 600
+    php_value max_input_time 600
+
+    # Memoria máxima
+    php_value memory_limit 512M
+
+    # Mostrar errores en desarrollo (cambiar a Off en producción)
+    php_flag display_errors On
+    php_flag display_startup_errors On
+    php_value error_reporting E_ALL
+
+    # Habilitar registro de errores
+    php_flag log_errors On
+    php_value error_log logs/php_errors.log
+</IfModule>
+
+# =====================================================
+# Seguridad Adicional
+# =====================================================
+
+# Prevenir clickjacking
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "SAMEORIGIN"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+    # Content Security Policy (ajustar según necesidades)
+    # Header set Content-Security-Policy "default-src 'self'"
+</IfModule>
+
+# Deshabilitar la firma del servidor
+ServerSignature Off
+
+# =====================================================
+# Manejo de Errores Personalizados
+# =====================================================
+
+# ErrorDocument 403 /errors/403.html
+# ErrorDocument 404 /errors/404.html
+# ErrorDocument 500 /errors/500.html
+
+# =====================================================
+# Streaming de Videos
+# =====================================================
+
+# Habilitar range requests para streaming de videos
+<IfModule mod_headers.c>
+    <FilesMatch "\.(mp4|webm|avi|mkv|mov)$">
+        Header set Accept-Ranges bytes
+    </FilesMatch>
+</IfModule>
+
+# =====================================================
+# MIME Types
+# =====================================================
+
+<IfModule mod_mime.c>
+    AddType video/mp4 .mp4
+    AddType video/webm .webm
+    AddType video/x-msvideo .avi
+    AddType video/x-matroska .mkv
+    AddType video/quicktime .mov
+</IfModule>
