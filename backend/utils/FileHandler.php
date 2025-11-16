@@ -113,11 +113,24 @@ class FileHandler
         chmod($rutaCompleta, 0644);
 
         // Obtener información del archivo
+        // Construir ruta relativa desde uploads/
+        $backendDir = realpath(__DIR__ . '/..');
+        $rutaRelativa = str_replace($backendDir . '/', '', $rutaCompleta);
+
+        // Asegurar que la ruta comience con "uploads/"
+        if (strpos($rutaRelativa, 'uploads/') !== 0) {
+            // Si no empieza con uploads/, extraer solo la parte desde uploads/
+            $uploadsPos = strpos($rutaRelativa, 'uploads/');
+            if ($uploadsPos !== false) {
+                $rutaRelativa = substr($rutaRelativa, $uploadsPos);
+            }
+        }
+
         $infoArchivo = [
             'nombre_original' => $file['name'],
             'nombre_archivo' => $nombreUnico,
             'ruta_completa' => $rutaCompleta,
-            'ruta_relativa' => str_replace(__DIR__ . '/../', '', $rutaCompleta),
+            'ruta_relativa' => $rutaRelativa,
             'tamanio' => $file['size'],
             'tipo_mime' => $mimeType,
             'extension' => $extension
@@ -175,10 +188,22 @@ class FileHandler
 
         chmod($rutaCompleta, 0644);
 
+        // Construir ruta relativa desde uploads/
+        $backendDir = realpath(__DIR__ . '/..');
+        $rutaRelativa = str_replace($backendDir . '/', '', $rutaCompleta);
+
+        // Asegurar que la ruta comience con "uploads/"
+        if (strpos($rutaRelativa, 'uploads/') !== 0) {
+            $uploadsPos = strpos($rutaRelativa, 'uploads/');
+            if ($uploadsPos !== false) {
+                $rutaRelativa = substr($rutaRelativa, $uploadsPos);
+            }
+        }
+
         return [
             'nombre_archivo' => $nombreThumbnail,
             'ruta_completa' => $rutaCompleta,
-            'ruta_relativa' => str_replace(__DIR__ . '/../', '', $rutaCompleta)
+            'ruta_relativa' => $rutaRelativa
         ];
     }
 

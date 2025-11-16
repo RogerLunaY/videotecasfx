@@ -190,7 +190,17 @@ class VideoController
             if ($config['video']['auto_thumbnail'] && $this->videoProcessor->estaFFmpegDisponible()) {
                 $thumbPath = $config['video']['thumbnail_path'] . pathinfo($infoVideo['nombre_archivo'], PATHINFO_FILENAME) . '_thumb.jpg';
                 if ($this->videoProcessor->generarThumbnail($infoVideo['ruta_completa'], $thumbPath, 5)) {
-                    $thumbnailPath = str_replace(__DIR__ . '/../', '', $thumbPath);
+                    // Construir ruta relativa asegurando que empiece con "uploads/"
+                    $backendDir = realpath(__DIR__ . '/..');
+                    $thumbnailPath = str_replace($backendDir . '/', '', $thumbPath);
+
+                    // Asegurar que la ruta comience con "uploads/"
+                    if (strpos($thumbnailPath, 'uploads/') !== 0) {
+                        $uploadsPos = strpos($thumbnailPath, 'uploads/');
+                        if ($uploadsPos !== false) {
+                            $thumbnailPath = substr($thumbnailPath, $uploadsPos);
+                        }
+                    }
                 }
             }
         }
