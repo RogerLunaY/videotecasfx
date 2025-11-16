@@ -3,7 +3,7 @@
  * Maneja el routing y la estructura general
  */
 
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 
 // Pages
@@ -52,6 +52,11 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
  */
 function App() {
   const { loading } = useAuth();
+  const location = useLocation();
+
+  // Rutas que no deben mostrar el Navbar
+  const hideNavbarRoutes = ['/login'];
+  const shouldShowNavbar = !hideNavbarRoutes.includes(location.pathname);
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
@@ -59,7 +64,7 @@ function App() {
 
   return (
     <>
-      <Navbar />
+      {shouldShowNavbar && <Navbar />}
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<LoginPage />} />

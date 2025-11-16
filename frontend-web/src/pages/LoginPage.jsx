@@ -78,15 +78,15 @@ const LoginPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4">
+        <Link to="/" className="block text-center mb-8 group">
+          <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:shadow-lg transition-shadow">
             <svg className="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-3xl font-bold text-white">Videoteca SFX</h2>
-        </div>
+          <h2 className="text-3xl font-bold text-white group-hover:text-salesiano-amarillo-300 transition-colors">Videoteca SFX</h2>
+        </Link>
 
         {/* Card */}
         <div className="bg-white rounded-lg shadow-xl p-8">
