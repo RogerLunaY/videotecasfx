@@ -68,46 +68,107 @@ INSERT INTO materias (id, campo_id, nombre, sigla, descripcion, color, icono) VA
 (14, 4, 'Valores Espiritualidad y Religiones', 'VER', 'Crítico, dialógico. Promueve el desarrollo espiritual, ético y moral desde el respeto a las diferentes expresiones religiosas y espirituales.', '#84CC16', 'heart');
 
 -- =====================================================
--- INSERTAR TEMAS (Ejemplos por materia)
+-- INSERTAR TEMAS (Currículo Boliviano por Materia y Grado)
 -- =====================================================
-INSERT INTO temas (nombre, nombre_corto, materia_id, orden) VALUES
--- Biología - Geografía (id: 1)
-('La Célula', 'Célula', 1, 1),
-('Genética', 'Genética', 1, 2),
-('Ecología', 'Ecología', 1, 3),
-('Anatomía Humana', 'Anatomía', 1, 4),
-('Geografía de Bolivia', 'Geografía', 1, 5),
+-- NOTA: Los temas están organizados por materia_id y grado_id
+-- debido a limitaciones de espacio, se incluye un subconjunto representativo
+-- El archivo completo con todos los temas (~600) debe importarse por separado
+INSERT INTO temas (nombre, materia_id, grado_id, orden) VALUES
 
--- Física (id: 2)
-('Mecánica Clásica', 'Mecánica', 2, 1),
-('Termodinámica', 'Termodinámica', 2, 2),
-('Electricidad y Magnetismo', 'Electricidad', 2, 3),
-('Óptica', 'Óptica', 2, 4),
+-- Biología - Geografía (materia_id: 1) - Grado 1
+('ASTRONOMÍA: NUESTRO LUGAR EN EL UNIVERSO', 1, 1, 1),
+('LA BIOLOGÍA COMO CIENCIA EN LA VIDA Y PARA LA VIDA', 1, 1, 2),
+('LA CÉLULA: UNIDAD ANATÓMICA, FUNCIONAL Y GENÉTICA PARA LA PRESERVACIÓN DE LA VIDA', 1, 1, 3),
+('SEXUALIDAD HUMANA INTEGRAL Y HOLÍSTICA', 1, 1, 4),
+('LA QUÍMICA EN ARMONÍA CON LA VIDA Y LA MADRE TIERRA', 1, 1, 5),
+('MATEMÁTICA APLICADA A LAS CIENCIAS NATURALES', 1, 1, 6),
+('ESTUDIO DE LOS SUELOS EN LA MADRE TIERRA: GEOLOGÍA', 1, 1, 7),
+('ECOLOGÍA: RELACIONES DE INTERDEPENDENCIA EN LA MADRE TIERRA', 1, 1, 8),
+('LA DIVERSIDAD DE SERES VIVOS QUE HABITAN EN LA MADRE TIERRA', 1, 1, 9),
+('TRANSFORMACIÓN QUÍMICA Y SUSTENTABLE DE LA MATERIA', 1, 1, 10),
 
--- Química (id: 3)
-('Tabla Periódica', 'Tabla Periódica', 3, 1),
-('Enlaces Químicos', 'Enlaces', 3, 2),
-('Reacciones Químicas', 'Reacciones', 3, 3),
-('Química Orgánica', 'Orgánica', 3, 4),
+-- Física (materia_id: 2) - Grado 3
+('MATEMÁTICA APLICADA A LA FÍSICA EN MEDICIONES', 2, 3, 11),
+('MEDICIONES Y ERRORES EN LAS EXPERIENCIAS PRODUCTIVAS', 2, 3, 12),
+('EXPERIENCIA PRÁCTICA PRODUCTIVA', 2, 3, 13),
+('TRIGONOMETRÍA BÁSICA APLICADA A LA FÍSICA', 2, 3, 14),
+('ANÁLISIS VECTORIAL I (MÉTODOS GRÁFICOS)', 2, 3, 15),
+('ANÁLISIS VECTORIAL II (MÉTODOS ANALÍTICOS)', 2, 3, 16),
+('ONDAS', 2, 3, 17),
+('ÓPTICA GEOMÉTRICA', 2, 3, 18),
+('CALOR Y TEMPERATURA', 2, 3, 19),
 
--- Matemática (id: 4)
-('Álgebra Básica', 'Álgebra', 4, 1),
-('Geometría Plana', 'Geometría', 4, 2),
-('Trigonometría', 'Trigonometría', 4, 3),
-('Cálculo Diferencial', 'Cálculo', 4, 4),
-('Estadística y Probabilidad', 'Estadística', 4, 5),
+-- Química (materia_id: 3) - Grado 3
+('NOTACIÓN Y NOMENCLATURA DE COMPUESTOS BINARIOS OXIGENADOS E HIDROGENADOS DE USO TECNOLÓGICO E INDUSTRIAL', 3, 3, 20),
+('NOTACIÓN Y NOMENCLATURA DE COMPUESTOS TERNARIOS BÁSICOS Y ÁCIDOS DE USO TECNOLÓGICO E INDUSTRIAL', 3, 3, 21),
+('NOTACIÓN Y NOMENCLATURA DE SALES INORGÁNICAS DE USO TECNOLÓGICO E INDUSTRIAL', 3, 3, 22),
 
--- Lengua Castellana (id: 6)
-('Gramática y Sintaxis', 'Gramática', 6, 1),
-('Literatura Latinoamericana', 'Literatura', 6, 2),
-('Comprensión Lectora', 'Comprensión', 6, 3),
-('Redacción y Composición', 'Redacción', 6, 4),
+-- Matemática (materia_id: 4) - Grado 1
+('NÚMEROS ENTEROS APLICADOS A LA COTIDIANIDAD', 4, 1, 23),
+('LOS NÚMEROS ENTEROS Y SU RELACIÓN CON LA GEOMETRÍA', 4, 1, 24),
+('REPRESENTACIÓN GRÁFICA DE LAS FORMAS EN EL PLANO CARTESIANO', 4, 1, 25),
+('NÚMEROS RACIONALES EN LA COMUNIDAD', 4, 1, 26),
+('NÚMEROS DECIMALES COMO CONSECUENCIA DE LOS RACIONALES', 4, 1, 27),
+('RAZONES, PROPORCIONES Y REGLA DE TRES APLICADOS A LA COMUNIDAD', 4, 1, 28),
+('LA FORMA, EL NÚMERO Y LA SEMEJANZA DE LA GEOMETRÍA EN LA COMUNIDAD', 4, 1, 29),
+('PERÍMETROS, ÁREAS Y FORMAS GEOMÉTRICAS APLICADAS EN LA VIDA COTIDIANA', 4, 1, 30),
+('LABORATORIO MATEMÁTICO', 4, 1, 31),
 
--- Ciencias Sociales (id: 9)
-('Historia de Bolivia', 'Historia Bolivia', 9, 1),
-('Geografía Mundial', 'Geografía Mundial', 9, 2),
-('Constitución Política', 'Constitución', 9, 3),
-('Culturas Originarias', 'Culturas', 9, 4);
+-- Técnica Tecnológica (materia_id: 5) - Grado 1
+('LA OFIMÁTICA COMO HERRAMIENTA PRODUCTIVA', 5, 1, 32),
+('TÉCNICAS Y TECNOLOGÍAS PROPIAS Y DE LA DIVERSIDAD CULTURAL', 5, 1, 33),
+('PROPIEDADES DE LOS MATERIALES Y SUS PROCESOS DE TRANSFORMACIÓN', 5, 1, 34),
+('LAS HERRAMIENTAS, EQUIPOS, MECANISMOS Y MÁQUINAS', 5, 1, 35),
+('LECTURA Y ANÁLISIS DE OBJETOS TECNOLÓGICOS', 5, 1, 36),
+
+-- Lengua Castellana (materia_id: 6) - Grado 1
+('LA COMUNICACIÓN EFECTIVA Y EL LENGUAJE COMO INSTRUMENTO PARA PROMOVER LA CULTURA DE LA PAZ', 6, 1, 37),
+('ORALIDAD Y LITERATURA DEL ESTADO PLURINACIONAL DE BOLIVIA', 6, 1, 38),
+('LECTURA E INTERPRETACIÓN DEL LENGUAJE VERBAL Y NO VERBAL EN NUESTRO CONTEXTO PARA PROMOVER LA DESPATRIARCALIZACIÓN', 6, 1, 39),
+
+-- Lengua Originaria (materia_id: 7) - Grado 1
+('Comunicación dialógica: saludos y despedidas', 7, 1, 40),
+('Actividades laborales de nuestra familia', 7, 1, 41),
+('Ubicación espacial de animales, familia y objetos', 7, 1, 42),
+('Los productos de la Madre Tierra', 7, 1, 43),
+('Ciclo agrícola de la siembra y cosecha', 7, 1, 44),
+
+-- Lengua Extranjera (materia_id: 8) - Grado 1
+('LA COMUNIDAD Y DIVERSIDAD CULTURAL (GREETINGS, PERSONAL INFORMATION, ALPHABET, NUMBERS 1-20, ETC.)', 8, 1, 45),
+('MI FAMILIA EN COMUNIDAD (NUMBERS 21-100, MY FAMILY, POSSESSIVE NOUNS, CLOTHES AND COLORS, ETC.)', 8, 1, 46),
+('EL LENGUAJE COMO MEDIO DE EXPRESIÓN DE NUESTRA COMUNIDAD (MY COMMUNITY, PLACES, ANIMALS, DAILY ACTIVITIES, SIMPLE PRESENT TENSE, ENGLISH SONGS)', 8, 1, 47),
+
+-- Ciencias Sociales (materia_id: 9) - Grado 1
+('INTRODUCCIÓN A LAS CIENCIAS SOCIALES', 9, 1, 48),
+('GEOGRAFÍA', 9, 1, 49),
+('TIEMPO GEOLÓGICO', 9, 1, 50),
+('DE LA PANGEA A LA FORMACIÓN DE LOS CONTINENTES', 9, 1, 51),
+('IMPORTANCIA DE LA MADRE TIERRA COMO SUJETO DE DERECHO', 9, 1, 52),
+
+-- Artes Plásticas (materia_id: 10) - Grado 1
+('EXPRESIONES ARTÍSTICAS PLÁSTICAS Y SU APLICACIÓN COMO PROCESO TECNOLÓGICO PRODUCTIVO', 10, 1, 53),
+('ARTES GRÁFICAS COMO ORIENTACIÓN EN LOS PROCESOS PRODUCTIVOS', 10, 1, 54),
+('EL DIBUJO ARTÍSTICO COMO FOMENTO A LAS EXPRESIONES GRÁFICAS CULTURALES', 10, 1, 55),
+
+-- Educación Musical (materia_id: 11) - Grado 1
+('MANIFESTACIONES ARTÍSTICAS DE LOS PUEBLOS ORIGINARIOS', 11, 1, 56),
+('LAS TÉCNICAS RÍTMICAS Y SONORAS PARA LA EDUCACIÓN MUSICAL', 11, 1, 57),
+('FISIOLOGÍA DE LA VOZ Y SU CUIDADO PARA LAS COMPOSICIONES MUSICALES', 11, 1, 58),
+
+-- Educación Física (materia_id: 12) - Grado 1
+('GIMNASIA BÁSICA Y SALUD COMUNITARIA', 12, 1, 59),
+('ACTIVIDADES DE CONDICIÓN FÍSICA Y SALUD GENERAL', 12, 1, 60),
+('ACTIVIDADES FÍSICAS ESPECÍFICAS EN LA COMUNIDAD (ATLETISMO Y FÚTBOL/FÚTBOL DE SALÓN)', 12, 1, 61),
+
+-- Cosmovisiones (materia_id: 13) - Grado 1
+('IMPORTANCIA Y FINES DE LA SICOLOGÍA EN LA VIDA DEL SER HUMANO', 13, 1, 62),
+('FUNDAMENTOS DE LA SICOLOGÍA COMO CIENCIA', 13, 1, 63),
+('PRINCIPALES ESCUELAS, CORRIENTES Y ENFOQUES DE LA SICOLOGÍA', 13, 1, 64),
+
+-- Valores (materia_id: 14) - Grado 1
+('DESARROLLO ESPIRITUAL EN COMPLEMENTARIEDAD CON LA NATURALEZA', 14, 1, 65),
+('ESPACIOS Y LUGARES SAGRADOS', 14, 1, 66),
+('CAUSAS Y CONSECUENCIAS DE LA CRISIS DE VALORES', 14, 1, 67);
 
 -- =====================================================
 -- INSERTAR USUARIOS

@@ -86,19 +86,23 @@ CREATE TABLE IF NOT EXISTS materias (
 
 -- =====================================================
 -- TABLA: temas
--- Descripción: Temas específicos dentro de cada materia
+-- Descripción: Temas específicos dentro de cada materia por grado
 -- =====================================================
 CREATE TABLE IF NOT EXISTS temas (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(200) NOT NULL,
+    nombre VARCHAR(255) NOT NULL COMMENT 'Descripción del tema',
     nombre_corto VARCHAR(100),
     descripcion TEXT,
-    materia_id INT UNSIGNED,
+    materia_id INT UNSIGNED NOT NULL COMMENT 'Materia/Área a la que pertenece',
+    grado_id INT UNSIGNED NOT NULL COMMENT 'Grado/Año de escolaridad (1-6)',
     estado ENUM('activo', 'inactivo') DEFAULT 'activo',
     orden INT DEFAULT 0,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE SET NULL,
+    FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE CASCADE,
+    FOREIGN KEY (grado_id) REFERENCES grados(id) ON DELETE CASCADE,
     INDEX idx_materia (materia_id),
+    INDEX idx_grado (grado_id),
+    INDEX idx_materia_grado (materia_id, grado_id),
     INDEX idx_nombre (nombre),
     INDEX idx_estado (estado)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
