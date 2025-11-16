@@ -8,13 +8,13 @@ import { useAuth } from './context/AuthContext';
 
 // Pages
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import VideosPage from './pages/VideosPage';
 import VideoDetailPage from './pages/VideoDetailPage';
 import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
-import EstadisticasPage from './pages/EstadisticasPage';
 import PerfilPage from './pages/PerfilPage';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -54,13 +54,13 @@ function App() {
 
   return (
     <Routes>
-      {/* Ruta pública de login */}
+      {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage />} />
-
-      {/* Ruta principal (pública) */}
       <Route path="/" element={<HomePage />} />
+      <Route path="/videos" element={<VideosPage />} />
+      <Route path="/videos/:id" element={<VideoDetailPage />} />
 
-      {/* Rutas protegidas */}
+      {/* Rutas protegidas - Solo autenticados */}
       <Route
         path="/dashboard"
         element={
@@ -69,10 +69,6 @@ function App() {
           </ProtectedRoute>
         }
       />
-
-      <Route path="/videos" element={<VideosPage />} />
-
-      <Route path="/videos/:id" element={<VideoDetailPage />} />
 
       <Route
         path="/upload"
@@ -84,28 +80,38 @@ function App() {
       />
 
       <Route
-        path="/usuarios"
-        element={
-          <ProtectedRoute requireAdmin>
-            <UsuariosPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/estadisticas"
-        element={
-          <ProtectedRoute>
-            <EstadisticasPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
         path="/perfil"
         element={
           <ProtectedRoute>
             <PerfilPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/mis-videos"
+        element={
+          <ProtectedRoute>
+            <VideosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Rutas protegidas - Solo admin */}
+      <Route
+        path="/register"
+        element={
+          <ProtectedRoute requireAdmin>
+            <RegisterPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/usuarios"
+        element={
+          <ProtectedRoute requireAdmin>
+            <UsuariosPage />
           </ProtectedRoute>
         }
       />
