@@ -129,4 +129,18 @@ const statsService = {
   },
 };
 
+// Exports nombrados para facilitar imports
+export const getDashboard = () => statsService.getDashboard();
+export const getGeneralStats = () => statsService.getGenerales();
+export const getPopularVideos = (limit) => statsService.getVideosPopulares(limit);
+export const getStatsByMateria = () => statsService.getPorMateria();
+export const getStatsByGrado = () => statsService.getPorGrado();
+export const getPlaybackStats = (fechaInicio, fechaFin) => statsService.getReproducciones(fechaInicio, fechaFin);
+export const getHoursByMateria = () => statsService.getHorasPorMateria();
+export const getHoursByGrado = () => statsService.getHorasPorGrado();
+export const getDocenteStats = (docenteId) => statsService.getPorDocente(docenteId);
+export const getTrends = (dias) => statsService.getTendencias(dias);
+export const getRecentActivity = (limit) => statsService.getActividadReciente(limit);
+export const getExecutiveSummary = () => statsService.getResumenEjecutivo();
+
 export default statsService;

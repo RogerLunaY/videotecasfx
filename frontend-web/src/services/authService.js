@@ -112,4 +112,13 @@ const authService = {
   },
 };
 
+// Exports nombrados para facilitar imports
+export const login = (email, password) => authService.login(email, password);
+export const registerUser = (userData) => authService.register(userData);
+export const logout = () => authService.logout();
+export const refreshToken = () => authService.refreshToken();
+export const getCurrentUser = () => authService.getCurrentUser();
+export const isAuthenticated = () => authService.isAuthenticated();
+export const getStoredUser = () => authService.getStoredUser();
+
 export default authService;

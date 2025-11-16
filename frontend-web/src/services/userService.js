@@ -60,15 +60,11 @@ const userService = {
   /**
    * Cambia la contraseña de un usuario
    * @param {number} id
-   * @param {string} password
-   * @param {string} newPassword
+   * @param {Object} passwordData - {password, new_password, new_password_confirmation}
    * @returns {Promise}
    */
-  async changePassword(id, password, newPassword) {
-    const response = await api.put(`/usuarios/${id}/password`, {
-      password,
-      new_password: newPassword,
-    });
+  async changePassword(id, passwordData) {
+    const response = await api.put(`/usuarios/${id}/password`, passwordData);
     return response;
   },
 
@@ -82,5 +78,14 @@ const userService = {
     return response.data.usuarios;
   },
 };
+
+// Exports nombrados para facilitar imports
+export const getUsers = (params) => userService.getAll(params);
+export const getUserById = (id) => userService.getById(id);
+export const createUser = (userData) => userService.create(userData);
+export const updateUser = (id, userData) => userService.update(id, userData);
+export const deleteUser = (id) => userService.delete(id);
+export const updatePassword = (id, passwordData) => userService.changePassword(id, passwordData);
+export const getUsersByRole = (rol) => userService.getByRole(rol);
 
 export default userService;

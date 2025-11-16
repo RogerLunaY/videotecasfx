@@ -150,4 +150,18 @@ const videoService = {
   },
 };
 
+// Exports nombrados para facilitar imports
+export const getVideos = (params) => videoService.getAll(params);
+export const getVideoById = (id) => videoService.getById(id);
+export const uploadVideo = (formData, onProgress) => videoService.upload(formData, onProgress);
+export const updateVideo = (id, data) => videoService.update(id, data);
+export const deleteVideo = (id) => videoService.delete(id);
+export const searchVideos = (query, params) => videoService.search(query, params);
+export const getPopularVideos = (limit) => videoService.getPopular(limit);
+export const getRecentVideos = (limit) => videoService.getRecent(limit);
+export const getVideosByMateria = (materiaId, params) => videoService.getByMateria(materiaId, params);
+export const getVideosByGrado = (gradoId, params) => videoService.getByGrado(gradoId, params);
+export const getStreamUrl = (id) => videoService.getStreamUrl(id);
+export const getThumbnailUrl = (thumbnailPath) => videoService.getThumbnailUrl(thumbnailPath);
+
 export default videoService;
