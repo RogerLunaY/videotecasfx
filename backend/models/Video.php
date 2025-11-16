@@ -191,7 +191,19 @@ class Video
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Filtrar videos cuyos archivos no existen
+            $videosExistentes = array_filter($videos, function($video) {
+                if (empty($video['archivo_path'])) {
+                    return false;
+                }
+                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                return file_exists($rutaCompleta);
+            });
+
+            // Re-indexar el array
+            return array_values($videosExistentes);
         } catch (PDOException $e) {
             error_log("[Video::obtenerTodos] Error: " . $e->getMessage());
             return false;
@@ -231,7 +243,18 @@ class Video
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
 
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $video = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            // Verificar que el archivo existe
+            if ($video && !empty($video['archivo_path'])) {
+                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                if (!file_exists($rutaCompleta)) {
+                    error_log("[Video::obtenerPorId] Archivo no encontrado: {$rutaCompleta}");
+                    return false;
+                }
+            }
+
+            return $video;
         } catch (PDOException $e) {
             error_log("[Video::obtenerPorId] Error: " . $e->getMessage());
             return false;
@@ -371,7 +394,18 @@ class Video
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Filtrar videos cuyos archivos no existen
+            $videosExistentes = array_filter($videos, function($video) {
+                if (empty($video['archivo_path'])) {
+                    return false;
+                }
+                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                return file_exists($rutaCompleta);
+            });
+
+            return array_values($videosExistentes);
         } catch (PDOException $e) {
             error_log("[Video::obtenerMasPopulares] Error: " . $e->getMessage());
             return false;
@@ -430,7 +464,18 @@ class Video
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Filtrar videos cuyos archivos no existen
+            $videosExistentes = array_filter($videos, function($video) {
+                if (empty($video['archivo_path'])) {
+                    return false;
+                }
+                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                return file_exists($rutaCompleta);
+            });
+
+            return array_values($videosExistentes);
         } catch (PDOException $e) {
             // Si falla FULLTEXT, usar LIKE como fallback
             return $this->obtenerTodos(['busqueda' => $busqueda], $limit, $offset);
@@ -525,6 +570,68 @@ class Video
         } catch (PDOException $e) {
             error_log("[Video::estadisticasPorGrado] Error: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Filtra videos verificando que sus archivos existan físicamente
+     *
+     * @param array $videos Array de videos a filtrar
+     * @return array Videos cuyo archivo existe
+     */
+    private function filtrarVideosExistentes(array $videos): array
+    {
+        $videosExistentes = array_filter($videos, function($video) {
+            if (empty($video['archivo_path'])) {
+                return false;
+            }
+            $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+            return file_exists($rutaCompleta);
+        });
+
+        return array_values($videosExistentes);
+    }
+
+    /**
+     * Marca como inactivos los videos cuyos archivos no existen
+     * Útil para limpieza periódica de la base de datos
+     *
+     * @return int Número de videos marcados como inactivos
+     */
+    public function marcarVideosHuerfanos(): int
+    {
+        $query = "SELECT id, archivo_path FROM {$this->table} WHERE estado = 'activo'";
+
+        try {
+            $stmt = $this->conn->query($query);
+            $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $marcados = 0;
+
+            foreach ($videos as $video) {
+                if (empty($video['archivo_path'])) {
+                    continue;
+                }
+
+                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+
+                if (!file_exists($rutaCompleta)) {
+                    // Marcar como inactivo
+                    $updateQuery = "UPDATE {$this->table} SET estado = 'error' WHERE id = :id";
+                    $updateStmt = $this->conn->prepare($updateQuery);
+                    $updateStmt->bindParam(':id', $video['id'], PDO::PARAM_INT);
+
+                    if ($updateStmt->execute()) {
+                        $marcados++;
+                        error_log("[Video::marcarVideosHuerfanos] Video ID {$video['id']} marcado como error - archivo no encontrado: {$rutaCompleta}");
+                    }
+                }
+            }
+
+            return $marcados;
+        } catch (PDOException $e) {
+            error_log("[Video::marcarVideosHuerfanos] Error: " . $e->getMessage());
+            return 0;
         }
     }
 }
