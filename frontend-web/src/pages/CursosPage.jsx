@@ -93,45 +93,64 @@ const CursosPage = () => {
         </div>
       </div>
 
-      {/* Grid de Grados - Números Gigantes Circulares */}
+      {/* Grid de Grados - Botones Rectangulares */}
       <div className="container mx-auto px-4 py-16">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-salesiano-azul-600"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {grados.map((grado, index) => {
               // Alternar entre azul y amarillo salesiano
               const isAzul = index % 2 === 0;
-              const baseColor = isAzul ? 'salesiano-azul' : 'salesiano-amarillo';
+              const colors = isAzul
+                ? { from: 'from-salesiano-azul-500', to: 'to-salesiano-azul-600', icon: 'text-salesiano-azul-600' }
+                : { from: 'from-salesiano-amarillo-400', to: 'to-salesiano-amarillo-500', icon: 'text-salesiano-amarillo-600' };
 
               // Extraer número del grado
               const gradoNumero = grado.nombre.match(/\d+/)?.[0] || (index + 1);
-              const gradoSufijo = grado.nombre.includes('1ro') ? 'ro' :
-                                 grado.nombre.includes('2do') ? 'do' :
-                                 grado.nombre.includes('3ro') ? 'ro' : 'to';
 
               return (
                 <button
                   key={grado.id}
                   onClick={() => handleGradoClick(grado.id)}
-                  className={`group relative overflow-hidden bg-gradient-to-br from-${baseColor}-500 to-${baseColor}-600 rounded-full aspect-square shadow-2xl hover:shadow-3xl transform hover:scale-110 transition-all duration-300 flex items-center justify-center`}
+                  className={`group relative overflow-hidden bg-white rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 p-8`}
                 >
-                  <div className="text-center">
-                    {/* Número Gigante */}
-                    <div className="text-7xl md:text-8xl font-black text-white mb-2">
-                      {gradoNumero}
+                  {/* Fondo degradado en hover */}
+                  <div className={`absolute inset-0 bg-gradient-to-br ${colors.from} ${colors.to} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+
+                  <div className="relative text-center">
+                    {/* Icono con número grande */}
+                    <div className="mb-4 flex justify-center">
+                      <div className={`w-24 h-24 bg-gradient-to-br ${colors.from} ${colors.to} rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-white transition-all duration-300`}>
+                        <div className="text-5xl font-black text-white group-hover:text-salesiano-azul-700 transition-colors duration-300">
+                          {gradoNumero}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Sufijo */}
-                    <div className="text-2xl md:text-3xl font-bold text-white/90">
-                      {gradoSufijo}
+                    {/* Nombre completo del grado */}
+                    <h3 className="text-xl font-bold text-gray-800 group-hover:text-white mb-2 transition-colors duration-300">
+                      {grado.nombre}
+                    </h3>
+
+                    {/* Descripción (si existe) */}
+                    {grado.descripcion && (
+                      <p className="text-sm text-gray-600 group-hover:text-white/90 transition-colors duration-300">
+                        {grado.descripcion}
+                      </p>
+                    )}
+
+                    {/* Icono de flecha */}
+                    <div className="flex justify-center mt-4">
+                      <div className={`w-10 h-10 ${isAzul ? 'bg-salesiano-azul-100' : 'bg-salesiano-amarillo-100'} group-hover:bg-white rounded-full flex items-center justify-center transition-all duration-300`}>
+                        <svg className={`w-5 h-5 ${colors.icon} group-hover:text-salesiano-azul-700`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Overlay sutil en hover */}
-                  <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity duration-300 rounded-full"></div>
                 </button>
               );
             })}
