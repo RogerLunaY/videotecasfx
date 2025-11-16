@@ -1,0 +1,315 @@
+@startuml Diagrama Entidad-Relación
+
+title Diagrama de Base de Datos - Videoteca San Francisco Xavier
+
+!define table(x) class x << (T,#FFAAAA) >>
+!define primary_key(x) <u>x</u>
+!define foreign_key(x) #x
+
+hide methods
+hide stereotypes
+
+' ===========================
+' TABLA USUARIOS
+' ===========================
+table(usuarios) {
+    primary_key(id): INT AUTO_INCREMENT
+    --
+    nombre: VARCHAR(100) NOT NULL
+    apellido_paterno: VARCHAR(100) NOT NULL
+    apellido_materno: VARCHAR(100)
+    email: VARCHAR(255) UNIQUE NOT NULL
+    password: VARCHAR(255) NOT NULL
+    rol: ENUM('Administrador', 'Docente', 'Estudiante')
+    ci: VARCHAR(20) UNIQUE
+    telefono: VARCHAR(20)
+    estado: ENUM('activo', 'inactivo') DEFAULT 'activo'
+    ultimo_acceso: DATETIME
+    fecha_creacion: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_actualizacion: TIMESTAMP ON UPDATE
+    ==
+    INDEX idx_email
+    INDEX idx_rol
+    INDEX idx_estado
+}
+
+' ===========================
+' TABLA MATERIAS
+' ===========================
+table(materias) {
+    primary_key(id): INT AUTO_INCREMENT
+    --
+    nombre: VARCHAR(100) NOT NULL
+    sigla: VARCHAR(10) NOT NULL
+    descripcion: TEXT
+    color: VARCHAR(7)
+    icono: VARCHAR(50)
+    fecha_creacion: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ==
+    UNIQUE KEY unique_sigla
+}
+
+' ===========================
+' TABLA GRADOS
+' ===========================
+table(grados) {
+    primary_key(id): INT AUTO_INCREMENT
+    --
+    nombre: VARCHAR(50) NOT NULL
+    nivel: ENUM('Primaria', 'Secundaria')
+    orden: INT NOT NULL
+    fecha_creacion: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ==
+    UNIQUE KEY unique_nombre
+    INDEX idx_nivel
+}
+
+' ===========================
+' TABLA TEMAS
+' ===========================
+table(temas) {
+    primary_key(id): INT AUTO_INCREMENT
+    --
+    foreign_key(materia_id): INT NOT NULL
+    nombre: VARCHAR(200) NOT NULL
+    descripcion: TEXT
+    fecha_creacion: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ==
+    FOREIGN KEY (materia_id) REFERENCES materias(id)
+    INDEX idx_materia
+}
+
+' ===========================
+' TABLA VIDEOS
+' ===========================
+table(videos) {
+    primary_key(id): INT AUTO_INCREMENT
+    --
+    titulo: VARCHAR(255) NOT NULL
+    descripcion: TEXT
+    archivo_path: VARCHAR(500) NOT NULL
+    archivo_nombre: VARCHAR(255) NOT NULL
+    thumbnail_path: VARCHAR(500)
+    duracion: INT
+    tamanio: BIGINT
+    formato: VARCHAR(10)
+    resolucion: VARCHAR(20)
+    codec: VARCHAR(50)
+    foreign_key(tema_id): INT
+    foreign_key(materia_id): INT NOT NULL
+    foreign_key(grado_id): INT NOT NULL
+    foreign_key(docente_id): INT NOT NULL
+    visualizaciones: INT DEFAULT 0
+    estado: ENUM('activo', 'inactivo', 'procesando', 'error')
+    fecha_subida: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    fecha_actualizacion: TIMESTAMP ON UPDATE
+    ==
+    FOREIGN KEY (tema_id) REFERENCES temas(id)
+    FOREIGN KEY (materia_id) REFERENCES materias(id)
+    FOREIGN KEY (grado_id) REFERENCES grados(id)
+    FOREIGN KEY (docente_id) REFERENCES usuarios(id)
+    INDEX idx_materia
+    INDEX idx_grado
+    INDEX idx_tema
+    INDEX idx_docente
+    INDEX idx_estado
+    INDEX idx_visualizaciones
+    FULLTEXT KEY fulltext_busqueda (titulo, descripcion)
+}
+
+' ===========================
+' TABLA REPRODUCCIONES
+' ===========================
+table(reproducciones) {
+    primary_key(id): BIGINT AUTO_INCREMENT
+    --
+    foreign_key(video_id): INT NOT NULL
+    foreign_key(usuario_id): INT
+    ip_address: VARCHAR(45)
+    user_agent: VARCHAR(500)
+    tiempo_reproducido: INT DEFAULT 0
+    porcentaje_visto: DECIMAL(5,2) DEFAULT 0
+    completado: BOOLEAN DEFAULT FALSE
+    fecha_reproduccion: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ==
+    FOREIGN KEY (video_id) REFERENCES videos(id)
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    INDEX idx_video
+    INDEX idx_usuario
+    INDEX idx_fecha
+    INDEX idx_completado
+}
+
+' ===========================
+' TABLA LOGS
+' ===========================
+table(logs) {
+    primary_key(id): BIGINT AUTO_INCREMENT
+    --
+    nivel: ENUM('debug', 'info', 'warning', 'error', 'critical')
+    mensaje: TEXT NOT NULL
+    contexto: JSON
+    foreign_key(usuario_id): INT
+    ip_address: VARCHAR(45)
+    user_agent: VARCHAR(500)
+    fecha: TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ==
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+    INDEX idx_nivel
+    INDEX idx_usuario
+    INDEX idx_fecha
+}
+
+' ===========================
+' VISTAS
+' ===========================
+table(vista_videos_completos) <<VIEW>> {
+    Campos:
+    - v.* (todos los campos de videos)
+    - m.nombre as materia_nombre
+    - m.sigla as materia_sigla
+    - m.color as materia_color
+    - g.nombre as grado_nombre
+    - g.nivel as grado_nivel
+    - t.nombre as tema_nombre
+    - CONCAT(u.nombre, ' ', u.apellido_paterno) as docente_nombre
+    - u.email as docente_email
+    ==
+    Joins:
+    - INNER JOIN materias m
+    - INNER JOIN grados g
+    - LEFT JOIN temas t
+    - INNER JOIN usuarios u
+}
+
+table(vista_videos_populares) <<VIEW>> {
+    Campos:
+    - Igual que vista_videos_completos
+    ==
+    Orden:
+    - ORDER BY visualizaciones DESC
+    - ORDER BY fecha_subida DESC
+}
+
+table(vista_estadisticas_videos) <<VIEW>> {
+    Campos:
+    - video_id
+    - total_reproducciones
+    - reproducciones_completas
+    - tiempo_total_reproducido
+    - usuarios_unicos
+    - promedio_porcentaje_visto
+    ==
+    Agrupación:
+    - GROUP BY video_id
+}
+
+' ===========================
+' RELACIONES
+' ===========================
+materias "1" -- "N" temas : tiene
+materias "1" -- "N" videos : categoriza
+
+grados "1" -- "N" videos : agrupa
+
+temas "0..1" -- "N" videos : detalla
+
+usuarios "1" -- "N" videos : sube
+usuarios "1" -- "N" reproducciones : realiza
+usuarios "1" -- "N" logs : genera
+
+videos "1" -- "N" reproducciones : registra
+
+' ===========================
+' NOTAS Y CONSTRAINTS
+' ===========================
+note right of usuarios
+  ROLES:
+  - Administrador: Acceso total
+  - Docente: Solo sus videos
+  - Estudiante: Solo visualización
+
+  PASSWORD:
+  - Hasheado con bcrypt
+  - Cost: 12
+end note
+
+note right of videos
+  ESTADO:
+  - activo: Visible y reproducible
+  - inactivo: Oculto
+  - procesando: Siendo procesado
+  - error: Error en procesamiento
+
+  ARCHIVO_PATH:
+  - Formato: uploads/videos/materia_X/grado_Y/archivo.mp4
+  - Relativo al directorio backend/
+  - NO ruta absoluta
+
+  FULLTEXT INDEX:
+  - Permite búsqueda rápida
+  - En campos: titulo, descripcion
+end note
+
+note right of reproducciones
+  TRACKING:
+  - Anónimo: usuario_id = NULL
+  - Autenticado: usuario_id presente
+
+  ESTADÍSTICAS:
+  - Tiempo reproducido en segundos
+  - Porcentaje visto (0-100)
+  - Completado si >= 90%
+end note
+
+note right of logs
+  CONTEXTO (JSON):
+  - video_id
+  - accion
+  - datos_adicionales
+
+  ROTACIÓN:
+  - Automática cada 30 días
+  - Configurable en app.php
+end note
+
+note top of vista_videos_completos
+  VISTA PRINCIPAL:
+  - Usada en la mayoría de consultas
+  - Incluye nombres legibles
+  - Evita JOINs repetitivos
+
+  FILTROS APLICABLES:
+  - Por materia
+  - Por grado
+  - Por tema
+  - Por docente
+  - Por estado
+end note
+
+note top of vista_estadisticas_videos
+  AGREGACIÓN:
+  - Calculada desde reproducciones
+  - Actualizada en tiempo real
+  - Usada en dashboard y reportes
+end note
+
+' ===========================
+' ÍNDICES IMPORTANTES
+' ===========================
+note bottom of videos
+  ÍNDICES OPTIMIZADOS:
+
+  1. idx_materia: Filtros por materia
+  2. idx_grado: Filtros por grado
+  3. idx_docente: Filtros por docente
+  4. idx_estado: Solo videos activos
+  5. idx_visualizaciones: Videos populares
+  6. fulltext_busqueda: Búsqueda de texto
+
+  COMPOSITE INDEX potencial:
+  (materia_id, grado_id, estado)
+  para consultas frecuentes
+end note
+
+@enduml

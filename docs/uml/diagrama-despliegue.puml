@@ -1,0 +1,383 @@
+@startuml Diagrama de Despliegue
+
+title Diagrama de Despliegue - Videoteca San Francisco Xavier
+
+' ===========================
+' ESTILOS
+' ===========================
+skinparam node {
+    BackgroundColor<<Web>> LightBlue
+    BackgroundColor<<App>> LightGreen
+    BackgroundColor<<Database>> LightYellow
+    BackgroundColor<<Storage>> LightCoral
+}
+
+' ===========================
+' CLIENTE
+' ===========================
+node "Cliente (Navegador)" <<Web>> {
+    component [Navegador Web] {
+        artifact "React Application" as ReactApp
+        artifact "index.html" as HTML
+        artifact "bundle.js" as JS
+        artifact "styles.css" as CSS
+    }
+}
+
+' ===========================
+' SERVIDOR WEB
+' ===========================
+node "Servidor Web" <<App>> {
+
+    node "Apache HTTP Server" as Apache {
+        component [mod_rewrite]
+        component [mod_php]
+        component [.htaccess]
+    }
+
+    node "PHP 8.x Runtime" as PHP {
+        component [PHP-FPM]
+        artifact "Backend API" as BackendAPI {
+            folder "controllers/"
+            folder "models/"
+            folder "middleware/"
+            folder "utils/"
+            folder "config/"
+        }
+    }
+
+    node "Vite Dev Server\n(Desarrollo)" as Vite {
+        component [HMR - Hot Module Replacement]
+        component [Development Server]
+    }
+}
+
+' ===========================
+' BASE DE DATOS
+' ===========================
+node "Servidor de Base de Datos" <<Database>> {
+    database "MySQL 8.0" as MySQL {
+        storage "videoteca_sfx" as DB {
+            folder "videos"
+            folder "usuarios"
+            folder "materias"
+            folder "grados"
+            folder "temas"
+            folder "reproducciones"
+            folder "logs"
+        }
+    }
+}
+
+' ===========================
+' ALMACENAMIENTO
+' ===========================
+node "Almacenamiento de Archivos" <<Storage>> {
+    storage "File System" as FileSystem {
+        folder "uploads/" {
+            folder "videos/" {
+                artifact "video_1.mp4"
+                artifact "video_2.mp4"
+                artifact "..."
+            }
+            folder "thumbnails/" {
+                artifact "thumb_1.jpg"
+                artifact "thumb_2.jpg"
+                artifact "..."
+            }
+        }
+        folder "logs/" {
+            artifact "app.log"
+            artifact "error.log"
+        }
+    }
+}
+
+' ===========================
+' HERRAMIENTAS EXTERNAS
+' ===========================
+node "Herramientas del Sistema" {
+    component [FFmpeg] #LightPink
+    component [getID3 Library] #LightPink
+}
+
+' ===========================
+' COMUNICACIONES
+' ===========================
+
+' Cliente -> Servidor
+[Navegador Web] --> Apache : HTTPS/HTTP (443/80)\nGET, POST, PUT, DELETE
+[Navegador Web] ..> Vite : HTTP (5173)\n(Solo desarrollo)
+
+note on link
+  Requests:
+  - GET /api/videos
+  - POST /api/videos
+  - GET /api/videos/{id}/stream
+  - Headers: Authorization
+end note
+
+' Apache -> PHP
+Apache --> [.htaccess] : Reescritura de URLs
+[.htaccess] --> BackendAPI : Enruta a index.php
+[mod_php] --> PHP : Ejecuta PHP
+
+' Backend -> Database
+BackendAPI --> MySQL : PDO Connection\nPort 3306
+note on link
+  Queries SQL:
+  - SELECT, INSERT, UPDATE, DELETE
+  - Prepared Statements
+  - Transacciones
+end note
+
+' Backend -> File System
+BackendAPI --> FileSystem : Read/Write Files
+note on link
+  Operaciones:
+  - Upload videos
+  - Generar thumbnails
+  - Escribir logs
+  - Verificar existencia
+end note
+
+' Backend -> Herramientas
+BackendAPI ..> FFmpeg : Ejecuta comandos shell
+BackendAPI ..> [getID3 Library] : Require PHP
+
+note right of FFmpeg
+  Uso:
+  - Extraer metadatos (ffprobe)
+  - Generar thumbnails (ffmpeg)
+  - Convertir formatos (opcional)
+
+  Ejemplo:
+  ffmpeg -i video.mp4 \\
+    -ss 5 -vframes 1 \\
+    thumb.jpg
+end note
+
+note right of [getID3 Library]
+  Fallback cuando FFmpeg
+  no está disponible.
+
+  Extrae:
+  - Duración
+  - Resolución
+  - Codec
+  - Bitrate
+end note
+
+' ===========================
+' DESPLIEGUE EN PRODUCCIÓN
+' ===========================
+package "Producción" {
+    node "Servidor LAMP/LEMP" as ProdServer {
+        component "Nginx / Apache"
+        component "PHP 8.x"
+        component "MySQL 8.0"
+    }
+
+    cloud "CDN (Opcional)" as CDN {
+        component [Cloudflare]
+        component [AWS CloudFront]
+    }
+
+    storage "NAS / Object Storage" as NAS {
+        artifact "Videos"
+        artifact "Thumbnails"
+    }
+}
+
+[Navegador Web] ..> CDN : Cacheo de assets\nestáticos
+CDN ..> ProdServer : Si no en cache
+
+ProdServer ..> NAS : Almacenamiento\nescalable
+
+' ===========================
+' DESPLIEGUE EN DESARROLLO
+' ===========================
+package "Desarrollo" {
+    node "Localhost / Laragon" as DevServer {
+        component "Apache 2.4"
+        component "PHP 8.2"
+        component "MySQL 8.0"
+        component "Vite Dev Server"
+    }
+}
+
+' ===========================
+' CONFIGURACIÓN DE RED
+' ===========================
+note top of Apache
+  CONFIGURACIÓN APACHE:
+
+  Virtual Host:
+  <VirtualHost *:80>
+    ServerName videotecasfx.test
+    DocumentRoot /path/to/backend
+
+    <Directory /path/to/backend>
+      AllowOverride All
+      Require all granted
+    </Directory>
+  </VirtualHost>
+
+  .htaccess:
+  - RewriteEngine On
+  - RewriteRule para SPA
+  - CORS headers
+end note
+
+note bottom of MySQL
+  CONFIGURACIÓN MySQL:
+
+  Database: videoteca_sfx
+  User: videoteca_user
+  Password: {configurado en .env}
+  Port: 3306
+  Charset: utf8mb4
+  Collation: utf8mb4_unicode_ci
+
+  Configuraciones:
+  - max_allowed_packet = 500M
+  - innodb_buffer_pool_size
+  - query_cache_size
+end note
+
+note right of FileSystem
+  ESTRUCTURA DE DIRECTORIOS:
+
+  videotecasfx/
+  ├── backend/
+  │   ├── uploads/
+  │   │   ├── videos/
+  │   │   └── thumbnails/
+  │   ├── logs/
+  │   ├── controllers/
+  │   ├── models/
+  │   └── config/
+  └── frontend-web/
+      ├── src/
+      ├── public/
+      └── dist/ (build)
+
+  Permisos:
+  - uploads/: 755
+  - logs/: 755
+  - Archivos: 644
+end note
+
+note bottom of Vite
+  DESARROLLO:
+
+  Vite Dev Server:
+  - Port: 5173
+  - Hot Module Replacement
+  - Fast Refresh
+  - Proxy a Backend
+
+  Build:
+  npm run build
+  → Genera dist/
+
+  Deploy:
+  Copiar dist/ a backend/public/
+end note
+
+note left of ProdServer
+  PRODUCCIÓN:
+
+  Servidor:
+  - Linux (Ubuntu/CentOS)
+  - Nginx o Apache
+  - PHP-FPM
+  - MySQL/MariaDB
+
+  SSL/TLS:
+  - Certificado Let's Encrypt
+  - HTTPS obligatorio
+  - HTTP -> HTTPS redirect
+
+  Optimizaciones:
+  - Gzip compression
+  - Browser caching
+  - OPcache PHP
+  - Query cache MySQL
+end note
+
+note right of NAS
+  ALMACENAMIENTO:
+
+  Opciones:
+  1. File System local
+  2. NAS (Network Attached Storage)
+  3. Object Storage (S3, MinIO)
+  4. CDN para distribución
+
+  Ventajas almacenamiento externo:
+  - Escalabilidad
+  - Backup automático
+  - Disponibilidad
+  - Distribución geográfica
+end note
+
+' ===========================
+' FLUJO DE DEPLOYMENT
+' ===========================
+note as DeploymentFlow
+  FLUJO DE DEPLOYMENT:
+
+  1. Desarrollo Local:
+     - Vite Dev Server (Frontend)
+     - Apache + PHP (Backend)
+     - MySQL local
+
+  2. Build Frontend:
+     npm run build
+     → Genera bundle optimizado
+
+  3. Deploy Backend:
+     - Subir código PHP
+     - Configurar .env
+     - Permisos de directorios
+
+  4. Deploy Frontend:
+     - Copiar dist/ a servidor
+     - Configurar server para SPA
+
+  5. Base de Datos:
+     - Ejecutar migraciones
+     - Importar datos iniciales
+
+  6. Configuración Servidor:
+     - Virtual hosts
+     - SSL/TLS
+     - Firewall
+     - Cron jobs (logs)
+end note
+
+' ===========================
+' SEGURIDAD
+' ===========================
+note as SecurityNote
+  SEGURIDAD:
+
+  1. HTTPS obligatorio en producción
+  2. JWT para autenticación
+  3. CORS configurado correctamente
+  4. Validación de inputs
+  5. Prepared statements (SQL Injection)
+  6. XSS protection
+  7. CSRF tokens (si aplicable)
+  8. Rate limiting
+  9. Sanitización de nombres de archivo
+  10. Permisos de archivo restrictivos
+
+  Firewall:
+  - Puerto 80 (HTTP)
+  - Puerto 443 (HTTPS)
+  - Puerto 3306 (MySQL) solo localhost
+end note
+
+@enduml

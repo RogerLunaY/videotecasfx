@@ -1,0 +1,241 @@
+@startuml Casos de Uso - Videoteca SFX
+
+title Diagrama de Casos de Uso - Sistema Videoteca San Francisco Xavier
+
+left to right direction
+
+' ===========================
+' ACTORES
+' ===========================
+actor "Estudiante\n(Público)" as Estudiante
+actor "Docente" as Docente
+actor "Administrador" as Admin
+actor "Sistema\nExterno" as Sistema
+
+' ===========================
+' CASOS DE USO PÚBLICOS
+' ===========================
+package "Funcionalidades Públicas" {
+    usecase (Ver catálogo de videos) as UC1
+    usecase (Buscar videos) as UC2
+    usecase (Reproducir video) as UC3
+    usecase (Filtrar por materia) as UC4
+    usecase (Filtrar por grado) as UC5
+    usecase (Ver detalles de video) as UC6
+    usecase (Ver videos populares) as UC7
+    usecase (Ver videos recientes) as UC8
+}
+
+' ===========================
+' CASOS DE USO AUTENTICACIÓN
+' ===========================
+package "Autenticación" {
+    usecase (Iniciar sesión) as UC10
+    usecase (Cerrar sesión) as UC11
+    usecase (Verificar token) as UC12
+    usecase (Actualizar perfil) as UC13
+    usecase (Cambiar contraseña) as UC14
+}
+
+' ===========================
+' CASOS DE USO DOCENTE
+' ===========================
+package "Gestión de Videos - Docente" {
+    usecase (Subir video) as UC20
+    usecase (Editar video propio) as UC21
+    usecase (Eliminar video propio) as UC22
+    usecase (Ver mis videos) as UC23
+    usecase (Ver estadísticas propias) as UC24
+    usecase (Filtrar mis videos por grado) as UC25
+    usecase (Generar thumbnail manual) as UC26
+}
+
+' ===========================
+' CASOS DE USO ADMINISTRADOR
+' ===========================
+package "Administración del Sistema" {
+    usecase (Gestionar usuarios) as UC30
+    usecase (Crear usuario) as UC31
+    usecase (Editar usuario) as UC32
+    usecase (Eliminar usuario) as UC33
+    usecase (Ver todos los videos) as UC34
+    usecase (Editar cualquier video) as UC35
+    usecase (Eliminar cualquier video) as UC36
+    usecase (Ver estadísticas globales) as UC37
+    usecase (Gestionar materias) as UC38
+    usecase (Gestionar grados) as UC39
+    usecase (Gestionar temas) as UC40
+    usecase (Exportar estadísticas) as UC41
+    usecase (Ver videos huérfanos) as UC42
+    usecase (Limpiar videos huérfanos) as UC43
+}
+
+' ===========================
+' CASOS DE USO SISTEMA
+' ===========================
+package "Procesos del Sistema" {
+    usecase (Extraer metadatos) as UC50
+    usecase (Generar thumbnail automático) as UC51
+    usecase (Registrar reproducción) as UC52
+    usecase (Validar formato de video) as UC53
+    usecase (Optimizar para streaming) as UC54
+    usecase (Rotar logs) as UC55
+    usecase (Calcular espacio usado) as UC56
+}
+
+' ===========================
+' RELACIONES ESTUDIANTE
+' ===========================
+Estudiante --> UC1
+Estudiante --> UC2
+Estudiante --> UC3
+Estudiante --> UC4
+Estudiante --> UC5
+Estudiante --> UC6
+Estudiante --> UC7
+Estudiante --> UC8
+
+' ===========================
+' RELACIONES DOCENTE
+' ===========================
+Docente --> UC10
+Docente --> UC11
+Docente --> UC13
+Docente --> UC14
+Docente --> UC20
+Docente --> UC21
+Docente --> UC22
+Docente --> UC23
+Docente --> UC24
+Docente --> UC25
+Docente --> UC26
+
+' Docente también puede usar funcionalidades públicas
+Docente --> UC1
+Docente --> UC2
+Docente --> UC3
+
+' ===========================
+' RELACIONES ADMINISTRADOR
+' ===========================
+Admin --> UC10
+Admin --> UC11
+Admin --> UC13
+Admin --> UC14
+Admin --> UC30
+Admin --> UC31
+Admin --> UC32
+Admin --> UC33
+Admin --> UC34
+Admin --> UC35
+Admin --> UC36
+Admin --> UC37
+Admin --> UC38
+Admin --> UC39
+Admin --> UC40
+Admin --> UC41
+Admin --> UC42
+Admin --> UC43
+
+' Admin también puede subir videos
+Admin --> UC20
+
+' ===========================
+' RELACIONES SISTEMA
+' ===========================
+UC20 ..> UC50 : <<include>>
+UC20 ..> UC51 : <<include>>
+UC20 ..> UC53 : <<include>>
+UC3 ..> UC52 : <<include>>
+UC20 ..> UC54 : <<extend>>
+
+Sistema --> UC50
+Sistema --> UC51
+Sistema --> UC52
+Sistema --> UC55
+Sistema --> UC56
+
+' ===========================
+' RELACIONES DE EXTENSIÓN
+' ===========================
+UC21 ..> UC51 : <<extend>>
+UC35 ..> UC51 : <<extend>>
+UC37 ..> UC41 : <<extend>>
+
+' ===========================
+' RELACIONES DE INCLUSIÓN
+' ===========================
+UC23 ..> UC25 : <<include>>
+UC34 ..> UC4 : <<include>>
+UC34 ..> UC5 : <<include>>
+
+' ===========================
+' GENERALIZACIÓN
+' ===========================
+Docente --|> Estudiante : es un
+Admin --|> Docente : es un
+
+' ===========================
+' RESTRICCIONES
+' ===========================
+note right of UC23
+  RESTRICCIÓN:
+  - Solo videos propios
+  - Estado: activo
+  - Sin huérfanos
+end note
+
+note right of UC34
+  PRIVILEGIO ADMIN:
+  - Todos los videos
+  - Todos los estados
+  - Incluye huérfanos
+end note
+
+note right of UC21
+  RESTRICCIÓN:
+  - Solo si docente_id = user.id
+  - No puede editar videos
+    de otros docentes
+end note
+
+note right of UC35
+  PRIVILEGIO ADMIN:
+  - Puede editar videos
+    de cualquier docente
+end note
+
+note top of UC50
+  PROCESO AUTOMÁTICO:
+  1. FFmpeg (si disponible)
+  2. getID3 (fallback)
+  3. Básico (mínimo)
+
+  Extrae:
+  - Duración
+  - Resolución
+  - Codec
+  - Bitrate
+  - FPS
+end note
+
+note bottom of UC51
+  PROCESO AUTOMÁTICO:
+  - Requiere FFmpeg
+  - Captura frame en segundo 5
+  - Resolución: 640px ancho
+  - Formato: JPG
+  - Si falla: placeholder SVG
+end note
+
+note right of UC52
+  REGISTRA:
+  - video_id
+  - usuario_id (opcional)
+  - IP address
+  - User agent
+  - Timestamp
+  - Incrementa contador
+end note
+
+@enduml

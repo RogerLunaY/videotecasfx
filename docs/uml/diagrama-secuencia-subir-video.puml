@@ -1,0 +1,255 @@
+@startuml Secuencia - Subir Video
+
+title Diagrama de Secuencia - Subir Video
+
+actor "Docente" as Docente
+participant "Frontend\n(React)" as Frontend
+participant "Router" as Router
+participant "AuthMiddleware" as Auth
+participant "RoleMiddleware" as Role
+participant "VideoController" as Controller
+participant "ValidationMiddleware" as Validation
+participant "FileHandler" as FileHandler
+participant "VideoProcessor" as Processor
+participant "Video\n(Model)" as Model
+participant "Database" as DB
+participant "Logger" as Logger
+participant "getID3" as getID3
+
+' ===========================
+' AUTENTICACIÓN
+' ===========================
+Docente -> Frontend: Clic en "Subir Video"
+Frontend -> Frontend: Verificar isAuthenticated()
+Frontend -> Frontend: Verificar isDocente() o isAdmin()
+
+Frontend -> Docente: Mostrar formulario
+
+Docente -> Frontend: Completar datos:\n- Título\n- Descripción\n- Materia\n- Grado\n- Archivo de video\n- Thumbnail (opcional)
+
+Docente -> Frontend: Enviar formulario
+
+Frontend -> Frontend: Validar campos\nrequeridos
+
+Frontend -> Router: POST /api/videos\n(multipart/form-data)
+
+' ===========================
+' MIDDLEWARE
+' ===========================
+Router -> Auth: proteger()
+Auth -> Auth: Extraer token JWT\nde headers
+
+alt Token válido
+    Auth -> Auth: Verificar token
+    Auth -> Auth: Decodificar payload
+    Auth --> Router: Usuario autenticado\n{id, nombre, rol, email}
+else Token inválido o expirado
+    Auth --> Frontend: 401 Unauthorized\n{"error": "Token inválido"}
+    Frontend --> Docente: Mensaje de error\nRedirigir a login
+    [<-- Docente
+end
+
+Router -> Role: tieneRol(usuario.rol, ['Administrador', 'Docente'])
+
+alt Es Docente o Admin
+    Role --> Router: true
+else No tiene permisos
+    Role --> Frontend: 403 Forbidden
+    Frontend --> Docente: "No tienes permisos\npara subir videos"
+    [<-- Docente
+end
+
+' ===========================
+' VALIDACIÓN
+' ===========================
+Router -> Controller: store()
+
+Controller -> Validation: validar(data, reglas)
+Validation -> Validation: Validar titulo\n(required, min:3, max:255)
+Validation -> Validation: Validar materia_id\n(required, integer)
+Validation -> Validation: Validar grado_id\n(required, integer)
+
+alt Validación fallida
+    Validation --> Controller: false
+    Controller --> Frontend: 400 Bad Request\n{"errores": [...]}
+    Frontend --> Docente: Mostrar errores
+    [<-- Docente
+end
+
+Validation --> Controller: true
+
+Controller -> Controller: Verificar $_FILES['video']
+
+alt No hay archivo
+    Controller --> Frontend: 400 Bad Request\n"No se proporcionó archivo"
+    Frontend --> Docente: Error
+    [<-- Docente
+end
+
+' ===========================
+' SUBIDA DE ARCHIVO
+' ===========================
+Controller -> FileHandler: subirVideo(file, materiaId, gradoId)
+
+FileHandler -> FileHandler: Validar archivo\n- UPLOAD_ERR_OK\n- Tamaño < 500MB\n- MIME type válido
+
+alt Validación de archivo fallida
+    FileHandler --> Controller: false + errores[]
+    Controller --> Frontend: 400 Bad Request
+    Frontend --> Docente: Error en archivo
+    [<-- Docente
+end
+
+FileHandler -> FileHandler: Sanitizar nombre
+FileHandler -> FileHandler: Generar nombre único\n{nombre}_{timestamp}_{hash}.{ext}
+
+FileHandler -> FileHandler: Crear directorio\nuploads/videos/materia_X/grado_Y/
+
+FileHandler -> FileHandler: Mover archivo\nmove_uploaded_file()
+
+FileHandler -> FileHandler: Cambiar permisos\nchmod(0644)
+
+FileHandler -> FileHandler: Construir ruta relativa\n"uploads/videos/..."
+
+FileHandler --> Controller: {
+    nombre_original,
+    nombre_archivo,
+    ruta_completa,
+    ruta_relativa,
+    tamanio,
+    tipo_mime,
+    extension
+}
+
+' ===========================
+' EXTRACCIÓN DE METADATOS
+' ===========================
+Controller -> Processor: extraerMetadatos(rutaCompleta)
+
+Processor -> Processor: Verificar FFmpeg disponible
+
+alt FFmpeg disponible
+    Processor -> Processor: extraerMetadatosConFFprobe()
+    Processor -> Processor: Ejecutar ffprobe\nJSON output
+    Processor -> Processor: Parsear JSON
+    Processor --> Controller: {
+        duracion,
+        resolucion,
+        codec,
+        bitrate,
+        fps,
+        ancho,
+        alto
+    }
+else FFmpeg NO disponible
+    Processor -> Processor: extraerMetadatosBasicos()
+    Processor -> getID3: new getID3()
+    Processor -> getID3: analyze(rutaVideo)
+    getID3 --> Processor: {
+        playtime_seconds,
+        video: {
+            resolution_x,
+            resolution_y,
+            codec,
+            bitrate,
+            frame_rate
+        }
+    }
+    Processor -> Processor: Formatear datos
+    Processor --> Controller: {
+        duracion,
+        resolucion,
+        codec,
+        bitrate,
+        fps
+    }
+end
+
+' ===========================
+' THUMBNAIL
+' ===========================
+alt Usuario subió thumbnail
+    Controller -> FileHandler: subirThumbnail(file, nombreVideo)
+    FileHandler -> FileHandler: Validar imagen\n(JPG, PNG)
+    FileHandler -> FileHandler: Guardar en\nuploads/thumbnails/
+    FileHandler --> Controller: {ruta_relativa}
+else Sin thumbnail manual Y FFmpeg disponible
+    Controller -> Processor: generarThumbnail(rutaVideo, rutaThumbnail, 5)
+    Processor -> Processor: Ejecutar FFmpeg\n-ss 5 -vframes 1
+    Processor -> Processor: Capturar frame
+    Processor --> Controller: true/false
+else Sin thumbnail
+    Controller -> Controller: thumbnailPath = null\n(usará placeholder SVG)
+end
+
+' ===========================
+' GUARDAR EN BD
+' ===========================
+Controller -> Controller: Preparar datos del modelo
+
+Controller -> Model: Asignar propiedades:\n- titulo\n- descripcion\n- archivo_path (relativa)\n- archivo_nombre\n- thumbnail_path\n- duracion\n- tamanio\n- formato\n- resolucion\n- codec\n- tema_id\n- materia_id\n- grado_id\n- docente_id = usuario.id\n- estado = 'activo'
+
+Controller -> Model: crear()
+
+Model -> DB: INSERT INTO videos (...)
+
+alt Inserción exitosa
+    DB --> Model: lastInsertId = X
+    Model --> Controller: videoId = X
+else Error en BD
+    DB --> Model: PDOException
+    Model --> Controller: false
+    Controller -> FileHandler: eliminarVideo(rutaRelativa)
+    Controller -> FileHandler: eliminarThumbnail(rutaThumbnail)
+    Controller --> Frontend: 500 Internal Server Error
+    Frontend --> Docente: "Error al crear registro"
+    [<-- Docente
+end
+
+' ===========================
+' LOGGING Y RESPUESTA
+' ===========================
+Controller -> Logger: video('subido', videoId, titulo, usuario.id)
+Logger -> DB: INSERT INTO logs (...)
+
+Controller -> Model: obtenerPorId(videoId)
+Model -> DB: SELECT * FROM vista_videos_completos\nWHERE id = videoId
+DB --> Model: datos completos del video
+Model --> Controller: videoCreado
+
+Controller --> Frontend: 201 Created\n{
+    "success": true,
+    "message": "Video subido exitosamente",
+    "data": {
+        "video": {...}
+    }
+}
+
+Frontend -> Frontend: Actualizar UI
+Frontend --> Docente: ✅ "Video subido\nexitosamente"
+
+Frontend -> Docente: Redirigir a /mis-videos\no mostrar preview
+
+note right of FileHandler
+  Formato de ruta en BD:
+  uploads/videos/materia_1/grado_2/archivo_123_abc.mp4
+
+  NO se guarda ruta absoluta
+end note
+
+note right of Processor
+  Prioridad de extracción:
+  1. FFmpeg (completo)
+  2. getID3 (fallback)
+  3. Básico (mínimo)
+end note
+
+note right of Controller
+  El docente_id se asigna
+  automáticamente desde el
+  usuario autenticado.
+
+  No puede falsificarse.
+end note
+
+@enduml

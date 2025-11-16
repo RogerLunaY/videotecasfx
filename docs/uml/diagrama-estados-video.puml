@@ -1,0 +1,236 @@
+@startuml Diagrama de Estados - Video
+
+title Diagrama de Estados - Ciclo de Vida de un Video
+
+[*] --> Subiendo : Docente sube video
+
+state Subiendo {
+    [*] --> ValidandoArchivo : Archivo recibido
+    ValidandoArchivo --> ValidandoTamaño : MIME type válido
+    ValidandoTamaño --> GuardandoArchivo : Tamaño < 500MB
+    GuardandoArchivo --> [*] : Archivo guardado
+
+    ValidandoArchivo --> Error : MIME inválido
+    ValidandoTamaño --> Error : Tamaño excedido
+    GuardandoArchivo --> Error : Error de I/O
+}
+
+Subiendo --> Procesando : Upload exitoso
+
+state Procesando {
+    [*] --> ExtrayendoMetadatos
+    ExtrayendoMetadatos --> GenerandoThumbnail : Metadatos extraídos
+    GenerandoThumbnail --> [*] : Procesamiento completo
+
+    ExtrayendoMetadatos --> UsandoFallback : FFmpeg no disponible
+    UsandoFallback --> GenerandoThumbnail : getID3 usado
+
+    GenerandoThumbnail --> SinThumbnail : FFmpeg no disponible
+    SinThumbnail --> [*] : Usar placeholder
+}
+
+Procesando --> Activo : Procesamiento exitoso
+
+state Activo {
+    Activo : El video es visible y reproducible
+    Activo : Aparece en búsquedas y listados
+    Activo : Docentes y estudiantes pueden verlo
+    Activo : Se registran reproducciones
+    --
+    Activo : entry / Incrementar contador de videos
+    Activo : do / Permitir streaming
+    Activo : exit / Decrementar contador
+}
+
+Activo --> Inactivo : Docente/Admin desactiva
+
+state Inactivo {
+    Inactivo : Video no visible en búsquedas
+    Inactivo : No se puede reproducir
+    Inactivo : Solo visible para Admin
+    Inactivo : Archivo físico preservado
+    --
+    Inactivo : entry / Ocultar de listados
+    Inactivo : do / Rechazar reproducciones
+}
+
+Inactivo --> Activo : Docente/Admin reactiva
+
+state Error {
+    Error : Archivo no encontrado
+    Error : Error en procesamiento
+    Error : Archivo corrupto
+    Error : Formato no soportado
+    --
+    Error : entry / Marcar para revisión
+    Error : do / No permitir reproducción
+    Error : exit / Limpiar flags de error
+}
+
+Procesando --> Error : Procesamiento falló
+Activo --> Error : Archivo eliminado\nmanualmente
+Inactivo --> Error : Verificación falló
+
+Error --> Activo : Problema resuelto\nArchivo restaurado
+Error --> Eliminado : Admin elimina\nvideo definitivamente
+
+Activo --> Eliminado : Admin/Docente\nelimina
+Inactivo --> Eliminado : Admin elimina
+
+state Eliminado {
+    Eliminado : Registro eliminado de BD
+    Eliminado : Archivo físico eliminado
+    Eliminado : Thumbnail eliminado
+    Eliminado : Reproducciones preservadas
+    --
+    Eliminado : entry / Eliminar archivos
+    Eliminado : entry / Log de eliminación
+    Eliminado : exit / No hay salida
+}
+
+Eliminado --> [*]
+
+' ===========================
+' EVENTOS Y ACCIONES
+' ===========================
+note right of Subiendo
+  EVENTOS:
+  - POST /api/videos
+  - Archivo recibido
+  - Validaciones iniciadas
+
+  VALIDACIONES:
+  ✓ MIME type correcto
+  ✓ Tamaño < 500MB
+  ✓ Extensión permitida
+  ✓ Usuario autenticado
+  ✓ Rol adecuado (Docente/Admin)
+end note
+
+note right of Procesando
+  EXTRACCIÓN DE METADATOS:
+
+  Con FFmpeg:
+  - ffprobe para metadatos
+  - Duración, resolución, codec
+  - Bitrate, FPS
+
+  Sin FFmpeg:
+  - getID3 como fallback
+  - Metadatos básicos
+  - Sin thumbnail automático
+
+  RESULTADO:
+  → Estado: activo
+  → Visible para todos
+end note
+
+note right of Activo
+  VIDEO DISPONIBLE:
+
+  ✅ Visible en búsquedas
+  ✅ Reproducible
+  ✅ Aparece en:
+     - Videos recientes
+     - Videos populares
+     - Filtros por materia/grado
+
+  RESTRICCIONES POR ROL:
+  - Docentes: solo sus videos
+  - Admins: todos los videos
+  - Estudiantes: todos activos
+end note
+
+note right of Inactivo
+  VIDEO OCULTO:
+
+  ❌ No aparece en búsquedas
+  ❌ No reproducible
+  ❌ No en listados públicos
+
+  ✅ Visible para admin
+  ✅ Archivo preservado
+  ✅ Puede reactivarse
+
+  USO:
+  - Videos temporalmente no disponibles
+  - Contenido en revisión
+  - Pausar sin eliminar
+end note
+
+note right of Error
+  CAUSAS DE ERROR:
+
+  1. Archivo no existe (huérfano)
+  2. Procesamiento falló
+  3. Formato corrupto
+  4. Error de servidor
+
+  ACCIONES:
+  - Marcar para revisión
+  - Notificar a admin
+  - Log detallado
+  - No mostrar a usuarios
+
+  RECUPERACIÓN:
+  - Re-upload del archivo
+  - Corrección manual
+  - O eliminación definitiva
+end note
+
+note right of Eliminado
+  ELIMINACIÓN:
+
+  Físico:
+  - Archivo de video eliminado
+  - Thumbnail eliminado
+  - Logs de eliminación
+
+  Base de Datos:
+  - Registro eliminado
+  - Reproducciones preservadas
+    (para estadísticas)
+
+  IRREVERSIBLE:
+  No se puede recuperar
+end note
+
+' ===========================
+' TRANSICIONES ESPECIALES
+' ===========================
+note on link
+  Validación automática
+  del sistema
+end note
+Subiendo --> Error
+
+note on link
+  Verificación periódica
+  de archivos huérfanos
+end note
+Activo --> Error
+
+note on link
+  Soft delete:
+  Preserva estadísticas
+end note
+Activo --> Eliminado
+
+' ===========================
+' ESTADOS CONCURRENTES
+' ===========================
+note bottom of Activo
+  MIENTRAS ESTÁ ACTIVO:
+
+  Estados concurrentes:
+  - Reproducciones: 0 a N
+  - Visualizaciones: incrementando
+  - Estadísticas: actualizándose
+
+  Triggers:
+  - Cada reproducción → +1 visualizaciones
+  - Cada búsqueda → indexado
+  - Cada filtro → considerado
+end note
+
+@enduml

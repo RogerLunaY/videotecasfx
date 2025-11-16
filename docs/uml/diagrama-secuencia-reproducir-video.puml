@@ -1,0 +1,214 @@
+@startuml Secuencia - Reproducir Video
+
+title Diagrama de Secuencia - Reproducir Video con Streaming
+
+actor "Usuario" as Usuario
+participant "Frontend\n(React)" as Frontend
+participant "VideoPlayer\n(Component)" as Player
+participant "Router" as Router
+participant "VideoController" as Controller
+participant "Video\n(Model)" as Model
+participant "Reproduccion\n(Model)" as Repro
+participant "Database" as DB
+
+' ===========================
+' CARGAR PÁGINA DE DETALLE
+' ===========================
+Usuario -> Frontend: Clic en video
+
+Frontend -> Router: GET /api/videos/{id}
+
+Router -> Controller: show(id)
+
+Controller -> Model: obtenerPorId(id)
+
+Model -> DB: SELECT * FROM vista_videos_completos\nWHERE id = {id}
+
+alt Video existe
+    DB --> Model: datos del video
+    Model --> Controller: {
+        id,
+        titulo,
+        descripcion,
+        archivo_path,
+        thumbnail_path,
+        duracion,
+        resolucion,
+        visualizaciones,
+        materia_nombre,
+        grado_nombre,
+        docente_nombre,
+        ...
+    }
+else Video no existe
+    DB --> Model: null
+    Model --> Controller: false
+    Controller --> Frontend: 404 Not Found
+    Frontend --> Usuario: "Video no encontrado"
+    [<-- Usuario
+end
+
+Controller --> Frontend: 200 OK\n{"video": {...}}
+
+Frontend -> Frontend: Renderizar VideoDetailPage
+
+Frontend -> Frontend: Construir URL de streaming:\ngetStreamUrl(video.id)
+
+Frontend --> Usuario: Mostrar página con:\n- Título\n- Descripción\n- VideoPlayer\n- Información
+
+' ===========================
+' INICIAR REPRODUCCIÓN
+' ===========================
+Usuario -> Player: Clic en Play
+
+Player -> Player: Construir URL:\n/api/videos/{id}/stream
+
+Player -> Router: GET /api/videos/{id}/stream\n[Range: bytes=0-]
+
+Router -> Controller: stream(id)
+
+' ===========================
+' VERIFICAR VIDEO
+' ===========================
+Controller -> Model: obtenerPorId(id)
+Model -> DB: SELECT * FROM videos WHERE id = {id}
+DB --> Model: video data
+Model --> Controller: video
+
+alt Video no existe o inactivo
+    Controller --> Player: 404 Not Found
+    Player --> Usuario: Error de reproducción
+    [<-- Usuario
+end
+
+' ===========================
+' VERIFICAR ARCHIVO FÍSICO
+' ===========================
+Controller -> Controller: Construir ruta completa:\n__DIR__/../{archivo_path}
+
+Controller -> Controller: file_exists(rutaCompleta)
+
+alt Archivo no existe
+    Controller --> Player: 404 Not Found\n"Archivo no encontrado"
+    Player --> Usuario: Error
+    [<-- Usuario
+end
+
+' ===========================
+' REGISTRAR REPRODUCCIÓN
+' ===========================
+Controller -> Controller: registrarReproduccion(videoId)
+
+Controller -> Repro: Asignar datos:\n- video_id\n- usuario_id (si autenticado)\n- ip_address\n- user_agent\n- tiempo_reproducido = 0\n- porcentaje_visto = 0\n- completado = false
+
+Controller -> Repro: crear()
+
+Repro -> DB: INSERT INTO reproducciones (...)
+DB --> Repro: reproduccionId
+
+Controller -> Model: incrementarVisualizaciones(id)
+Model -> DB: UPDATE videos\nSET visualizaciones = visualizaciones + 1\nWHERE id = {id}
+
+' ===========================
+' CONFIGURAR STREAMING
+' ===========================
+Controller -> Controller: Obtener:\n- filesize\n- mime_content_type
+
+Controller -> Player: Headers:\nContent-Type: video/mp4\nAccept-Ranges: bytes\nContent-Disposition: inline
+
+alt Request tiene Range header
+    Controller -> Controller: Parsear Range:\nbytes={start}-{end}
+
+    alt Range inválido
+        Controller --> Player: 416 Range Not Satisfiable
+        Player --> Usuario: Error
+        [<-- Usuario
+    end
+
+    Controller -> Controller: Abrir archivo\nfseek(start)
+
+    Controller --> Player: 206 Partial Content\nContent-Range: bytes {start}-{end}/{total}\nContent-Length: {length}
+
+    loop Mientras queden bytes
+        Controller -> Controller: Leer chunk (8KB)
+        Controller --> Player: [chunk de datos]
+        Player -> Player: Buffer y reproducir
+    end
+
+else Sin Range header (descarga completa)
+    Controller --> Player: 200 OK\nContent-Length: {filesize}
+
+    Controller -> Controller: readfile(rutaCompleta)
+    Controller --> Player: [archivo completo]
+end
+
+Player --> Usuario: ▶️ Reproduciendo video
+
+' ===========================
+' REPRODUCCIÓN ADAPTATIVA
+' ===========================
+note right of Player
+  El navegador realiza
+  múltiples requests con
+  diferentes rangos según
+  el buffer necesario:
+
+  Range: bytes=0-1000000
+  Range: bytes=1000001-2000000
+  ...
+
+  Esto permite:
+  - Seek rápido
+  - Buffering eficiente
+  - Menos ancho de banda
+end note
+
+' ===========================
+' DURANTE LA REPRODUCCIÓN
+' ===========================
+loop Usuario reproduce
+    Player -> Player: Actualizar tiempo actual
+    Player -> Player: Actualizar porcentaje visto
+
+    alt Cada 30 segundos
+        Player -> Router: PUT /api/reproducciones/{id}\n{
+            tiempo_reproducido,
+            porcentaje_visto
+        }
+        note right: (Opcional - si se implementa)
+    end
+
+    alt Video terminado
+        Player -> Player: Marcar como completado
+        Player -> Router: PUT /api/reproducciones/{id}\n{completado: true}
+        note right: (Opcional - si se implementa)
+    end
+end
+
+' ===========================
+' MANEJO DE ERRORES
+' ===========================
+note over Controller, DB
+  ERRORES POSIBLES:
+
+  404: Video no existe
+  404: Archivo físico no existe
+  416: Range inválido
+  500: Error de servidor
+
+  El frontend maneja estos
+  errores mostrando mensajes
+  apropiados al usuario.
+end note
+
+note over Player
+  FORMATOS SOPORTADOS:
+  - MP4 (H.264 + AAC)
+  - WebM (VP8/VP9)
+  - OGG (Theora)
+
+  El navegador elige el
+  codec según disponibilidad.
+end note
+
+@enduml

@@ -1,0 +1,278 @@
+@startuml Secuencia - Login y Autenticación
+
+title Diagrama de Secuencia - Login y Autenticación JWT
+
+actor "Usuario" as Usuario
+participant "Frontend\n(React)" as Frontend
+participant "AuthContext" as Context
+participant "authService" as Service
+participant "Router" as Router
+participant "AuthController" as Controller
+participant "Usuario\n(Model)" as Model
+participant "Database" as DB
+participant "JWT Library" as JWT
+participant "Logger" as Logger
+
+' ===========================
+' CARGAR PÁGINA DE LOGIN
+' ===========================
+Usuario -> Frontend: Acceder a /login
+
+Frontend -> Context: Verificar isAuthenticated()
+
+alt Ya está autenticado
+    Context --> Frontend: true
+    Frontend --> Usuario: Redirigir a /dashboard
+    [<-- Usuario
+end
+
+Frontend --> Usuario: Mostrar formulario de login
+
+' ===========================
+' PROCESO DE LOGIN
+' ===========================
+Usuario -> Frontend: Ingresar:\n- Email\n- Contraseña
+
+Usuario -> Frontend: Clic en "Iniciar Sesión"
+
+Frontend -> Frontend: Validar campos:\n- Email válido\n- Contraseña no vacía
+
+alt Validación fallida
+    Frontend --> Usuario: Mostrar errores
+    [<-- Usuario
+end
+
+Frontend -> Service: login(email, password)
+
+Service -> Router: POST /api/auth/login\n{\n  "email": "...",\n  "password": "..."\n}
+
+' ===========================
+' BACKEND - AUTENTICACIÓN
+' ===========================
+Router -> Controller: login()
+
+Controller -> Controller: Obtener datos del body:\nemail, password
+
+Controller -> Controller: Validar campos requeridos
+
+alt Campos faltantes
+    Controller --> Service: 400 Bad Request\n{"error": "Datos incompletos"}
+    Service --> Frontend: Error
+    Frontend --> Usuario: "Por favor complete\ntodos los campos"
+    [<-- Usuario
+end
+
+' Buscar usuario por email
+Controller -> Model: obtenerPorEmail(email)
+
+Model -> DB: SELECT * FROM usuarios\nWHERE email = :email
+
+alt Usuario no existe
+    DB --> Model: []
+    Model --> Controller: false
+    Controller --> Service: 401 Unauthorized\n{"error": "Credenciales inválidas"}
+    Service --> Frontend: Error
+    Frontend --> Usuario: "Email o contraseña incorrectos"
+    [<-- Usuario
+end
+
+DB --> Model: usuario data
+
+alt Usuario inactivo
+    Model --> Controller: {estado: 'inactivo'}
+    Controller --> Service: 403 Forbidden\n{"error": "Usuario inactivo"}
+    Service --> Frontend: Error
+    Frontend --> Usuario: "Tu cuenta está inactiva"
+    [<-- Usuario
+end
+
+Model --> Controller: usuario
+
+' Verificar contraseña
+Controller -> Controller: password_verify(\n  password,\n  usuario['password']\n)
+
+alt Contraseña incorrecta
+    Controller --> Service: 401 Unauthorized
+    Service --> Frontend: Error
+    Frontend --> Usuario: "Email o contraseña incorrectos"
+    [<-- Usuario
+end
+
+' ===========================
+' GENERACIÓN DE TOKEN JWT
+' ===========================
+Controller -> Controller: Preparar payload:\n{\n  "id": usuario.id,\n  "email": usuario.email,\n  "nombre": usuario.nombre,\n  "rol": usuario.rol,\n  "iat": time(),\n  "exp": time() + 7200\n}
+
+Controller -> JWT: encode(payload, SECRET_KEY, 'HS256')
+
+JWT --> Controller: token (string)
+
+' ===========================
+' ACTUALIZAR ÚLTIMO ACCESO
+' ===========================
+Controller -> Model: Actualizar último_acceso
+
+Model -> DB: UPDATE usuarios\nSET ultimo_acceso = NOW()\nWHERE id = :id
+
+' ===========================
+' LOGGING
+' ===========================
+Controller -> Logger: acceso(usuario.id, ip, userAgent)
+
+Logger -> DB: INSERT INTO logs (\n  nivel = 'info',\n  mensaje = 'Login exitoso',\n  usuario_id = ...,\n  ip_address = ...\n)
+
+' ===========================
+' RESPUESTA AL CLIENTE
+' ===========================
+Controller --> Service: 200 OK\n{\n  "success": true,\n  "token": "eyJ0eXAi...",\n  "usuario": {\n    "id": 1,\n    "nombre": "...",\n    "email": "...",\n    "rol": "..."\n  }\n}
+
+Service -> Service: Guardar en localStorage:\n- token\n- usuario
+
+Service -> Context: login(usuario, token)
+
+Context -> Context: Actualizar estado:\n- isAuthenticated = true\n- user = usuario
+
+Context --> Frontend: Usuario autenticado
+
+Frontend --> Usuario: ✅ Login exitoso\nRedirigir a /dashboard
+
+' ===========================
+' PETICIONES SUBSECUENTES
+' ===========================
+note over Usuario, DB
+  PETICIONES CON AUTENTICACIÓN:
+
+  Todas las peticiones subsecuentes incluyen el token:
+  Authorization: Bearer {token}
+end note
+
+== Petición a Endpoint Protegido ==
+
+Usuario -> Frontend: Acceder a página protegida
+
+Frontend -> Service: getVideos()
+
+Service -> Service: Obtener token de localStorage
+
+Service -> Router: GET /api/videos\nAuthorization: Bearer {token}
+
+Router -> Controller: index()
+
+Controller -> Controller: Middleware: AuthMiddleware::proteger()
+
+Controller -> Controller: Extraer token del header
+
+Controller -> JWT: decode(token, SECRET_KEY, ['HS256'])
+
+alt Token inválido o expirado
+    JWT --> Controller: Exception
+    Controller --> Service: 401 Unauthorized
+    Service -> Context: logout()
+    Context -> Context: Limpiar estado y localStorage
+    Context --> Frontend: Usuario no autenticado
+    Frontend --> Usuario: Redirigir a /login
+    [<-- Usuario
+end
+
+JWT --> Controller: payload decodificado
+
+Controller -> Model: obtenerPorId(payload.id)
+
+alt Usuario no existe
+    Model --> Controller: false
+    Controller --> Service: 401 Unauthorized
+    Service --> Usuario: Redirigir a /login
+    [<-- Usuario
+end
+
+Model --> Controller: usuario verificado
+
+Controller -> Controller: Procesar request normal
+
+Controller --> Service: 200 OK + datos
+
+Service --> Frontend: Datos procesados
+
+Frontend --> Usuario: Mostrar contenido
+
+' ===========================
+' LOGOUT
+' ===========================
+== Proceso de Logout ==
+
+Usuario -> Frontend: Clic en "Cerrar Sesión"
+
+Frontend -> Service: logout()
+
+Service -> Router: POST /api/auth/logout\nAuthorization: Bearer {token}
+
+Router -> Controller: logout()
+
+Controller -> Logger: info('Usuario cerró sesión', ...)
+
+Controller --> Service: 200 OK
+
+Service -> Service: Limpiar localStorage:\n- token\n- usuario
+
+Service -> Context: logout()
+
+Context -> Context: Resetear estado:\n- isAuthenticated = false\n- user = null
+
+Context --> Frontend: Usuario desautenticado
+
+Frontend --> Usuario: Redirigir a /login
+
+' ===========================
+' NOTAS
+' ===========================
+note right of JWT
+  JWT (JSON Web Token):
+
+  Estructura:
+  - Header: {alg, typ}
+  - Payload: {id, email, rol, exp}
+  - Signature: HMAC SHA256
+
+  Ventajas:
+  - Stateless
+  - Auto-contenido
+  - Seguro (firmado)
+
+  Expiración:
+  - 2 horas (7200 segundos)
+  - Configurable en .env
+end note
+
+note right of Controller
+  SEGURIDAD:
+
+  1. Contraseñas hasheadas
+     con bcrypt (cost 12)
+
+  2. JWT firmado con SECRET_KEY
+     (256 bits mínimo)
+
+  3. Token en header, NO en URL
+
+  4. Validación de usuario activo
+
+  5. Logging de accesos
+
+  6. Rate limiting (futuro)
+end note
+
+note right of Context
+  PERSISTENCIA:
+
+  localStorage:
+  - Persiste entre recargas
+  - Accesible solo por dominio
+  - Límite ~5-10MB
+
+  Alternativa:
+  - sessionStorage
+  - Cookies httpOnly (más seguro)
+  - Redux persist
+end note
+
+@enduml

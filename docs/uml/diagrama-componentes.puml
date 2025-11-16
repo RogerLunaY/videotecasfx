@@ -1,0 +1,362 @@
+@startuml Diagrama de Componentes
+
+title Diagrama de Componentes - Videoteca San Francisco Xavier
+
+' ===========================
+' ESTILOS
+' ===========================
+skinparam component {
+    BackgroundColor<<Frontend>> LightBlue
+    BackgroundColor<<Backend>> LightGreen
+    BackgroundColor<<Database>> LightYellow
+    BackgroundColor<<External>> LightGray
+    BackgroundColor<<Library>> LightPink
+}
+
+' ===========================
+' FRONTEND
+' ===========================
+package "Frontend - React Application" <<Frontend>> {
+
+    component [React Router] as Router_FE
+
+    package "Pages" {
+        component [HomePage]
+        component [LoginPage]
+        component [DashboardPage]
+        component [VideoDetailPage]
+        component [UploadVideoPage]
+        component [UsuariosPage]
+    }
+
+    package "Components" {
+        component [Navbar]
+        component [VideoPlayer]
+        component [VideoCard]
+        component [UploadForm]
+        component [UserList]
+    }
+
+    package "Context" {
+        component [AuthContext]
+    }
+
+    package "Services" {
+        component [videoService]
+        component [authService]
+        component [userService]
+        component [statsService]
+    }
+
+    package "Utils" {
+        component [API Client]
+        component [Helpers]
+    }
+}
+
+' ===========================
+' BACKEND
+' ===========================
+package "Backend - PHP Application" <<Backend>> {
+
+    component [Router] as Router_BE
+    component [.htaccess] as htaccess
+
+    package "Controllers" {
+        component [VideoController]
+        component [AuthController]
+        component [UsuarioController]
+        component [StatsController]
+    }
+
+    package "Models" {
+        component [Video Model]
+        component [Usuario Model]
+        component [Materia Model]
+        component [Grado Model]
+        component [Tema Model]
+        component [Reproduccion Model]
+    }
+
+    package "Middleware" {
+        component [AuthMiddleware]
+        component [RoleMiddleware]
+        component [ValidationMiddleware]
+        component [CorsMiddleware]
+    }
+
+    package "Utils" {
+        component [FileHandler]
+        component [VideoProcessor]
+        component [Logger]
+        component [Database]
+    }
+
+    package "Config" {
+        component [app.php]
+        component [database.php]
+        component [cors.php]
+        component [.env]
+    }
+}
+
+' ===========================
+' BASE DE DATOS
+' ===========================
+package "Database Layer" <<Database>> {
+    database "MySQL Database" as MySQL {
+        component [videos]
+        component [usuarios]
+        component [materias]
+        component [grados]
+        component [temas]
+        component [reproducciones]
+        component [logs]
+        component [vistas SQL]
+    }
+}
+
+' ===========================
+' LIBRERÍAS EXTERNAS
+' ===========================
+package "External Libraries" <<External>> {
+    component [getID3] <<Library>>
+    component [FFmpeg] <<Library>>
+    component [JWT Library] <<Library>>
+}
+
+' ===========================
+' FILE SYSTEM
+' ===========================
+package "File System" <<External>> {
+    folder "uploads/" {
+        folder "videos/" {
+            folder "materia_1/" {
+                folder "grado_1/"
+                folder "grado_2/"
+            }
+            folder "materia_2/"
+        }
+        folder "thumbnails/"
+    }
+    folder "logs/"
+}
+
+' ===========================
+' RELACIONES FRONTEND
+' ===========================
+Router_FE --> HomePage
+Router_FE --> LoginPage
+Router_FE --> DashboardPage
+Router_FE --> VideoDetailPage
+Router_FE --> UploadVideoPage
+Router_FE --> UsuariosPage
+
+HomePage --> VideoCard
+HomePage --> Navbar
+DashboardPage --> VideoCard
+VideoDetailPage --> VideoPlayer
+UploadVideoPage --> UploadForm
+UsuariosPage --> UserList
+
+HomePage ..> videoService : usa
+DashboardPage ..> videoService : usa
+DashboardPage ..> statsService : usa
+VideoDetailPage ..> videoService : usa
+LoginPage ..> authService : usa
+UploadVideoPage ..> videoService : usa
+UsuariosPage ..> userService : usa
+
+videoService --> [API Client]
+authService --> [API Client]
+userService --> [API Client]
+statsService --> [API Client]
+
+[API Client] --> AuthContext : obtiene token
+Navbar --> AuthContext : verifica auth
+
+' ===========================
+' RELACIONES BACKEND
+' ===========================
+htaccess --> Router_BE : redirige todas las requests
+
+Router_BE --> VideoController
+Router_BE --> AuthController
+Router_BE --> UsuarioController
+Router_BE --> StatsController
+Router_BE --> CorsMiddleware
+
+VideoController ..> AuthMiddleware : verifica
+VideoController ..> RoleMiddleware : verifica
+VideoController ..> ValidationMiddleware : valida
+VideoController --> [Video Model]
+VideoController --> FileHandler
+VideoController --> VideoProcessor
+VideoController --> Logger
+
+AuthController --> [Usuario Model]
+AuthController --> Logger
+AuthController ..> [JWT Library] : genera tokens
+
+UsuarioController --> [Usuario Model]
+UsuarioController --> Logger
+UsuarioController ..> RoleMiddleware
+
+StatsController --> [Video Model]
+StatsController --> [Reproduccion Model]
+
+[Video Model] --> Database
+[Usuario Model] --> Database
+[Materia Model] --> Database
+[Grado Model] --> Database
+[Tema Model] --> Database
+[Reproduccion Model] --> Database
+
+Database --> MySQL
+
+FileHandler --> "uploads/" : escribe/lee
+FileHandler --> Logger
+FileHandler ..> app.php : configuración
+
+VideoProcessor ..> getID3 : metadatos
+VideoProcessor ..> FFmpeg : thumbnails/metadatos
+VideoProcessor --> Logger
+
+Logger --> logs : escribe
+Logger --> MySQL
+
+AuthMiddleware ..> [JWT Library] : verifica tokens
+RoleMiddleware ..> app.php : permisos
+
+' ===========================
+' COMUNICACIÓN FRONTEND-BACKEND
+' ===========================
+[API Client] --> htaccess : HTTP/HTTPS Requests
+
+' ===========================
+' NOTAS
+' ===========================
+note right of [API Client]
+  COMUNICACIÓN HTTP/HTTPS:
+  - GET /api/videos
+  - POST /api/videos
+  - PUT /api/videos/{id}
+  - DELETE /api/videos/{id}
+  - GET /api/videos/{id}/stream
+
+  HEADERS:
+  - Authorization: Bearer {token}
+  - Content-Type: application/json
+  - Content-Type: multipart/form-data
+end note
+
+note right of Router_BE
+  ROUTING:
+  - Analiza URI
+  - Extrae parámetros
+  - Ejecuta handler apropiado
+
+  PRIORIDAD:
+  1. Rutas estáticas
+  2. Rutas con parámetros + sub-ruta
+  3. Rutas genéricas con parámetros
+end note
+
+note bottom of CorsMiddleware
+  CORS:
+  - Permite orígenes configurados
+  - Headers: Authorization, Content-Type
+  - Methods: GET, POST, PUT, DELETE, OPTIONS
+  - Credentials: true
+end note
+
+note right of Database
+  PDO CONNECTION:
+  - Singleton pattern
+  - Prepared statements
+  - Transacciones
+  - Error handling
+end note
+
+note right of FileHandler
+  GESTIÓN DE ARCHIVOS:
+
+  Upload:
+  - Validación de tipo MIME
+  - Validación de tamaño
+  - Sanitización de nombres
+  - Generación de nombres únicos
+  - Organización por materia/grado
+
+  Storage:
+  - uploads/videos/materia_X/grado_Y/
+  - uploads/thumbnails/
+
+  Paths en BD:
+  - Siempre relativos desde uploads/
+end note
+
+note right of VideoProcessor
+  PROCESAMIENTO:
+
+  Con FFmpeg:
+  - Extracción completa de metadatos
+  - Generación de thumbnails
+  - Conversión a formatos web
+
+  Sin FFmpeg (getID3):
+  - Extracción básica de metadatos
+  - Duración, resolución, codec
+  - NO genera thumbnails
+end note
+
+note right of AuthMiddleware
+  AUTENTICACIÓN JWT:
+
+  Token contiene:
+  - id
+  - email
+  - nombre
+  - rol
+  - exp (expiración)
+
+  Verificación:
+  - Firma válida
+  - No expirado
+  - Usuario existe
+end note
+
+note right of RoleMiddleware
+  AUTORIZACIÓN:
+
+  Permisos por rol:
+  - Administrador: todos
+  - Docente: solo sus videos
+  - Estudiante: solo lectura
+
+  Validación:
+  - Rol requerido
+  - Propiedad del recurso
+  - Acciones permitidas
+end note
+
+note top of "uploads/"
+  FILE SYSTEM:
+
+  Estructura:
+  uploads/
+  ├── videos/
+  │   ├── materia_1/
+  │   │   ├── grado_1/
+  │   │   │   └── video_123_abc.mp4
+  │   │   └── grado_2/
+  │   └── materia_2/
+  └── thumbnails/
+      └── video_123_abc_thumb.jpg
+
+  Permisos:
+  - Directorios: 0755
+  - Archivos: 0644
+end note
+
+@enduml

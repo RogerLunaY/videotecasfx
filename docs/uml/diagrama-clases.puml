@@ -1,0 +1,397 @@
+@startuml Diagrama de Clases - Videoteca SFX
+
+title Diagrama de Clases - Sistema Videoteca San Francisco Xavier
+
+' ===========================
+' CONTROLLERS
+' ===========================
+package "Controllers" {
+    class VideoController {
+        - videoModel: Video
+        - reproduccionModel: Reproduccion
+        - logger: Logger
+        - fileHandler: FileHandler
+        - videoProcessor: VideoProcessor
+        - validator: ValidationMiddleware
+        --
+        + index(): void
+        + show(id: int): void
+        + store(): void
+        + update(id: int): void
+        + destroy(id: int): void
+        + stream(id: int): void
+        + search(): void
+        + populares(): void
+        + recientes(): void
+        + byMateria(materiaId: int): void
+        + byGrado(gradoId: int): void
+        - registrarReproduccion(videoId: int): void
+        - enviarRespuesta(code: int, success: bool, data: mixed, message: string): void
+    }
+
+    class AuthController {
+        - usuarioModel: Usuario
+        - logger: Logger
+        --
+        + login(): void
+        + logout(): void
+        + verificarToken(): void
+        + refrescarToken(): void
+        - generarToken(usuario: array): string
+        - validarCredenciales(email: string, password: string): bool
+    }
+
+    class UsuarioController {
+        - usuarioModel: Usuario
+        - logger: Logger
+        - validator: ValidationMiddleware
+        --
+        + index(): void
+        + show(id: int): void
+        + store(): void
+        + update(id: int): void
+        + destroy(id: int): void
+        + actualizarPerfil(): void
+        + cambiarPassword(): void
+    }
+
+    class StatsController {
+        - statsModel: Stats
+        - videoModel: Video
+        --
+        + dashboard(): void
+        + videoStats(id: int): void
+        + exportar(): void
+    }
+}
+
+' ===========================
+' MODELS
+' ===========================
+package "Models" {
+    class Video {
+        + id: int
+        + titulo: string
+        + descripcion: string
+        + archivo_path: string
+        + archivo_nombre: string
+        + thumbnail_path: string
+        + duracion: int
+        + tamanio: int
+        + formato: string
+        + resolucion: string
+        + codec: string
+        + tema_id: int
+        + materia_id: int
+        + grado_id: int
+        + docente_id: int
+        + visualizaciones: int
+        + estado: string
+        + fecha_subida: datetime
+        + fecha_actualizacion: datetime
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + eliminar(id: int): bool
+        + obtenerPorId(id: int): array|false
+        + obtenerTodos(filtros: array, limit: int, offset: int, orderBy: string, orderDir: string): array
+        + contar(filtros: array): int
+        + buscar(busqueda: string, limit: int, offset: int, docenteId: int): array
+        + obtenerMasPopulares(limit: int, docenteId: int): array
+        + obtenerRecientes(limit: int, docenteId: int): array
+        + incrementarVisualizaciones(id: int): bool
+    }
+
+    class Usuario {
+        + id: int
+        + nombre: string
+        + apellido_paterno: string
+        + apellido_materno: string
+        + email: string
+        + password: string
+        + rol: string
+        + ci: string
+        + telefono: string
+        + estado: string
+        + ultimo_acceso: datetime
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + eliminar(id: int): bool
+        + obtenerPorId(id: int): array|false
+        + obtenerPorEmail(email: string): array|false
+        + obtenerTodos(filtros: array): array
+        + verificarPassword(password: string): bool
+        + actualizarPassword(nuevoPassword: string): bool
+    }
+
+    class Materia {
+        + id: int
+        + nombre: string
+        + sigla: string
+        + descripcion: string
+        + color: string
+        + icono: string
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + eliminar(id: int): bool
+        + obtenerTodas(): array
+        + obtenerPorId(id: int): array|false
+    }
+
+    class Grado {
+        + id: int
+        + nombre: string
+        + nivel: string
+        + orden: int
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + eliminar(id: int): bool
+        + obtenerTodos(): array
+        + obtenerPorId(id: int): array|false
+    }
+
+    class Tema {
+        + id: int
+        + nombre: string
+        + descripcion: string
+        + materia_id: int
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + eliminar(id: int): bool
+        + obtenerPorMateria(materiaId: int): array
+        + obtenerPorId(id: int): array|false
+    }
+
+    class Reproduccion {
+        + id: int
+        + video_id: int
+        + usuario_id: int
+        + ip_address: string
+        + user_agent: string
+        + tiempo_reproducido: int
+        + porcentaje_visto: int
+        + completado: bool
+        + fecha_reproduccion: datetime
+        --
+        + crear(): int|bool
+        + actualizar(): bool
+        + obtenerPorVideo(videoId: int): array
+        + obtenerEstadisticas(videoId: int): array
+    }
+}
+
+' ===========================
+' MIDDLEWARE
+' ===========================
+package "Middleware" {
+    class AuthMiddleware {
+        {static} + proteger(): array|null
+        {static} + opcional(): void
+        {static} + obtenerUsuario(): array|null
+        {static} - verificarToken(token: string): array|false
+        {static} - extraerToken(): string|null
+        {static} - enviarError(codigo: int, mensaje: string): void
+    }
+
+    class RoleMiddleware {
+        {static} - permisosPorRol: array
+        --
+        {static} + tieneRol(rol: string, rolesPermitidos: array): bool
+        {static} + tienePermiso(rol: string, recurso: string, accion: string): bool
+        {static} + esAdministrador(rol: string): bool
+        {static} + esDocente(rol: string): bool
+        {static} + requiereAdministrador(rolActual: string): bool
+        {static} + puedeGestionar(rol: string, recurso: string, accion: string, idPropietario: int, idUsuario: int): bool
+        {static} + obtenerPermisos(rol: string): array
+    }
+
+    class ValidationMiddleware {
+        - errores: array
+        --
+        + validar(data: array, reglas: array): bool
+        + obtenerErrores(): array
+        + enviarErrorValidacion(): void
+        {static} + sanitizarString(string: string): string
+        {static} + sanitizarEmail(email: string): string
+        - validarRequerido(valor: mixed): bool
+        - validarEmail(valor: string): bool
+        - validarMinimo(valor: mixed, minimo: int): bool
+        - validarMaximo(valor: mixed, maximo: int): bool
+        - validarEntero(valor: mixed): bool
+        - validarEnLista(valor: mixed, lista: array): bool
+    }
+
+    class CorsMiddleware {
+        {static} + manejar(): void
+        {static} - obtenerOrigenesPermitidos(): array
+        {static} - establecerHeaders(origen: string): void
+    }
+}
+
+' ===========================
+' UTILITIES
+' ===========================
+package "Utilities" {
+    class FileHandler {
+        - config: array
+        - errors: array
+        --
+        + subirVideo(file: array, materiaId: int, gradoId: int): array|false
+        + subirThumbnail(file: array, videoNombre: string): array|false
+        + eliminarVideo(rutaArchivo: string): bool
+        + eliminarThumbnail(rutaArchivo: string): bool
+        + obtenerInfoVideo(rutaArchivo: string): array|false
+        + archivoExiste(rutaRelativa: string): bool
+        + obtenerUrlPublica(rutaRelativa: string): string
+        + obtenerEspacioUsado(): array
+        + obtenerErrores(): array
+        - sanitizarNombreArchivo(nombre: string): string
+        - generarNombreUnico(nombreOriginal: string): string
+        - crearDirectorioVideo(materiaId: int, gradoId: int): string|false
+        - obtenerTamanioDirectorio(directorio: string): int
+    }
+
+    class VideoProcessor {
+        - config: array
+        - ffmpegDisponible: bool
+        - ffmpegPath: string
+        - ffprobePath: string
+        --
+        + extraerMetadatos(rutaVideo: string): array|false
+        + generarThumbnail(rutaVideo: string, rutaThumbnail: string, segundos: int): bool
+        + convertirParaStreaming(rutaOrigen: string, rutaDestino: string, calidad: string): bool
+        + detectarResolucion(rutaVideo: string): string
+        + esVideoValido(rutaVideo: string): bool
+        + formatearDuracion(segundos: int): string
+        + estaFFmpegDisponible(): bool
+        + obtenerInfo(): array
+        - verificarFFmpeg(): void
+        - extraerMetadatosConFFprobe(rutaVideo: string): array
+        - extraerMetadatosBasicos(rutaVideo: string): array
+        - calcularFPS(rFrameRate: string): float
+    }
+
+    class Logger {
+        - config: array
+        - rutaLog: string
+        --
+        + info(mensaje: string, contexto: array): void
+        + error(mensaje: string, contexto: array): void
+        + warning(mensaje: string, contexto: array): void
+        + debug(mensaje: string, contexto: array): void
+        + video(accion: string, videoId: int, titulo: string, usuarioId: int): void
+        + acceso(usuarioId: int, ip: string, userAgent: string): void
+        + seguridad(evento: string, detalles: array): void
+        - escribir(nivel: string, mensaje: string, contexto: array): void
+        - formatearMensaje(nivel: string, mensaje: string, contexto: array): string
+    }
+
+    class Database {
+        {static} - instance: Database
+        - conn: PDO
+        - config: array
+        --
+        {static} + getInstance(): Database
+        + getConnection(): PDO
+        + beginTransaction(): bool
+        + commit(): bool
+        + rollback(): bool
+        - __construct()
+        - connect(): void
+    }
+
+    class Router {
+        - routes: array
+        - currentRoute: array
+        --
+        + get(path: string, handler: callable): void
+        + post(path: string, handler: callable): void
+        + put(path: string, handler: callable): void
+        + delete(path: string, handler: callable): void
+        + dispatch(): void
+        - matchRoute(method: string, uri: string): array|null
+        - executeHandler(handler: callable, params: array): void
+    }
+}
+
+' ===========================
+' RELACIONES
+' ===========================
+
+' Controllers -> Models
+VideoController --> Video
+VideoController --> Reproduccion
+VideoController --> Logger
+VideoController --> FileHandler
+VideoController --> VideoProcessor
+VideoController --> ValidationMiddleware
+
+AuthController --> Usuario
+AuthController --> Logger
+
+UsuarioController --> Usuario
+UsuarioController --> Logger
+UsuarioController --> ValidationMiddleware
+
+StatsController --> Video
+
+' Models -> Database
+Video --> Database
+Usuario --> Database
+Materia --> Database
+Grado --> Database
+Tema --> Database
+Reproduccion --> Database
+
+' Models -> Relaciones
+Video "1" -- "N" Reproduccion
+Video "N" -- "1" Materia
+Video "N" -- "1" Grado
+Video "N" -- "0..1" Tema
+Video "N" -- "1" Usuario : subido por
+
+Tema "N" -- "1" Materia
+
+' Controllers -> Middleware
+VideoController ..> AuthMiddleware : usa
+VideoController ..> RoleMiddleware : usa
+UsuarioController ..> AuthMiddleware : usa
+UsuarioController ..> RoleMiddleware : usa
+
+' Utilities
+FileHandler ..> Logger
+VideoProcessor ..> Logger
+Logger --> Database
+
+' Router
+Router ..> VideoController
+Router ..> AuthController
+Router ..> UsuarioController
+Router ..> StatsController
+Router ..> CorsMiddleware
+
+note right of RoleMiddleware
+  Permisos por Rol:
+  - Administrador: Todos los permisos
+  - Docente: Solo sus videos
+  - Estudiante: Solo visualización
+end note
+
+note right of VideoProcessor
+  Extracción de metadatos:
+  - Con FFmpeg (ideal)
+  - Con getID3 (fallback)
+  - Básico (mínimo)
+end note
+
+note right of FileHandler
+  Formato de rutas:
+  uploads/videos/materia_X/grado_Y/archivo.mp4
+  uploads/thumbnails/archivo_thumb.jpg
+end note
+
+@enduml
