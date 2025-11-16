@@ -8,36 +8,30 @@ import { Link } from 'react-router-dom';
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
-      {/* Hero Section */}
-      <div className="bg-gradient-to-r from-salesiano-azul-600 via-salesiano-azul-500 to-salesiano-azul-400 text-white py-20">
-        <div className="container mx-auto px-4 text-center">
-          {/* Logo Grande */}
-          <div className="mb-8 flex justify-center">
-            <div className="w-24 h-24 bg-white rounded-2xl shadow-2xl flex items-center justify-center transform hover:scale-105 transition-transform">
-              <svg className="w-16 h-16 text-salesiano-azul-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+      {/* Hero Section - Card Flotante Minimalista */}
+      <div className="bg-gradient-to-r from-salesiano-azul-600 via-salesiano-azul-500 to-salesiano-azul-400 py-16">
+        <div className="container mx-auto px-4 flex justify-center">
+          <div className="bg-white rounded-3xl shadow-2xl px-12 py-10 text-center max-w-2xl w-full transform hover:scale-105 transition-transform duration-300">
+            {/* Título Principal */}
+            <h1 className="text-4xl md:text-5xl font-extrabold text-salesiano-azul-700 mb-4">
+              BIENVENIDO
+            </h1>
+
+            {/* Subtítulo */}
+            <h2 className="text-2xl md:text-3xl font-bold text-salesiano-azul-600 mb-3">
+              VIDEOTECA SFX
+            </h2>
+
+            {/* Información */}
+            <p className="text-lg text-gray-700 font-semibold mb-1">
+              U.E. San Francisco Xavier
+            </p>
+            <p className="text-sm text-gray-500">
+              Okinawa Uno, Bolivia
+              <span className="mx-2 text-salesiano-amarillo-600">•</span>
+              Comunidad Salesiana
+            </p>
           </div>
-
-          {/* Título de Bienvenida */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 leading-tight">
-            BIENVENIDO A LA VIDEOTECA
-          </h1>
-          <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-6 text-salesiano-amarillo-300">
-            DE LA UNIDAD EDUCATIVA
-          </h2>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-8 text-salesiano-amarillo-400">
-            SAN FRANCISCO XAVIER
-          </h2>
-
-          <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-4">
-            Plataforma educativa de videos para estudiantes y docentes
-          </p>
-          <p className="text-lg text-blue-200 max-w-2xl mx-auto">
-            Okinawa Uno, Bolivia • Comunidad Salesiana
-          </p>
         </div>
       </div>
 
