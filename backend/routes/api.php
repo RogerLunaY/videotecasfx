@@ -190,12 +190,20 @@ require_once __DIR__ . '/../controllers/UsuarioController.php';
 require_once __DIR__ . '/../controllers/VideoController.php';
 require_once __DIR__ . '/../controllers/EstadisticaController.php';
 require_once __DIR__ . '/../controllers/DocenteAsignacionController.php';
+require_once __DIR__ . '/../controllers/CampoController.php';
+require_once __DIR__ . '/../controllers/MateriaController.php';
+require_once __DIR__ . '/../controllers/GradoController.php';
+require_once __DIR__ . '/../controllers/TemaController.php';
 
 $authController = new AuthController();
 $usuarioController = new UsuarioController();
 $videoController = new VideoController();
 $estadisticaController = new EstadisticaController();
 $docenteAsignacionController = new DocenteAsignacionController();
+$campoController = new CampoController();
+$materiaController = new MateriaController();
+$gradoController = new GradoController();
+$temaController = new TemaController();
 
 // =====================================================
 // DEFINICIÓN DE RUTAS
@@ -269,50 +277,32 @@ $router->post('/api/estadisticas/generar-reporte', [$estadisticaController, 'gen
 $router->get('/api/estadisticas/resumen-ejecutivo', [$estadisticaController, 'resumenEjecutivo']);
 
 // -----------------------------------------------------
-// Rutas de Recursos Auxiliares (Materias, Grados, Temas)
+// Rutas de Recursos Auxiliares (Campos, Materias, Grados, Temas)
 // -----------------------------------------------------
-$router->get('/api/materias', function() {
-    $database = Database::getInstance();
-    $conn = $database->getConnection();
 
-    $stmt = $conn->query("SELECT * FROM materias WHERE estado = 'activo' ORDER BY nombre");
-    $materias = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Campos de Saberes
+$router->get('/api/campos/{id}/materias', [$campoController, 'conMaterias']);
+$router->get('/api/campos/{id}', [$campoController, 'show']);
+$router->get('/api/campos', [$campoController, 'index']);
 
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'data' => ['materias' => $materias]]);
-});
+// Materias
+$router->get('/api/materias/por-campo', [$materiaController, 'porCampo']);
+$router->get('/api/materias/{id}/temas', [$materiaController, 'conTemas']);
+$router->get('/api/materias/{id}', [$materiaController, 'show']);
+$router->get('/api/materias', [$materiaController, 'index']);
 
-$router->get('/api/grados', function() {
-    $database = Database::getInstance();
-    $conn = $database->getConnection();
+// Grados
+$router->get('/api/grados/{id}/temas', [$gradoController, 'conTemas']);
+$router->get('/api/grados/{id}', [$gradoController, 'show']);
+$router->get('/api/grados', [$gradoController, 'index']);
 
-    $stmt = $conn->query("SELECT * FROM grados WHERE estado = 'activo' ORDER BY nivel");
-    $grados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// Temas
+$router->get('/api/temas/buscar', [$temaController, 'buscar']);
+$router->get('/api/temas/estructura', [$temaController, 'estructura']);
+$router->get('/api/temas/{id}', [$temaController, 'show']);
+$router->get('/api/temas', [$temaController, 'index']);
 
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'data' => ['grados' => $grados]]);
-});
-
-$router->get('/api/temas', function() {
-    $database = Database::getInstance();
-    $conn = $database->getConnection();
-
-    $materiaId = $_GET['materia_id'] ?? null;
-
-    if ($materiaId) {
-        $stmt = $conn->prepare("SELECT * FROM temas WHERE materia_id = :materia_id AND estado = 'activo' ORDER BY orden, nombre");
-        $stmt->bindParam(':materia_id', $materiaId);
-        $stmt->execute();
-    } else {
-        $stmt = $conn->query("SELECT * FROM temas WHERE estado = 'activo' ORDER BY materia_id, orden, nombre");
-    }
-
-    $temas = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'data' => ['temas' => $temas]]);
-});
-
+// Roles
 $router->get('/api/roles', function() {
     $database = Database::getInstance();
     $conn = $database->getConnection();
@@ -364,6 +354,10 @@ $router->get('/', function() {
             'usuarios' => '/api/usuarios',
             'videos' => '/api/videos',
             'estadisticas' => '/api/estadisticas',
+            'campos' => '/api/campos',
+            'materias' => '/api/materias',
+            'grados' => '/api/grados',
+            'temas' => '/api/temas',
             'health' => '/api/health'
         ]
     ]);
