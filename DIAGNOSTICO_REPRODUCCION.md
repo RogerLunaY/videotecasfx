@@ -20,6 +20,26 @@
 **Problema:** VideoDetailPage esperaba `response.video` pero el servicio ya retornaba el objeto directo
 **Solución:** Corregido para usar el objeto video directamente
 
+### 4. Almacenamiento de Rutas de Archivos
+**Problema:** Las rutas de archivos podrían almacenarse con prefijos incorrectos o rutas absolutas
+- ❌ Antes: Posibles rutas completas como `/home/user/videotecasfx/backend/uploads/videos/...`
+- ✅ Ahora: Siempre rutas relativas desde `uploads/`
+
+**Solución:**
+- Mejorada lógica en `FileHandler.php` para garantizar formato correcto
+- Uso de `realpath()` para construcción robusta de rutas
+- Validación adicional para asegurar que rutas comiencen con `"uploads/"`
+
+**Formato correcto en BD:**
+```
+uploads/videos/materia_1/grado_2/video_123456_abc.mp4
+uploads/thumbnails/video_123456_abc_thumb.jpg
+```
+
+**Archivos modificados:**
+- `backend/utils/FileHandler.php` - Métodos `subirVideo()` y `subirThumbnail()`
+- `backend/controllers/VideoController.php` - Generación automática de thumbnails
+
 ## 🔍 Verificación de la Solución
 
 ### Paso 1: Verificar URLs en el Navegador
@@ -122,12 +142,25 @@ tail -f backend/logs/app.log
 **Causas posibles:**
 1. **Archivo no existe:** El video no está en `backend/uploads/videos/`
 2. **Ruta incorrecta:** La ruta en la BD no coincide con el archivo físico
-3. **Orden de rutas incorrecto:** El router captura la ruta antes del endpoint stream
+3. **Ruta con formato incorrecto:** Rutas absolutas o con prefijos incorrectos en la BD
+4. **Orden de rutas incorrecto:** El router captura la ruta antes del endpoint stream
 
 **Soluciones:**
 1. Verifica que el archivo existe: `ls backend/uploads/videos/`
-2. Verifica la ruta en BD: `SELECT id, archivo_path FROM videos WHERE id=1;`
-3. **CRÍTICO:** Asegúrate de que en `backend/routes/api.php` las rutas estén ordenadas así:
+2. Verifica la ruta en BD: `SELECT id, titulo, archivo_path FROM videos WHERE id=1;`
+   - La ruta debe empezar con `uploads/` (ej: `uploads/videos/materia_1/grado_2/video.mp4`)
+   - Si ves rutas absolutas (ej: `/home/user/...`) o sin `uploads/`, los videos nuevos se guardarán correctamente pero puede necesitar corrección manual de registros antiguos
+3. Verifica que la ruta completa del archivo es correcta:
+   ```bash
+   # Construir ruta completa y verificar existencia
+   php -r "
+   \$rutaBD = 'uploads/videos/materia_1/grado_2/video.mp4';
+   \$rutaCompleta = __DIR__ . '/backend/' . \$rutaBD;
+   echo 'Ruta: ' . \$rutaCompleta . PHP_EOL;
+   echo 'Existe: ' . (file_exists(\$rutaCompleta) ? 'SI' : 'NO') . PHP_EOL;
+   "
+   ```
+4. **CRÍTICO:** Asegúrate de que en `backend/routes/api.php` las rutas estén ordenadas así:
    ```php
    // Específicas primero
    $router->get('/api/videos/buscar', ...);
