@@ -145,7 +145,7 @@ const VideoUploadForm = () => {
       });
 
       // Redirigir al video subido
-      navigate(`/videos/${response.video.id}`);
+      navigate(`/videos/${response.id}`);
     } catch (error) {
       console.error('Error al subir video:', error);
 
