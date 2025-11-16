@@ -4,12 +4,10 @@
 
 import { Link } from 'react-router-dom';
 import { formatDuration, formatDate } from '../../utils/helpers';
+import { getThumbnailUrl } from '../../services/videoService';
 
 const VideoCard = ({ video }) => {
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost/backend';
-  const thumbnailUrl = video.thumbnail
-    ? `${API_URL}/uploads/thumbnails/${video.thumbnail}`
-    : '/placeholder-video.png';
+  const thumbnailUrl = getThumbnailUrl(video.thumbnail);
 
   return (
     <Link to={`/videos/${video.id}`} className="group">

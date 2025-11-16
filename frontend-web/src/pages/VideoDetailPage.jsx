@@ -9,7 +9,7 @@ import VideoPlayer from '../components/Videos/VideoPlayer';
 import VideoList from '../components/Videos/VideoList';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import { useAuth } from '../context/AuthContext';
-import { getVideoById, deleteVideo, getVideos } from '../services/videoService';
+import { getVideoById, deleteVideo, getVideos, getThumbnailUrl } from '../services/videoService';
 import { formatDate, formatDuration, formatFileSize } from '../utils/helpers';
 
 const VideoDetailPage = () => {
@@ -29,13 +29,13 @@ const VideoDetailPage = () => {
   const loadVideo = async () => {
     try {
       setLoading(true);
-      const response = await getVideoById(id);
-      setVideo(response.video);
+      const videoData = await getVideoById(id);
+      setVideo(videoData);
 
       // Cargar videos relacionados
-      if (response.video.materia_id) {
+      if (videoData.materia_id) {
         const relatedResponse = await getVideos({
-          materia_id: response.video.materia_id,
+          materia_id: videoData.materia_id,
           per_page: 4
         });
         setRelatedVideos(relatedResponse.videos.filter(v => v.id !== parseInt(id)));
@@ -212,7 +212,7 @@ const VideoDetailPage = () => {
                     <div className="flex">
                       <div className="w-40 aspect-video bg-gray-200 flex-shrink-0">
                         <img
-                          src={relatedVideo.thumbnail ? `${import.meta.env.VITE_API_URL}/uploads/thumbnails/${relatedVideo.thumbnail}` : '/placeholder-video.png'}
+                          src={getThumbnailUrl(relatedVideo.thumbnail)}
                           alt={relatedVideo.titulo}
                           className="w-full h-full object-cover"
                           onError={(e) => e.target.src = '/placeholder-video.png'}

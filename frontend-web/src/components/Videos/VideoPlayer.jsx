@@ -3,11 +3,11 @@
  */
 
 import { useRef, useEffect } from 'react';
+import { getStreamUrl } from '../../services/videoService';
 
 const VideoPlayer = ({ videoId, onTimeUpdate, onEnded }) => {
   const videoRef = useRef(null);
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost/backend';
-  const streamUrl = `${API_URL}/api/videos/${videoId}/stream`;
+  const streamUrl = getStreamUrl(videoId);
 
   useEffect(() => {
     const video = videoRef.current;
