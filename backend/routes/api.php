@@ -224,17 +224,22 @@ $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
 // -----------------------------------------------------
 // Rutas de Videos
 // -----------------------------------------------------
-$router->get('/api/videos', [$videoController, 'index']);
-$router->get('/api/videos/{id}', [$videoController, 'show']);
-$router->post('/api/videos', [$videoController, 'store']);
-$router->put('/api/videos/{id}', [$videoController, 'update']);
-$router->delete('/api/videos/{id}', [$videoController, 'destroy']);
-$router->get('/api/videos/{id}/stream', [$videoController, 'stream']);
+// IMPORTANTE: Las rutas específicas deben ir ANTES de las dinámicas con {id}
 $router->get('/api/videos/buscar', [$videoController, 'search']);
 $router->get('/api/videos/populares', [$videoController, 'populares']);
 $router->get('/api/videos/recientes', [$videoController, 'recientes']);
 $router->get('/api/videos/materia/{materiaId}', [$videoController, 'byMateria']);
 $router->get('/api/videos/grado/{gradoId}', [$videoController, 'byGrado']);
+
+// Rutas con ID dinámico (específicas primero)
+$router->get('/api/videos/{id}/stream', [$videoController, 'stream']);
+$router->get('/api/videos/{id}', [$videoController, 'show']);
+
+// Rutas CRUD
+$router->get('/api/videos', [$videoController, 'index']);
+$router->post('/api/videos', [$videoController, 'store']);
+$router->put('/api/videos/{id}', [$videoController, 'update']);
+$router->delete('/api/videos/{id}', [$videoController, 'destroy']);
 
 // -----------------------------------------------------
 // Rutas de Estadísticas
