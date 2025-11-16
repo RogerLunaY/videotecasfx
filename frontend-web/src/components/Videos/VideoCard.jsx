@@ -19,7 +19,7 @@ const VideoCard = ({ video }) => {
             alt={video.titulo}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             onError={(e) => {
-              e.target.src = '/placeholder-video.png';
+              e.target.src = '/placeholder-video.svg';
             }}
           />
           {/* Duración */}

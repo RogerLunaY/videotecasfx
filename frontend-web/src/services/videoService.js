@@ -145,7 +145,7 @@ const videoService = {
    * @returns {string}
    */
   getThumbnailUrl(thumbnailPath) {
-    if (!thumbnailPath) return '/placeholder-video.jpg';
+    if (!thumbnailPath) return '/placeholder-video.svg';
     return `${API_URL.replace('/api', '')}/${thumbnailPath}`;
   },
 };

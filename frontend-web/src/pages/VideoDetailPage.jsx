@@ -215,7 +215,7 @@ const VideoDetailPage = () => {
                           src={getThumbnailUrl(relatedVideo.thumbnail)}
                           alt={relatedVideo.titulo}
                           className="w-full h-full object-cover"
-                          onError={(e) => e.target.src = '/placeholder-video.png'}
+                          onError={(e) => e.target.src = '/placeholder-video.svg'}
                         />
                       </div>
                       <div className="p-3 flex-1">
