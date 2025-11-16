@@ -67,6 +67,7 @@ class VideoController
         // Los videos son públicos, autenticación opcional
         $authMiddleware = new AuthMiddleware();
         $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
 
         // Parámetros de paginación
         $page = isset($_GET['page']) ? max(1, (int)$_GET['page']) : 1;
@@ -81,6 +82,14 @@ class VideoController
         if (isset($_GET['docente_id'])) $filtros['docente_id'] = (int)$_GET['docente_id'];
         if (isset($_GET['busqueda'])) $filtros['busqueda'] = $_GET['busqueda'];
         if (isset($_GET['estado'])) $filtros['estado'] = $_GET['estado'];
+
+        // RESTRICCIÓN: Si es docente, solo ver sus propios videos
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $filtros['docente_id'] = $usuario['id'];
+            // Solo mostrar videos activos (no huérfanos)
+            $filtros['estado'] = 'activo';
+            $filtros['solo_con_archivo'] = true;
+        }
 
         // Orden
         $orderBy = $_GET['order_by'] ?? 'fecha_subida';
@@ -447,7 +456,18 @@ class VideoController
         $perPage = isset($_GET['per_page']) ? min(100, max(1, (int)$_GET['per_page'])) : 20;
         $offset = ($page - 1) * $perPage;
 
-        $videos = $this->videoModel->buscar($query, $perPage, $offset);
+        // Obtener usuario autenticado
+        $authMiddleware = new AuthMiddleware();
+        $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
+
+        // RESTRICCIÓN: Filtrar por docente si es necesario
+        $docenteId = null;
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $docenteId = $usuario['id'];
+        }
+
+        $videos = $this->videoModel->buscar($query, $perPage, $offset, $docenteId);
 
         $this->enviarRespuesta(200, true, [
             'videos' => $videos,
@@ -466,7 +486,18 @@ class VideoController
     {
         $limit = isset($_GET['limit']) ? min(50, max(1, (int)$_GET['limit'])) : 10;
 
-        $videos = $this->videoModel->obtenerMasPopulares($limit);
+        // Obtener usuario autenticado
+        $authMiddleware = new AuthMiddleware();
+        $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
+
+        // RESTRICCIÓN: Filtrar por docente si es necesario
+        $docenteId = null;
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $docenteId = $usuario['id'];
+        }
+
+        $videos = $this->videoModel->obtenerMasPopulares($limit, $docenteId);
 
         $this->enviarRespuesta(200, true, ['videos' => $videos]);
     }
@@ -482,7 +513,18 @@ class VideoController
     {
         $limit = isset($_GET['limit']) ? min(50, max(1, (int)$_GET['limit'])) : 10;
 
-        $videos = $this->videoModel->obtenerRecientes($limit);
+        // Obtener usuario autenticado
+        $authMiddleware = new AuthMiddleware();
+        $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
+
+        // RESTRICCIÓN: Filtrar por docente si es necesario
+        $docenteId = null;
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $docenteId = $usuario['id'];
+        }
+
+        $videos = $this->videoModel->obtenerRecientes($limit, $docenteId);
 
         $this->enviarRespuesta(200, true, ['videos' => $videos]);
     }
@@ -501,8 +543,22 @@ class VideoController
         $perPage = isset($_GET['per_page']) ? min(100, max(1, (int)$_GET['per_page'])) : 20;
         $offset = ($page - 1) * $perPage;
 
-        $videos = $this->videoModel->obtenerTodos(['materia_id' => $materiaId], $perPage, $offset);
-        $total = $this->videoModel->contar(['materia_id' => $materiaId]);
+        // Obtener usuario autenticado
+        $authMiddleware = new AuthMiddleware();
+        $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
+
+        $filtros = ['materia_id' => $materiaId];
+
+        // RESTRICCIÓN: Si es docente, solo ver sus propios videos
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $filtros['docente_id'] = $usuario['id'];
+            $filtros['estado'] = 'activo';
+            $filtros['solo_con_archivo'] = true;
+        }
+
+        $videos = $this->videoModel->obtenerTodos($filtros, $perPage, $offset);
+        $total = $this->videoModel->contar($filtros);
 
         $this->enviarRespuesta(200, true, [
             'videos' => $videos,
@@ -529,8 +585,22 @@ class VideoController
         $perPage = isset($_GET['per_page']) ? min(100, max(1, (int)$_GET['per_page'])) : 20;
         $offset = ($page - 1) * $perPage;
 
-        $videos = $this->videoModel->obtenerTodos(['grado_id' => $gradoId], $perPage, $offset);
-        $total = $this->videoModel->contar(['grado_id' => $gradoId]);
+        // Obtener usuario autenticado
+        $authMiddleware = new AuthMiddleware();
+        $authMiddleware->opcional();
+        $usuario = $authMiddleware->obtenerUsuario();
+
+        $filtros = ['grado_id' => $gradoId];
+
+        // RESTRICCIÓN: Si es docente, solo ver sus propios videos
+        if ($usuario && RoleMiddleware::esDocente($usuario['rol'])) {
+            $filtros['docente_id'] = $usuario['id'];
+            $filtros['estado'] = 'activo';
+            $filtros['solo_con_archivo'] = true;
+        }
+
+        $videos = $this->videoModel->obtenerTodos($filtros, $perPage, $offset);
+        $total = $this->videoModel->contar($filtros);
 
         $this->enviarRespuesta(200, true, [
             'videos' => $videos,

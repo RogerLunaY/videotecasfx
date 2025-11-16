@@ -397,12 +397,16 @@ class Video
      * @param int $limit Número de videos a retornar
      * @return array|false
      */
-    public function obtenerMasPopulares(int $limit = 10)
+    public function obtenerMasPopulares(int $limit = 10, ?int $docenteId = null)
     {
-        $query = "SELECT * FROM vista_videos_populares LIMIT :limit";
+        $whereDocente = $docenteId ? "WHERE docente_id = :docente_id" : "";
+        $query = "SELECT * FROM vista_videos_populares {$whereDocente} LIMIT :limit";
 
         try {
             $stmt = $this->conn->prepare($query);
+            if ($docenteId) {
+                $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+            }
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
 
@@ -433,12 +437,19 @@ class Video
      * Obtiene videos recientes
      *
      * @param int $limit Número de videos
+     * @param int|null $docenteId ID del docente (opcional)
      * @return array|false
      */
-    public function obtenerRecientes(int $limit = 10)
+    public function obtenerRecientes(int $limit = 10, ?int $docenteId = null)
     {
+        $filtros = ['estado' => 'activo'];
+        if ($docenteId) {
+            $filtros['docente_id'] = $docenteId;
+            $filtros['solo_con_archivo'] = true;
+        }
+
         return $this->obtenerTodos(
-            ['estado' => 'activo'],
+            $filtros,
             $limit,
             0,
             'fecha_subida',
@@ -454,8 +465,10 @@ class Video
      * @param int $offset Desplazamiento
      * @return array|false
      */
-    public function buscar(string $busqueda, int $limit = 20, int $offset = 0)
+    public function buscar(string $busqueda, int $limit = 20, int $offset = 0, ?int $docenteId = null)
     {
+        $whereDocente = $docenteId ? "AND v.docente_id = :docente_id" : "";
+
         $query = "SELECT
                     v.*,
                     m.nombre as materia_nombre,
@@ -471,12 +484,16 @@ class Video
                 INNER JOIN usuarios u ON v.docente_id = u.id
                 WHERE v.estado = 'activo'
                 AND MATCH(v.titulo, v.descripcion) AGAINST(:busqueda IN NATURAL LANGUAGE MODE)
+                {$whereDocente}
                 ORDER BY relevancia DESC, v.visualizaciones DESC
                 LIMIT :limit OFFSET :offset";
 
         try {
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':busqueda', $busqueda);
+            if ($docenteId) {
+                $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+            }
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
