@@ -164,6 +164,27 @@ class VideoController
             return;
         }
 
+        // Si es docente, verificar que esté asignado a la materia y grado
+        if (RoleMiddleware::esDocente($usuario['rol'])) {
+            require_once __DIR__ . '/../models/DocenteAsignacion.php';
+            $docenteAsignacion = new DocenteAsignacion();
+
+            $materiaId = (int)$data['materia_id'];
+            $gradoId = (int)$data['grado_id'];
+
+            // Verificar asignación a materia
+            if (!$docenteAsignacion->tieneMateria($usuario['id'], $materiaId)) {
+                $this->enviarRespuesta(403, false, null, 'No estás asignado a esta materia. Contacta al administrador para asignarte.');
+                return;
+            }
+
+            // Verificar asignación a grado
+            if (!$docenteAsignacion->tieneGrado($usuario['id'], $gradoId)) {
+                $this->enviarRespuesta(403, false, null, 'No estás asignado a este grado. Contacta al administrador para asignarte.');
+                return;
+            }
+        }
+
         // Verificar que se subió un archivo de video
         if (!isset($_FILES['video']) || $_FILES['video']['error'] !== UPLOAD_ERR_OK) {
             $this->enviarRespuesta(400, false, null, 'No se proporcionó un archivo de video válido');
@@ -292,6 +313,35 @@ class VideoController
         if (!$this->validator->validar($data, $reglas)) {
             $this->validator->enviarErrorValidacion();
             return;
+        }
+
+        // Si es docente y está cambiando materia o grado, verificar que esté asignado
+        if (RoleMiddleware::esDocente($usuario['rol'])) {
+            $cambiaMateria = isset($data['materia_id']) && $data['materia_id'] != $videoExistente['materia_id'];
+            $cambiaGrado = isset($data['grado_id']) && $data['grado_id'] != $videoExistente['grado_id'];
+
+            if ($cambiaMateria || $cambiaGrado) {
+                require_once __DIR__ . '/../models/DocenteAsignacion.php';
+                $docenteAsignacion = new DocenteAsignacion();
+
+                // Verificar asignación a nueva materia
+                if ($cambiaMateria) {
+                    $materiaId = (int)$data['materia_id'];
+                    if (!$docenteAsignacion->tieneMateria($usuario['id'], $materiaId)) {
+                        $this->enviarRespuesta(403, false, null, 'No estás asignado a esta materia. Contacta al administrador para asignarte.');
+                        return;
+                    }
+                }
+
+                // Verificar asignación a nuevo grado
+                if ($cambiaGrado) {
+                    $gradoId = (int)$data['grado_id'];
+                    if (!$docenteAsignacion->tieneGrado($usuario['id'], $gradoId)) {
+                        $this->enviarRespuesta(403, false, null, 'No estás asignado a este grado. Contacta al administrador para asignarte.');
+                        return;
+                    }
+                }
+            }
         }
 
         // Actualizar video

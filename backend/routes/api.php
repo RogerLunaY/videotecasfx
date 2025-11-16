@@ -189,11 +189,13 @@ require_once __DIR__ . '/../controllers/AuthController.php';
 require_once __DIR__ . '/../controllers/UsuarioController.php';
 require_once __DIR__ . '/../controllers/VideoController.php';
 require_once __DIR__ . '/../controllers/EstadisticaController.php';
+require_once __DIR__ . '/../controllers/DocenteAsignacionController.php';
 
 $authController = new AuthController();
 $usuarioController = new UsuarioController();
 $videoController = new VideoController();
 $estadisticaController = new EstadisticaController();
+$docenteAsignacionController = new DocenteAsignacionController();
 
 // =====================================================
 // DEFINICIÓN DE RUTAS
@@ -220,6 +222,14 @@ $router->put('/api/usuarios/{id}', [$usuarioController, 'update']);
 $router->delete('/api/usuarios/{id}', [$usuarioController, 'destroy']);
 $router->put('/api/usuarios/{id}/password', [$usuarioController, 'updatePassword']);
 $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
+
+// -----------------------------------------------------
+// Rutas de Asignaciones de Docentes (Solo Admin)
+// -----------------------------------------------------
+$router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarTodos']);
+$router->get('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'obtenerAsignaciones']);
+$router->post('/api/docentes/{id}/materias', [$docenteAsignacionController, 'asignarMaterias']);
+$router->post('/api/docentes/{id}/grados', [$docenteAsignacionController, 'asignarGrados']);
 
 // -----------------------------------------------------
 // Rutas de Videos
