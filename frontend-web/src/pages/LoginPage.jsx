@@ -86,14 +86,11 @@ const LoginPage = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-white">Videoteca SFX</h2>
-          <p className="mt-2 text-primary-100">U.E. San Francisco Xavier</p>
+          <p className="mt-2 text-xl font-semibold text-white">Iniciar Sesión</p>
         </div>
 
         {/* Card */}
         <div className="bg-white rounded-lg shadow-xl p-8">
-          <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-            Iniciar Sesión
-          </h3>
 
           {errorMessage && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
