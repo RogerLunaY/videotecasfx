@@ -49,3 +49,11 @@ coverage/
 tmp/
 temp/
 *.tmp
+*.bak
+*.backup
+*.old
+
+# Documentación temporal (usar docs/TROUBLESHOOTING.md)
+DIAGNOSTICO_*.md
+SOLUCION_*.md
+**/SOLUCION_*.md
