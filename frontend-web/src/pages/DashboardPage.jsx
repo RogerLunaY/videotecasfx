@@ -72,7 +72,7 @@ const DashboardPage = () => {
     try {
       setVideosLoading(true);
       const params = {
-        usuario_id: user?.id,
+        docente_id: user?.id,  // CRÍTICO: Filtrar por docente_id, NO usuario_id
         page: pagination.page,
         per_page: 8, // 2 filas de 4 videos
       };
