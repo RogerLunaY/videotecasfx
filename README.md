@@ -103,9 +103,13 @@ videotecasfx/
 
 ## 🚀 Instalación y Configuración
 
+> **💡 ¿Usas Laragon en Windows?**
+> Consulta el **[Manual de Instalación con Laragon](./MANUAL_LARAGON.md)** para instrucciones específicas paso a paso.
+> O la **[Guía de Inicio Rápido](./INICIO_RAPIDO_LARAGON.md)** para instalación express en 5 minutos.
+
 ### Prerrequisitos
 
-- **XAMPP** (Apache + MySQL + PHP 8.x)
+- **XAMPP** o **Laragon** (Apache + MySQL + PHP 8.x)
 - **Node.js** 18+ y npm (para frontend)
 - **Git** (opcional, para control de versiones)
 - **FFmpeg** (opcional, para procesamiento de videos)
