@@ -51,12 +51,6 @@ const Navbar = () => {
           {!isAuthenticated && (
             <div className="hidden lg:flex items-center space-x-1">
               <Link
-                to="/"
-                className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
-              >
-                Inicio
-              </Link>
-              <Link
                 to="/materias"
                 className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
               >
@@ -293,13 +287,6 @@ const Navbar = () => {
             {/* Menú Público - Solo si NO está autenticado */}
             {!isAuthenticated && (
               <>
-                <Link
-                  to="/"
-                  className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  Inicio
-                </Link>
                 <Link
                   to="/materias"
                   className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
