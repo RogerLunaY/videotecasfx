@@ -145,15 +145,60 @@ class VideoProcessor
 
     /**
      * Extrae metadatos básicos sin FFmpeg
+     * Usa getID3 como alternativa
      *
      * @param string $rutaVideo Ruta del video
      * @return array Metadatos básicos
      */
     private function extraerMetadatosBasicos(string $rutaVideo): array
     {
-        $info = [];
+        $info = [
+            'duracion' => null,
+            'resolucion' => null,
+            'codec' => null,
+            'bitrate' => null,
+            'fps' => null,
+            'ancho' => null,
+            'alto' => null
+        ];
 
-        // Intentar obtener información básica con getimagesize (funciona para algunos formatos de video)
+        // Intentar con getID3 si está disponible
+        $getID3Path = __DIR__ . '/getid3/getid3.php';
+        if (file_exists($getID3Path)) {
+            try {
+                require_once $getID3Path;
+                $getID3 = new getID3();
+                $fileInfo = $getID3->analyze($rutaVideo);
+
+                if (isset($fileInfo['playtime_seconds'])) {
+                    $info['duracion'] = (int)round($fileInfo['playtime_seconds']);
+                }
+
+                if (isset($fileInfo['video']['resolution_x']) && isset($fileInfo['video']['resolution_y'])) {
+                    $info['ancho'] = $fileInfo['video']['resolution_x'];
+                    $info['alto'] = $fileInfo['video']['resolution_y'];
+                    $info['resolucion'] = $fileInfo['video']['resolution_x'] . 'x' . $fileInfo['video']['resolution_y'];
+                }
+
+                if (isset($fileInfo['video']['codec'])) {
+                    $info['codec'] = $fileInfo['video']['codec'];
+                }
+
+                if (isset($fileInfo['video']['bitrate'])) {
+                    $info['bitrate'] = (int)$fileInfo['video']['bitrate'];
+                }
+
+                if (isset($fileInfo['video']['frame_rate'])) {
+                    $info['fps'] = round($fileInfo['video']['frame_rate'], 2);
+                }
+
+                return $info;
+            } catch (Exception $e) {
+                error_log("[VideoProcessor] Error con getID3: " . $e->getMessage());
+            }
+        }
+
+        // Fallback: intentar con getimagesize (menos confiable)
         try {
             $videoInfo = @getimagesize($rutaVideo);
             if ($videoInfo) {
@@ -165,13 +210,7 @@ class VideoProcessor
             // Ignorar errores
         }
 
-        return array_merge([
-            'duracion' => null,
-            'resolucion' => null,
-            'codec' => null,
-            'bitrate' => null,
-            'fps' => null
-        ], $info);
+        return $info;
     }
 
     /**
