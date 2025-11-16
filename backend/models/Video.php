@@ -193,17 +193,28 @@ class Video
             $stmt->execute();
             $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Filtrar videos cuyos archivos no existen
-            $videosExistentes = array_filter($videos, function($video) {
-                if (empty($video['archivo_path'])) {
-                    return false;
-                }
-                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
-                return file_exists($rutaCompleta);
-            });
+            // Filtrar videos huérfanos si está habilitado
+            $config = require __DIR__ . '/../config/app.php';
+            if ($config['video']['filter_orphans']) {
+                $videosExistentes = array_filter($videos, function($video) {
+                    if (empty($video['archivo_path'])) {
+                        error_log("[Video::obtenerTodos] Video ID {$video['id']} sin archivo_path");
+                        return false;
+                    }
+                    $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                    $existe = file_exists($rutaCompleta);
 
-            // Re-indexar el array
-            return array_values($videosExistentes);
+                    if (!$existe) {
+                        error_log("[Video::obtenerTodos] Video ID {$video['id']} - Archivo NO encontrado: {$rutaCompleta}");
+                    }
+
+                    return $existe;
+                });
+
+                return array_values($videosExistentes);
+            }
+
+            return $videos;
         } catch (PDOException $e) {
             error_log("[Video::obtenerTodos] Error: " . $e->getMessage());
             return false;
@@ -245,8 +256,9 @@ class Video
 
             $video = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            // Verificar que el archivo existe
-            if ($video && !empty($video['archivo_path'])) {
+            // Verificar que el archivo existe si el filtro está habilitado
+            $config = require __DIR__ . '/../config/app.php';
+            if ($config['video']['filter_orphans'] && $video && !empty($video['archivo_path'])) {
                 $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
                 if (!file_exists($rutaCompleta)) {
                     error_log("[Video::obtenerPorId] Archivo no encontrado: {$rutaCompleta}");
@@ -396,16 +408,21 @@ class Video
 
             $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Filtrar videos cuyos archivos no existen
-            $videosExistentes = array_filter($videos, function($video) {
-                if (empty($video['archivo_path'])) {
-                    return false;
-                }
-                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
-                return file_exists($rutaCompleta);
-            });
+            // Filtrar videos huérfanos si está habilitado
+            $config = require __DIR__ . '/../config/app.php';
+            if ($config['video']['filter_orphans']) {
+                $videosExistentes = array_filter($videos, function($video) {
+                    if (empty($video['archivo_path'])) {
+                        return false;
+                    }
+                    $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                    return file_exists($rutaCompleta);
+                });
 
-            return array_values($videosExistentes);
+                return array_values($videosExistentes);
+            }
+
+            return $videos;
         } catch (PDOException $e) {
             error_log("[Video::obtenerMasPopulares] Error: " . $e->getMessage());
             return false;
@@ -466,16 +483,21 @@ class Video
 
             $videos = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            // Filtrar videos cuyos archivos no existen
-            $videosExistentes = array_filter($videos, function($video) {
-                if (empty($video['archivo_path'])) {
-                    return false;
-                }
-                $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
-                return file_exists($rutaCompleta);
-            });
+            // Filtrar videos huérfanos si está habilitado
+            $config = require __DIR__ . '/../config/app.php';
+            if ($config['video']['filter_orphans']) {
+                $videosExistentes = array_filter($videos, function($video) {
+                    if (empty($video['archivo_path'])) {
+                        return false;
+                    }
+                    $rutaCompleta = __DIR__ . '/../' . $video['archivo_path'];
+                    return file_exists($rutaCompleta);
+                });
 
-            return array_values($videosExistentes);
+                return array_values($videosExistentes);
+            }
+
+            return $videos;
         } catch (PDOException $e) {
             // Si falla FULLTEXT, usar LIKE como fallback
             return $this->obtenerTodos(['busqueda' => $busqueda], $limit, $offset);

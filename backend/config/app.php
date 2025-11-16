@@ -66,6 +66,13 @@ return [
      */
     'video' => [
         /**
+         * Filtrar videos sin archivo físico
+         * Si está en true, oculta videos cuyo archivo no existe
+         * Si está en false, muestra todos los videos de la BD
+         */
+        'filter_orphans' => ($_ENV['FILTER_ORPHAN_VIDEOS'] ?? 'false') === 'true',
+
+        /**
          * Tamaño máximo de archivo en bytes
          * 500 MB = 524288000 bytes
          */
