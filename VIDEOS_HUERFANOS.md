@@ -1,5 +1,15 @@
 # Manejo de Videos Huérfanos
 
+> **⚙️ CONFIGURACIÓN IMPORTANTE**
+>
+> El filtro de videos huérfanos está **DESHABILITADO POR DEFECTO**.
+>
+> **En desarrollo:** Todos los videos se muestran (sin filtro)
+> **En producción:** Habilita el filtro agregando a `.env`:
+> ```bash
+> FILTER_ORPHAN_VIDEOS=true
+> ```
+
 ## ¿Qué son los Videos Huérfanos?
 
 Videos huérfanos son registros en la base de datos que **ya no tienen su archivo físico** en el servidor. Esto puede suceder cuando:
@@ -11,13 +21,36 @@ Videos huérfanos son registros en la base de datos que **ya no tienen su archiv
 
 ## Solución Implementada
 
-### 🔍 Detección Automática
+### 🔍 Detección Automática (Opcional)
 
-El sistema ahora **verifica automáticamente** la existencia de archivos antes de mostrar videos en cualquier listado:
+El sistema puede **verificar automáticamente** la existencia de archivos antes de mostrar videos:
 
-- ✅ Solo se muestran videos cuyo archivo existe físicamente
+- ⚙️ **Deshabilitado por defecto** - Muestra todos los videos de la BD
+- ✅ Cuando se habilita: Solo muestra videos con archivo físico
 - ✅ Los videos sin archivo son ocultados automáticamente
 - ✅ No requiere intervención manual para ocultar videos
+
+### 🛠️ Cómo Habilitar el Filtro
+
+**Opción 1: Variable de Entorno (Recomendado)**
+
+Crea o edita el archivo `.env` en la raíz del backend:
+
+```bash
+# backend/.env
+FILTER_ORPHAN_VIDEOS=true
+```
+
+**Opción 2: Archivo de Configuración**
+
+Edita `backend/config/app.php`:
+
+```php
+'video' => [
+    'filter_orphans' => true,  // Cambiar a true
+    // ...
+]
+```
 
 ### 📋 Métodos Afectados
 
