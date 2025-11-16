@@ -367,6 +367,72 @@ Este manual describe paso a paso cómo instalar y ejecutar el proyecto usando **
 3. Abrir nueva terminal
 4. Verificar: `node --version`
 
+### Error: "Failed to scan for dependencies from entries"
+
+Este error ocurre cuando Vite no encuentra el archivo `index.html` o estás en el directorio incorrecto.
+
+**Error típico:**
+```
+Failed to scan for dependencies from entries:
+C:/laragon/www/videotecasfx/SFX/frontend-web/index.html
+```
+
+**Solución Rápida - Usar Script de Diagnóstico:**
+1. Navegar al frontend:
+   ```bash
+   cd C:\laragon\www\videotecasfx\frontend-web
+   ```
+
+2. Ejecutar el script de diagnóstico:
+   ```bash
+   diagnostico.bat
+   ```
+
+3. El script verificará automáticamente:
+   - Si estás en el directorio correcto
+   - Si existe `package.json` e `index.html`
+   - Si `node_modules` está instalado
+   - Versiones de Node.js y npm
+
+4. Seguir las instrucciones del script
+
+**Solución Manual:**
+1. Abrir terminal de Laragon
+2. Verificar directorio actual:
+   ```bash
+   cd
+   ```
+
+3. Navegar al directorio correcto:
+   ```bash
+   cd C:\laragon\www\videotecasfx\frontend-web
+   ```
+
+4. Verificar que existe `package.json`:
+   ```bash
+   dir package.json
+   ```
+
+5. Si no ves el archivo, estás en el directorio incorrecto
+
+6. Limpiar e instalar:
+   ```bash
+   # Limpiar instalación previa
+   rmdir /s /q node_modules
+   del package-lock.json
+
+   # Reinstalar
+   npm install
+
+   # Ejecutar
+   npm run dev
+   ```
+
+7. Si el error menciona una carpeta "SFX" extra en la ruta:
+   - Verificar que el proyecto esté en: `C:\laragon\www\videotecasfx\`
+   - NO en: `C:\laragon\www\videotecasfx\SFX\`
+   - Si está en SFX, mover todo el contenido un nivel arriba
+
 ### Error: "CORS policy: No 'Access-Control-Allow-Origin'"
 
 **Solución:**
