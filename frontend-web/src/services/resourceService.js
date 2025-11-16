@@ -1,18 +1,38 @@
 /**
  * Servicio de Recursos Auxiliares
- * Maneja materias, grados, temas y roles
+ * Maneja campos, materias, grados, temas y roles
  */
 
 import api from './api';
 
 const resourceService = {
   /**
-   * Obtiene todas las materias
+   * Obtiene todos los campos de saberes
    * @returns {Promise}
    */
-  async getMaterias() {
-    const response = await api.get('/materias');
+  async getCampos() {
+    const response = await api.get('/campos');
+    return response.data.campos;
+  },
+
+  /**
+   * Obtiene todas las materias (opcionalmente filtradas por campo)
+   * @param {number} campoId
+   * @returns {Promise}
+   */
+  async getMaterias(campoId = null) {
+    const params = campoId ? { campo_id: campoId } : {};
+    const response = await api.get('/materias', { params });
     return response.data.materias;
+  },
+
+  /**
+   * Obtiene materias agrupadas por campo
+   * @returns {Promise}
+   */
+  async getMateriasByCampo() {
+    const response = await api.get('/materias/por-campo');
+    return response.data.campos;
   },
 
   /**
@@ -25,12 +45,20 @@ const resourceService = {
   },
 
   /**
-   * Obtiene todos los temas (opcionalmente filtrados por materia)
-   * @param {number} materiaId
+   * Obtiene todos los temas (opcionalmente filtrados por materia y grado)
+   * @param {Object} filters - Filtros { materia_id, grado_id }
    * @returns {Promise}
    */
-  async getTemas(materiaId = null) {
-    const params = materiaId ? { materia_id: materiaId } : {};
+  async getTemas(filters = {}) {
+    const params = {};
+    if (filters.materia_id) params.materia_id = filters.materia_id;
+    if (filters.grado_id) params.grado_id = filters.grado_id;
+
+    // Retrocompatibilidad: si se pasa un número directamente, usarlo como materia_id
+    if (typeof filters === 'number') {
+      params.materia_id = filters;
+    }
+
     const response = await api.get('/temas', { params });
     return response.data.temas;
   },
