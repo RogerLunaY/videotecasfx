@@ -95,7 +95,31 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 # Configuración de PHP
 # =====================================================
 
+# PHP 7.x
 <IfModule mod_php7.c>
+    # Tamaño máximo de archivo subido (500MB)
+    php_value upload_max_filesize 500M
+    php_value post_max_size 500M
+
+    # Tiempo máximo de ejecución (10 minutos para procesamiento de videos)
+    php_value max_execution_time 600
+    php_value max_input_time 600
+
+    # Memoria máxima
+    php_value memory_limit 512M
+
+    # Mostrar errores en desarrollo (cambiar a Off en producción)
+    php_flag display_errors On
+    php_flag display_startup_errors On
+    php_value error_reporting E_ALL
+
+    # Habilitar registro de errores
+    php_flag log_errors On
+    php_value error_log logs/php_errors.log
+</IfModule>
+
+# PHP 8.x
+<IfModule mod_php.c>
     # Tamaño máximo de archivo subido (500MB)
     php_value upload_max_filesize 500M
     php_value post_max_size 500M

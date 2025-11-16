@@ -147,7 +147,23 @@ const VideoUploadForm = () => {
       // Redirigir al video subido
       navigate(`/videos/${response.video.id}`);
     } catch (error) {
-      setErrorMessage(error.response?.data?.error?.message || 'Error al subir el video');
+      console.error('Error al subir video:', error);
+
+      // Mensaje de error más descriptivo
+      let mensajeError = 'Error al subir el video';
+
+      if (error.response) {
+        // Error del servidor
+        mensajeError = error.response.data?.error?.message || error.response.data?.message || 'Error del servidor al procesar el video';
+      } else if (error.request) {
+        // No hubo respuesta del servidor
+        mensajeError = 'No se pudo conectar con el servidor. Verifica tu conexión a internet o que el video no sea demasiado grande para los límites del servidor.';
+      } else {
+        // Error al configurar la petición
+        mensajeError = error.message || 'Error al preparar la subida del video';
+      }
+
+      setErrorMessage(mensajeError);
       setUploadProgress(0);
     } finally {
       setLoading(false);
