@@ -86,7 +86,6 @@ const LoginPage = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-white">Videoteca SFX</h2>
-          <p className="mt-2 text-xl font-semibold text-white">Iniciar Sesión</p>
         </div>
 
         {/* Card */}
