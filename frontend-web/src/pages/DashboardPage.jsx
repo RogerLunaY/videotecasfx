@@ -26,6 +26,12 @@ const DashboardPage = () => {
   const [videosLoading, setVideosLoading] = useState(false);
   const [filtroGrado, setFiltroGrado] = useState('');
   const [ordenamiento, setOrdenamiento] = useState('fecha_subida');
+  const [pagination, setPagination] = useState({
+    page: 1,
+    per_page: 8, // 2 filas de 4 videos
+    total: 0,
+    total_pages: 0
+  });
 
   useEffect(() => {
     loadDashboard();
@@ -39,7 +45,7 @@ const DashboardPage = () => {
     if (isDocente() && !isAdmin()) {
       loadMisVideos();
     }
-  }, [filtroGrado, ordenamiento]);
+  }, [filtroGrado, ordenamiento, pagination.page]);
 
   const loadDashboard = async () => {
     try {
@@ -67,7 +73,8 @@ const DashboardPage = () => {
       setVideosLoading(true);
       const params = {
         usuario_id: user?.id,
-        per_page: 50,
+        page: pagination.page,
+        per_page: 8, // 2 filas de 4 videos
       };
 
       // Aplicar filtro de grado si está seleccionado
@@ -89,11 +96,29 @@ const DashboardPage = () => {
 
       const response = await getVideos(params);
       setMisVideos(response.videos || []);
+      if (response.pagination) {
+        setPagination(response.pagination);
+      }
     } catch (error) {
       console.error('Error loading mis videos:', error);
     } finally {
       setVideosLoading(false);
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleFiltroChange = (nuevoFiltro) => {
+    setFiltroGrado(nuevoFiltro);
+    setPagination(prev => ({ ...prev, page: 1 })); // Resetear a página 1
+  };
+
+  const handleOrdenamientoChange = (nuevoOrdenamiento) => {
+    setOrdenamiento(nuevoOrdenamiento);
+    setPagination(prev => ({ ...prev, page: 1 })); // Resetear a página 1
   };
 
   if (loading) {
@@ -206,7 +231,7 @@ const DashboardPage = () => {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => setFiltroGrado('')}
+                    onClick={() => handleFiltroChange('')}
                     className={`px-4 py-2 rounded-lg font-medium transition ${
                       filtroGrado === ''
                         ? 'bg-salesiano-azul-500 text-white shadow-md'
@@ -218,7 +243,7 @@ const DashboardPage = () => {
                   {grados.map((grado) => (
                     <button
                       key={grado.id}
-                      onClick={() => setFiltroGrado(grado.id)}
+                      onClick={() => handleFiltroChange(grado.id)}
                       className={`px-4 py-2 rounded-lg font-medium transition ${
                         filtroGrado === grado.id
                           ? 'bg-salesiano-azul-500 text-white shadow-md'
@@ -238,7 +263,7 @@ const DashboardPage = () => {
                 </label>
                 <div className="flex flex-wrap gap-2">
                   <button
-                    onClick={() => setOrdenamiento('fecha_subida')}
+                    onClick={() => handleOrdenamientoChange('fecha_subida')}
                     className={`px-4 py-2 rounded-lg font-medium transition ${
                       ordenamiento === 'fecha_subida'
                         ? 'bg-salesiano-amarillo-500 text-salesiano-azul-900 shadow-md'
@@ -248,7 +273,7 @@ const DashboardPage = () => {
                     📅 Fecha
                   </button>
                   <button
-                    onClick={() => setOrdenamiento('visualizaciones')}
+                    onClick={() => handleOrdenamientoChange('visualizaciones')}
                     className={`px-4 py-2 rounded-lg font-medium transition ${
                       ordenamiento === 'visualizaciones'
                         ? 'bg-salesiano-amarillo-500 text-salesiano-azul-900 shadow-md'
@@ -258,7 +283,7 @@ const DashboardPage = () => {
                     👁️ Más Vistos
                   </button>
                   <button
-                    onClick={() => setOrdenamiento('titulo')}
+                    onClick={() => handleOrdenamientoChange('titulo')}
                     className={`px-4 py-2 rounded-lg font-medium transition ${
                       ordenamiento === 'titulo'
                         ? 'bg-salesiano-amarillo-500 text-salesiano-azul-900 shadow-md'
@@ -281,7 +306,7 @@ const DashboardPage = () => {
                   : 'Todos mis Videos'}
               </h2>
               <p className="text-gray-600">
-                {misVideos.length} video{misVideos.length !== 1 ? 's' : ''}
+                {pagination.total || 0} video{pagination.total !== 1 ? 's' : ''} total{pagination.total !== 1 ? 'es' : ''}
               </p>
             </div>
 
@@ -319,6 +344,56 @@ const DashboardPage = () => {
                     Subir Primer Video
                   </Link>
                 )}
+              </div>
+            )}
+
+            {/* Paginación */}
+            {pagination.total_pages > 1 && misVideos.length > 0 && (
+              <div className="mt-8 flex justify-center">
+                <nav className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className="px-4 py-2 rounded-lg bg-white border-2 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-salesiano-azul-400 hover:bg-salesiano-azul-50 transition font-medium text-gray-700"
+                  >
+                    ← Anterior
+                  </button>
+
+                  {[...Array(pagination.total_pages)].map((_, i) => {
+                    const page = i + 1;
+                    // Mostrar solo páginas cercanas
+                    if (
+                      page === 1 ||
+                      page === pagination.total_pages ||
+                      (page >= pagination.page - 2 && page <= pagination.page + 2)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 rounded-lg border-2 font-medium transition ${
+                            page === pagination.page
+                              ? 'bg-salesiano-azul-500 text-white border-salesiano-azul-500 shadow-md'
+                              : 'bg-white border-gray-300 text-gray-700 hover:border-salesiano-azul-400 hover:bg-salesiano-azul-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    } else if (page === pagination.page - 3 || page === pagination.page + 3) {
+                      return <span key={page} className="px-2 text-gray-500">...</span>;
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page === pagination.total_pages}
+                    className="px-4 py-2 rounded-lg bg-white border-2 border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:border-salesiano-azul-400 hover:bg-salesiano-azul-50 transition font-medium text-gray-700"
+                  >
+                    Siguiente →
+                  </button>
+                </nav>
               </div>
             )}
           </div>
