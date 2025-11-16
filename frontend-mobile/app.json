@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Videoteca SFX",
+    "slug": "videoteca-sfx",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#2563eb"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sfx.videoteca"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#2563eb"
+      },
+      "package": "com.sfx.videoteca",
+      "permissions": [
+        "INTERNET",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://videotecasfx.test/api"
+    }
+  }
+}
