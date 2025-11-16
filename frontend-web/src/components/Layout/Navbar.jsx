@@ -47,33 +47,35 @@ const Navbar = () => {
             </div>
           </Link>
 
-          {/* Navegación Desktop - Público */}
-          <div className="hidden lg:flex items-center space-x-1">
-            <Link
-              to="/"
-              className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
-            >
-              Inicio
-            </Link>
-            <Link
-              to="/materias"
-              className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
-            >
-              Materias
-            </Link>
-            <Link
-              to="/cursos"
-              className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
-            >
-              Cursos
-            </Link>
-            <Link
-              to="/acerca-de"
-              className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
-            >
-              Acerca de
-            </Link>
-          </div>
+          {/* Navegación Desktop - Solo para usuarios NO autenticados */}
+          {!isAuthenticated && (
+            <div className="hidden lg:flex items-center space-x-1">
+              <Link
+                to="/"
+                className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
+              >
+                Inicio
+              </Link>
+              <Link
+                to="/materias"
+                className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
+              >
+                Materias
+              </Link>
+              <Link
+                to="/cursos"
+                className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
+              >
+                Cursos
+              </Link>
+              <Link
+                to="/acerca-de"
+                className="px-4 py-2 text-white hover:bg-white/10 rounded-lg transition font-medium"
+              >
+                Acerca de
+              </Link>
+            </div>
+          )}
 
           {/* Barra de Búsqueda */}
           <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4">
@@ -246,14 +248,7 @@ const Navbar = () => {
                   )}
                 </div>
               </>
-            ) : (
-              <Link
-                to="/login"
-                className="px-4 py-2 bg-salesiano-amarillo-500 text-salesiano-azul-900 hover:bg-salesiano-amarillo-400 rounded-lg transition font-semibold shadow-md hover:shadow-lg"
-              >
-                Iniciar Sesión
-              </Link>
-            )}
+            ) : null}
 
             {/* Mobile Menu Button */}
             <button
@@ -295,35 +290,39 @@ const Navbar = () => {
               </div>
             </form>
 
-            {/* Menú Público */}
-            <Link
-              to="/"
-              className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Inicio
-            </Link>
-            <Link
-              to="/materias"
-              className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Materias
-            </Link>
-            <Link
-              to="/cursos"
-              className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Cursos
-            </Link>
-            <Link
-              to="/acerca-de"
-              className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Acerca de
-            </Link>
+            {/* Menú Público - Solo si NO está autenticado */}
+            {!isAuthenticated && (
+              <>
+                <Link
+                  to="/"
+                  className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Inicio
+                </Link>
+                <Link
+                  to="/materias"
+                  className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Materias
+                </Link>
+                <Link
+                  to="/cursos"
+                  className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Cursos
+                </Link>
+                <Link
+                  to="/acerca-de"
+                  className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg font-medium"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Acerca de
+                </Link>
+              </>
+            )}
 
             {/* Menú de Dashboard (solo autenticados) */}
             {isAuthenticated && (
