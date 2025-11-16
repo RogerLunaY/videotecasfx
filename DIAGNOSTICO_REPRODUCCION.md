@@ -119,11 +119,25 @@ tail -f backend/logs/app.log
 2. Verifica la URL en `.env`: `VITE_API_URL=http://videotecasfx.test/api`
 
 ### Error: "404 Not Found" en streaming
-**Causa:** El archivo no existe en el servidor
-**Solución:**
+**Causas posibles:**
+1. **Archivo no existe:** El video no está en `backend/uploads/videos/`
+2. **Ruta incorrecta:** La ruta en la BD no coincide con el archivo físico
+3. **Orden de rutas incorrecto:** El router captura la ruta antes del endpoint stream
+
+**Soluciones:**
 1. Verifica que el archivo existe: `ls backend/uploads/videos/`
-2. Verifica que la ruta en la base de datos es correcta
-3. Verifica que `archivo_path` en la tabla videos apunta al archivo correcto
+2. Verifica la ruta en BD: `SELECT id, archivo_path FROM videos WHERE id=1;`
+3. **CRÍTICO:** Asegúrate de que en `backend/routes/api.php` las rutas estén ordenadas así:
+   ```php
+   // Específicas primero
+   $router->get('/api/videos/buscar', ...);
+   $router->get('/api/videos/populares', ...);
+
+   // Luego con ID y sub-ruta
+   $router->get('/api/videos/{id}/stream', ...);  // Debe ir ANTES de /{id}
+   $router->get('/api/videos/{id}', ...);         // Genérico al final
+   ```
+   Si `/api/videos/{id}` está antes de `/api/videos/{id}/stream`, el streaming NO funcionará.
 
 ### Error: "The element has no supported sources"
 **Causa:** El formato del video no es compatible
