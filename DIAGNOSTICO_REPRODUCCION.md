@@ -160,8 +160,21 @@ tail -f backend/logs/app.log
 - [ ] Configuración de PHP permite archivos grandes (revisar SOLUCION_ERROR_SUBIDA.md)
 - [ ] No hay errores en la consola del navegador
 - [ ] No hay errores en los logs del servidor
+- [ ] No hay videos huérfanos (sin archivo físico) - ver VIDEOS_HUERFANOS.md
 
 ## 🔧 Herramientas Útiles
+
+### Verificar Estado de Videos
+```bash
+# Ver estadísticas de videos con/sin archivo
+php backend/utils/verificar_videos.php
+```
+
+### Limpiar Videos Huérfanos
+```bash
+# Marcar videos sin archivo como 'error'
+php backend/utils/limpiar_videos_huerfanos.php
+```
 
 ### Verificar Headers HTTP
 ```bash
