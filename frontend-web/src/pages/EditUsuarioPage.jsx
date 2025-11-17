@@ -7,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResources } from '../hooks/useResources';
 import { getUserById, updateUser } from '../services/userService';
+import { getDocenteAsignaciones, actualizarAsignaciones } from '../services/docenteAsignacionService';
 import Layout from '../components/Layout/Layout';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 
@@ -14,7 +15,7 @@ const EditUsuarioPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const { roles, loading: resourcesLoading } = useResources();
+  const { roles, materias, grados, loading: resourcesLoading } = useResources();
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -26,6 +27,9 @@ const EditUsuarioPage = () => {
     rol_id: '',
     estado: 'activo',
   });
+
+  const [selectedMaterias, setSelectedMaterias] = useState([]);
+  const [selectedGrados, setSelectedGrados] = useState([]);
 
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
@@ -58,6 +62,24 @@ const EditUsuarioPage = () => {
         rol_id: user.rol_id || '',
         estado: user.estado || 'activo',
       });
+
+      // Cargar asignaciones si es docente
+      if (user.rol === 'Docente' || user.rol_id === 2) {
+        try {
+          const asignaciones = await getDocenteAsignaciones(id);
+
+          // Extraer IDs de materias
+          const materiasIds = asignaciones.materias?.map(m => m.id) || [];
+          setSelectedMaterias(materiasIds);
+
+          // Extraer IDs de grados
+          const gradosIds = asignaciones.grados?.map(g => g.id) || [];
+          setSelectedGrados(gradosIds);
+        } catch (error) {
+          console.error('Error loading asignaciones:', error);
+          // No es crítico, continuar sin asignaciones
+        }
+      }
     } catch (error) {
       console.error('Error loading user:', error);
       setErrorMessage('Error al cargar el usuario');
@@ -79,6 +101,52 @@ const EditUsuarioPage = () => {
         [name]: ''
       }));
     }
+  };
+
+  const handleToggleMateria = (materiaId) => {
+    setSelectedMaterias(prev => {
+      if (prev.includes(materiaId)) {
+        // Deseleccionar
+        return prev.filter(id => id !== materiaId);
+      } else {
+        // Seleccionar solo si no se ha alcanzado el máximo
+        if (prev.length >= 2) {
+          setErrors(prev => ({
+            ...prev,
+            materias: 'Solo puede seleccionar hasta 2 materias'
+          }));
+          return prev;
+        }
+        setErrors(prev => ({
+          ...prev,
+          materias: ''
+        }));
+        return [...prev, materiaId];
+      }
+    });
+  };
+
+  const handleToggleGrado = (gradoId) => {
+    setSelectedGrados(prev => {
+      if (prev.includes(gradoId)) {
+        // Deseleccionar
+        return prev.filter(id => id !== gradoId);
+      } else {
+        // Seleccionar solo si no se ha alcanzado el máximo
+        if (prev.length >= 6) {
+          setErrors(prev => ({
+            ...prev,
+            grados: 'Solo puede seleccionar hasta 6 grados'
+          }));
+          return prev;
+        }
+        setErrors(prev => ({
+          ...prev,
+          grados: ''
+        }));
+        return [...prev, gradoId];
+      }
+    });
   };
 
   const validate = () => {
@@ -134,6 +202,19 @@ const EditUsuarioPage = () => {
 
       await updateUser(id, dataToSend);
 
+      // Si es docente, actualizar asignaciones
+      const rolDocente = roles.find(r => r.nombre === 'Docente');
+      if (formData.rol_id === rolDocente?.id || formData.rol_id === 2) {
+        try {
+          await actualizarAsignaciones(id, selectedMaterias, selectedGrados);
+        } catch (error) {
+          console.error('Error updating asignaciones:', error);
+          setErrorMessage('Usuario actualizado pero hubo un error al guardar las asignaciones');
+          setSaving(false);
+          return;
+        }
+      }
+
       setSuccessMessage('Usuario actualizado exitosamente');
 
       // Redirigir después de 2 segundos
@@ -155,10 +236,13 @@ const EditUsuarioPage = () => {
     );
   }
 
+  const rolDocente = roles.find(r => r.nombre === 'Docente');
+  const isDocente = formData.rol_id === rolDocente?.id || formData.rol_id === 2;
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <h1 className="text-3xl font-bold text-gray-900 mb-6">Editar Usuario</h1>
 
           {successMessage && (
@@ -173,12 +257,19 @@ const EditUsuarioPage = () => {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Información Personal */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Información Personal</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* COLUMNA IZQUIERDA: Datos Personales */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-6 flex items-center">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  Datos Personales
+                </h3>
+
+                <div className="space-y-4">
+                  {/* Nombre */}
                   <div>
                     <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
                       Nombre *
@@ -194,6 +285,7 @@ const EditUsuarioPage = () => {
                     {errors.nombre && <p className="mt-1 text-sm text-red-600">{errors.nombre}</p>}
                   </div>
 
+                  {/* Apellido Paterno */}
                   <div>
                     <label htmlFor="apellido_paterno" className="block text-sm font-medium text-gray-700 mb-1">
                       Apellido Paterno *
@@ -209,6 +301,7 @@ const EditUsuarioPage = () => {
                     {errors.apellido_paterno && <p className="mt-1 text-sm text-red-600">{errors.apellido_paterno}</p>}
                   </div>
 
+                  {/* Apellido Materno */}
                   <div>
                     <label htmlFor="apellido_materno" className="block text-sm font-medium text-gray-700 mb-1">
                       Apellido Materno
@@ -223,6 +316,7 @@ const EditUsuarioPage = () => {
                     />
                   </div>
 
+                  {/* CI */}
                   <div>
                     <label htmlFor="ci" className="block text-sm font-medium text-gray-700 mb-1">
                       CI *
@@ -238,6 +332,7 @@ const EditUsuarioPage = () => {
                     {errors.ci && <p className="mt-1 text-sm text-red-600">{errors.ci}</p>}
                   </div>
 
+                  {/* Teléfono */}
                   <div>
                     <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-1">
                       Teléfono
@@ -252,6 +347,7 @@ const EditUsuarioPage = () => {
                     />
                   </div>
 
+                  {/* Email */}
                   <div>
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email *
@@ -269,10 +365,17 @@ const EditUsuarioPage = () => {
                 </div>
               </div>
 
-              {/* Rol y Estado */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rol y Estado</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* COLUMNA DERECHA: Rol, Estado y Asignaciones */}
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-6 flex items-center">
+                  <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Rol, Estado y Asignaciones
+                </h3>
+
+                <div className="space-y-6">
+                  {/* Rol */}
                   <div>
                     <label htmlFor="rol_id" className="block text-sm font-medium text-gray-700 mb-1">
                       Rol *
@@ -292,6 +395,7 @@ const EditUsuarioPage = () => {
                     {errors.rol_id && <p className="mt-1 text-sm text-red-600">{errors.rol_id}</p>}
                   </div>
 
+                  {/* Estado */}
                   <div>
                     <label htmlFor="estado" className="block text-sm font-medium text-gray-700 mb-1">
                       Estado *
@@ -309,35 +413,127 @@ const EditUsuarioPage = () => {
                     </select>
                     {errors.estado && <p className="mt-1 text-sm text-red-600">{errors.estado}</p>}
                   </div>
-                </div>
 
-                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-700">
-                    <strong>Nota:</strong> Para cambiar la contraseña del usuario, use la función "Cambiar Contraseña" en el perfil del usuario.
-                  </p>
+                  {/* Asignaciones (solo para docentes) */}
+                  {isDocente && (
+                    <>
+                      {/* Materias */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Asignación de Materias
+                          <span className="text-gray-500 text-xs ml-2">(Máximo 2 materias)</span>
+                        </label>
+                        <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto bg-gray-50">
+                          {materias.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No hay materias disponibles</p>
+                          ) : (
+                            <div className="space-y-2">
+                              {materias.map((materia) => (
+                                <label
+                                  key={materia.id}
+                                  className={`flex items-center p-2 rounded-lg hover:bg-white cursor-pointer transition ${
+                                    selectedMaterias.includes(materia.id) ? 'bg-white shadow-sm' : ''
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedMaterias.includes(materia.id)}
+                                    onChange={() => handleToggleMateria(materia.id)}
+                                    disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 2}
+                                    className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500"
+                                  />
+                                  <span className="ml-3 text-sm text-gray-900">
+                                    {materia.nombre}
+                                  </span>
+                                  <span className="ml-auto text-xs text-gray-500">
+                                    {materia.sigla}
+                                  </span>
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {selectedMaterias.length}/2 materias seleccionadas
+                        </p>
+                        {errors.materias && <p className="mt-1 text-sm text-red-600">{errors.materias}</p>}
+                      </div>
+
+                      {/* Grados/Cursos */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Asignación de Grados/Cursos
+                          <span className="text-gray-500 text-xs ml-2">(Máximo 6 grados)</span>
+                        </label>
+                        <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto bg-gray-50">
+                          {grados.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No hay grados disponibles</p>
+                          ) : (
+                            <div className="space-y-2">
+                              {grados.map((grado) => (
+                                <label
+                                  key={grado.id}
+                                  className={`flex items-center p-2 rounded-lg hover:bg-white cursor-pointer transition ${
+                                    selectedGrados.includes(grado.id) ? 'bg-white shadow-sm' : ''
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedGrados.includes(grado.id)}
+                                    onChange={() => handleToggleGrado(grado.id)}
+                                    disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
+                                    className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500"
+                                  />
+                                  <span className="ml-3 text-sm text-gray-900">
+                                    {grado.nombre}
+                                  </span>
+                                  {grado.sigla && (
+                                    <span className="ml-auto text-xs text-gray-500">
+                                      {grado.sigla}
+                                    </span>
+                                  )}
+                                </label>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {selectedGrados.length}/6 grados seleccionados
+                        </p>
+                        {errors.grados && <p className="mt-1 text-sm text-red-600">{errors.grados}</p>}
+                      </div>
+                    </>
+                  )}
+
+                  {/* Nota sobre contraseña */}
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-700">
+                      <strong>Nota:</strong> Para cambiar la contraseña del usuario, use la función "Cambiar Contraseña" en el perfil del usuario.
+                    </p>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              {/* Buttons */}
-              <div className="flex items-center justify-end space-x-4 pt-4 border-t">
-                <button
-                  type="button"
-                  onClick={() => navigate('/usuarios')}
-                  className="btn-secondary"
-                  disabled={saving}
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={saving}
-                >
-                  {saving ? 'Guardando...' : 'Guardar Cambios'}
-                </button>
-              </div>
-            </form>
-          </div>
+            {/* Botones */}
+            <div className="mt-6 flex items-center justify-end space-x-4">
+              <button
+                type="button"
+                onClick={() => navigate('/usuarios')}
+                className="btn-secondary"
+                disabled={saving}
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="btn-primary"
+                disabled={saving}
+              >
+                {saving ? 'Guardando...' : 'Guardar Cambios'}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </Layout>

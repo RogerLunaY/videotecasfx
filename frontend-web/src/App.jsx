@@ -20,7 +20,6 @@ import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
 import EditUsuarioPage from './pages/EditUsuarioPage';
 import PerfilPage from './pages/PerfilPage';
-import DocenteAsignacionesPage from './pages/DocenteAsignacionesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Components
@@ -138,15 +137,6 @@ function App() {
         element={
           <ProtectedRoute requireAdmin>
             <EditUsuarioPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/asignaciones"
-        element={
-          <ProtectedRoute requireAdmin>
-            <DocenteAsignacionesPage />
           </ProtectedRoute>
         }
       />

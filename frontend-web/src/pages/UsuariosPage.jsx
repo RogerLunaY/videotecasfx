@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
-import AsignarDocenteModal from '../components/Common/AsignarDocenteModal';
 import { useAuth } from '../context/AuthContext';
 import { getUsers, deleteUser } from '../services/userService';
 import { formatDate } from '../utils/helpers';
@@ -27,7 +26,6 @@ const UsuariosPage = () => {
     busqueda: ''
   });
   const [deleteModal, setDeleteModal] = useState({ show: false, user: null });
-  const [asignarModal, setAsignarModal] = useState({ show: false, docente: null });
 
   // Solo admins pueden acceder
   if (!isAdmin()) {
@@ -237,14 +235,6 @@ const UsuariosPage = () => {
                         >
                           Editar
                         </Link>
-                        {user.rol === 'Docente' && (
-                          <button
-                            onClick={() => setAsignarModal({ show: true, docente: user })}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
-                          >
-                            Asignar
-                          </button>
-                        )}
                         <button
                           onClick={() => setDeleteModal({ show: true, user })}
                           className="text-red-600 hover:text-red-900"
@@ -363,17 +353,6 @@ const UsuariosPage = () => {
           </div>
         </div>
       )}
-
-      {/* Modal de Asignación de Materias y Grados */}
-      <AsignarDocenteModal
-        show={asignarModal.show}
-        docente={asignarModal.docente}
-        onClose={() => setAsignarModal({ show: false, docente: null })}
-        onSuccess={() => {
-          // Opcional: recargar lista o mostrar mensaje de éxito
-          loadUsers();
-        }}
-      />
     </Layout>
   );
 };
