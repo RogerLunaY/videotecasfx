@@ -77,12 +77,12 @@ Este manual describe paso a paso cómo instalar y ejecutar el proyecto usando **
 
 2. **Crear la Base de Datos:**
    - Click en **"Nueva"** en el panel izquierdo
-   - Nombre de la base de datos: `videoteca_sfx`
+   - Nombre de la base de datos: `videoteca`
    - Cotejamiento: `utf8mb4_unicode_ci`
    - Click en **"Crear"**
 
 3. **Importar el Schema:**
-   - Seleccionar la base de datos `videoteca_sfx`
+   - Seleccionar la base de datos `videoteca`
    - Click en la pestaña **"Importar"**
    - Click en **"Elegir archivo"**
    - Seleccionar: `C:\laragon\www\videotecasfx\database\schema.sql`
@@ -90,13 +90,13 @@ Este manual describe paso a paso cómo instalar y ejecutar el proyecto usando **
    - Esperar a que se complete (debe mostrar mensaje de éxito)
 
 4. **Importar Datos de Prueba:**
-   - Con la base de datos `videoteca_sfx` seleccionada
+   - Con la base de datos `videoteca` seleccionada
    - Click en **"Importar"** nuevamente
    - Seleccionar: `C:\laragon\www\videotecasfx\database\seed_data.sql`
    - Click en **"Continuar"**
 
 5. **Verificar Importación:**
-   - En el panel izquierdo, expandir `videoteca_sfx`
+   - En el panel izquierdo, expandir `videoteca`
    - Debe mostrar 10 tablas: usuarios, roles, videos, materias, etc.
    - Click en tabla `usuarios` > **Examinar**
    - Debe mostrar 12 usuarios de prueba
@@ -115,7 +115,7 @@ Este manual describe paso a paso cómo instalar y ejecutar el proyecto usando **
    # Base de datos
    DB_HOST=localhost
    DB_PORT=3306
-   DB_NAME=videoteca_sfx
+   DB_NAME=videoteca
    DB_USER=root
    DB_PASS=
 
@@ -339,10 +339,10 @@ Este manual describe paso a paso cómo instalar y ejecutar el proyecto usando **
 3. Actualizar `backend\.env` con la contraseña correcta
 4. Reiniciar Apache
 
-### Error: "Table 'videoteca_sfx.usuarios' doesn't exist"
+### Error: "Table 'videoteca.usuarios' doesn't exist"
 
 **Solución:**
-1. Verificar que la base de datos `videoteca_sfx` exista
+1. Verificar que la base de datos `videoteca` exista
 2. Reimportar `database\schema.sql` en phpMyAdmin
 3. Verificar que todas las tablas se crearon correctamente
 

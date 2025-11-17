@@ -283,13 +283,13 @@ Docentes: (todos usan Password123!)
 
 1. Verificar orden de importación:
    ```bash
-   mysql -u root -p videoteca_sfx < database/schema.sql
-   mysql -u root -p videoteca_sfx < database/seed_data.sql
+   mysql -u root -p videoteca < database/schema.sql
+   mysql -u root -p videoteca < database/seed_data.sql
    ```
 
 2. Verificar charset UTF-8:
    ```sql
-   ALTER DATABASE videoteca_sfx CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ALTER DATABASE videoteca CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    ```
 
 ---

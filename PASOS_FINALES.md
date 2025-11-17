@@ -24,7 +24,7 @@ Tu sistema está casi listo. Solo faltan estos pasos finales:
 **Opción B - Manual (si el script falla):**
 
 1. Abre: http://localhost/phpmyadmin
-2. Click en base de datos: `videoteca_sfx`
+2. Click en base de datos: `videoteca`
 3. Click en pestaña **"Importar"**
 4. Click en **"Elegir archivo"**
 5. Selecciona: `C:\laragon\www\videotecasfx\database\seed_data.sql`

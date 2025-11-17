@@ -614,16 +614,16 @@ curl -X POST http://localhost/backend/api/docentes/5/grados \
 
 ```bash
 # 1. Verificar tablas
-mysql -u root -p videoteca_sfx -e "SHOW TABLES LIKE 'docente_%';"
+mysql -u root -p videoteca -e "SHOW TABLES LIKE 'docente_%';"
 
 # 2. Ver estructura
-mysql -u root -p videoteca_sfx -e "DESCRIBE docente_materias;"
+mysql -u root -p videoteca -e "DESCRIBE docente_materias;"
 
 # 3. Contar asignaciones
-mysql -u root -p videoteca_sfx -e "SELECT COUNT(*) FROM docente_materias;"
+mysql -u root -p videoteca -e "SELECT COUNT(*) FROM docente_materias;"
 
 # 4. Ver vista
-mysql -u root -p videoteca_sfx -e "SELECT * FROM vista_docentes_asignaciones;"
+mysql -u root -p videoteca -e "SELECT * FROM vista_docentes_asignaciones;"
 ```
 
 ## 🔧 Troubleshooting

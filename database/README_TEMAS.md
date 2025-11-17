@@ -60,7 +60,7 @@ Para cargar todos los temas del currículo completo, tienes dos opciones:
 2. Importar después de la instalación inicial:
 
 ```bash
-mysql -u usuario -p videoteca_sfx < database/temas_completos.sql
+mysql -u usuario -p videoteca < database/temas_completos.sql
 ```
 
 #### B. Interfaz de Administración

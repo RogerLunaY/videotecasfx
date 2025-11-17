@@ -5,11 +5,11 @@
 -- =====================================================
 
 -- Crear base de datos si no existe
-CREATE DATABASE IF NOT EXISTS videoteca_sfx
+CREATE DATABASE IF NOT EXISTS videoteca
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
-USE videoteca_sfx;
+USE videoteca;
 
 -- =====================================================
 -- TABLA: roles

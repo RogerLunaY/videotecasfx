@@ -16,7 +16,7 @@ Copiar carpeta "videotecasfx" a: C:\laragon\www\
 #### 2. Base de Datos
 ```
 1. Abrir phpMyAdmin: http://localhost/phpmyadmin
-2. Crear base de datos: "videoteca_sfx" (utf8mb4_unicode_ci)
+2. Crear base de datos: "videoteca" (utf8mb4_unicode_ci)
 3. Importar: database\schema.sql
 4. Importar: database\seed_data.sql
 ```
@@ -26,7 +26,7 @@ Copiar carpeta "videotecasfx" a: C:\laragon\www\
 1. Copiar backend\.env.example a backend\.env
 2. Editar backend\.env:
    DB_HOST=localhost
-   DB_NAME=videoteca_sfx
+   DB_NAME=videoteca
    DB_USER=root
    DB_PASS=
 

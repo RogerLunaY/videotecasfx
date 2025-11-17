@@ -35,7 +35,7 @@ echo.
 
 echo Si ves errores de base de datos:
 echo - Verifica que MySQL este corriendo en Laragon
-echo - Verifica que la base de datos videoteca_sfx exista
+echo - Verifica que la base de datos videoteca exista
 echo - Revisa el archivo backend\.env
 echo.
 

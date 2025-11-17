@@ -136,7 +136,7 @@ cp .env.example .env
 
 # Editar .env con tus credenciales
 # DB_HOST=localhost
-# DB_NAME=videoteca_sfx
+# DB_NAME=videoteca
 # DB_USER=root
 # DB_PASS=tu_password
 # JWT_SECRET=cambiar_en_produccion

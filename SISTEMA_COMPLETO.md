@@ -245,7 +245,7 @@ importar-datos.bat
 
 **Opción B: Manual (phpMyAdmin)**
 1. Abre: http://localhost/phpmyadmin
-2. Selecciona base de datos: `videoteca_sfx`
+2. Selecciona base de datos: `videoteca`
 3. Click en pestaña "Importar"
 4. Selecciona archivo: `database/seed_data.sql`
 5. Click en "Continuar"

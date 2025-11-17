@@ -59,7 +59,7 @@ if not exist "%MYSQL_PATH%" (
     echo.
     echo Por favor, importa manualmente:
     echo 1. Abre http://localhost/phpmyadmin
-    echo 2. Selecciona base de datos: videoteca_sfx
+    echo 2. Selecciona base de datos: videoteca
     echo 3. Click en Importar
     echo 4. Selecciona archivo: database\seed_data.sql
     echo 5. Click en Continuar
@@ -69,7 +69,7 @@ if not exist "%MYSQL_PATH%" (
 )
 
 echo Ejecutando importacion...
-"%MYSQL_PATH%" -u root videoteca_sfx < database\seed_data.sql
+"%MYSQL_PATH%" -u root videoteca < database\seed_data.sql
 
 if %errorlevel% equ 0 (
     echo.
@@ -106,7 +106,7 @@ if %errorlevel% equ 0 (
     echo Por favor, importa manualmente usando phpMyAdmin:
     echo.
     echo 1. Abre: http://localhost/phpmyadmin
-    echo 2. Selecciona base de datos: videoteca_sfx
+    echo 2. Selecciona base de datos: videoteca
     echo 3. Click en pestana "Importar"
     echo 4. Click en "Elegir archivo"
     echo 5. Selecciona: database\seed_data.sql
