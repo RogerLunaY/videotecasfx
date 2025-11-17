@@ -156,7 +156,7 @@ class AuthController
      * Registro de nuevo usuario (solo administradores)
      *
      * POST /api/auth/register
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materias_ids[], grados_ids[] }
      *
      * @return void
      */
@@ -171,9 +171,7 @@ class AuthController
             'ci' => 'required|alphanumeric|min:5|max:20',
             'email' => 'required|email|max:150',
             'password' => 'required|min:8|max:100',
-            'rol_id' => 'required|integer',
-            'materia_id' => 'integer',
-            'grado_id' => 'integer'
+            'rol_id' => 'required|integer'
         ];
 
         if (!$this->validator->validar($data, $reglas)) {
@@ -193,6 +191,20 @@ class AuthController
             return;
         }
 
+        // Validar límites de asignaciones para docentes
+        $materiasIds = $data['materias_ids'] ?? [];
+        $gradosIds = $data['grados_ids'] ?? [];
+
+        if (!empty($materiasIds) && count($materiasIds) > 2) {
+            $this->enviarRespuesta(400, false, null, 'No se pueden asignar más de 2 materias');
+            return;
+        }
+
+        if (!empty($gradosIds) && count($gradosIds) > 6) {
+            $this->enviarRespuesta(400, false, null, 'No se pueden asignar más de 6 grados');
+            return;
+        }
+
         // Crear usuario
         $this->usuarioModel->nombre = $data['nombre'];
         $this->usuarioModel->apellido_paterno = $data['apellido_paterno'];
@@ -201,14 +213,34 @@ class AuthController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
+        $this->usuarioModel->materia_id = null; // Ya no se usa, se usan las asignaciones
+        $this->usuarioModel->grado_id = null; // Ya no se usa, se usan las asignaciones
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = 'activo';
 
         $usuarioId = $this->usuarioModel->crear();
 
         if ($usuarioId) {
+            // Si es docente y tiene asignaciones, crearlas
+            if (!empty($materiasIds) || !empty($gradosIds)) {
+                require_once __DIR__ . '/../models/DocenteAsignacion.php';
+                $asignacionModel = new DocenteAsignacion();
+
+                // Obtener el ID del usuario autenticado (admin que está registrando)
+                $usuarioActual = AuthMiddleware::proteger();
+                $adminId = $usuarioActual ? $usuarioActual['id'] : $usuarioId;
+
+                // Asignar materias
+                if (!empty($materiasIds)) {
+                    $asignacionModel->asignarMaterias($usuarioId, $materiasIds, $adminId);
+                }
+
+                // Asignar grados
+                if (!empty($gradosIds)) {
+                    $asignacionModel->asignarGrados($usuarioId, $gradosIds, $adminId);
+                }
+            }
+
             $this->logger->info('usuario_registrado', "Nuevo usuario registrado: {$data['email']}", $usuarioId);
 
             $this->enviarRespuesta(201, true, [
