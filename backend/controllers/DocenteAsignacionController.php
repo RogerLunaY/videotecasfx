@@ -125,7 +125,11 @@ class DocenteAsignacionController
         if ($resultado) {
             $this->logger->info(
                 "Materias asignadas al docente {$docente['nombre']}",
-                ['docente_id' => $id, 'materias' => $data['materia_ids'], 'admin_id' => $usuario['id']]
+                [
+                    'docente_id' => $id,
+                    'materias' => implode(',', $data['materia_ids']),
+                    'admin_id' => $usuario['id']
+                ]
             );
 
             $asignaciones = $this->asignacionModel->obtenerAsignacionesDocente($id);
@@ -183,7 +187,11 @@ class DocenteAsignacionController
         if ($resultado) {
             $this->logger->info(
                 "Grados asignados al docente {$docente['nombre']}",
-                ['docente_id' => $id, 'grados' => $data['grado_ids'], 'admin_id' => $usuario['id']]
+                [
+                    'docente_id' => $id,
+                    'grados' => implode(',', $data['grado_ids']),
+                    'admin_id' => $usuario['id']
+                ]
             );
 
             $asignaciones = $this->asignacionModel->obtenerAsignacionesDocente($id);
