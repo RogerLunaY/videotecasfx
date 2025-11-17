@@ -2,7 +2,7 @@
  * Página de Registro (solo para admins)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResources } from '../hooks/useResources';
@@ -41,6 +41,19 @@ const RegisterPage = () => {
     return null;
   }
 
+  // Establecer Docente como rol por defecto
+  useEffect(() => {
+    if (roles.length > 0 && !formData.rol_id) {
+      const rolDocente = roles.find(r => r.nombre === 'Docente');
+      if (rolDocente) {
+        setFormData(prev => ({
+          ...prev,
+          rol_id: rolDocente.id
+        }));
+      }
+    }
+  }, [roles]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -63,10 +76,10 @@ const RegisterPage = () => {
         return prev.filter(id => id !== materiaId);
       } else {
         // Seleccionar solo si no se ha alcanzado el máximo
-        if (prev.length >= 2) {
+        if (prev.length >= 3) {
           setErrors(prev => ({
             ...prev,
-            materias: 'Solo puede seleccionar hasta 2 materias'
+            materias: 'Solo puede seleccionar hasta 3 materias'
           }));
           return prev;
         }
@@ -235,8 +248,8 @@ const RegisterPage = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="space-y-6">
-              {/* SECCIÓN: Datos Personales */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* COLUMNA IZQUIERDA: Datos Personales con Rol */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-4 flex items-center">
                   <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,6 +257,30 @@ const RegisterPage = () => {
                   </svg>
                   Datos Personales
                 </h3>
+
+                {/* Selector de Rol como botones */}
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Rol *
+                  </label>
+                  <div className="flex gap-2">
+                    {roles.map(rol => (
+                      <button
+                        key={rol.id}
+                        type="button"
+                        onClick={() => handleChange({ target: { name: 'rol_id', value: rol.id } })}
+                        className={`flex-1 px-4 py-2 rounded-lg font-medium transition-all ${
+                          formData.rol_id === rol.id
+                            ? 'bg-salesiano-azul-600 text-white shadow-md'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {rol.nombre}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.rol_id && <p className="mt-1 text-sm text-red-600">{errors.rol_id}</p>}
+                </div>
 
                 {/* Grid 2 columnas para campos */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -383,7 +420,7 @@ const RegisterPage = () => {
                 </div>
               </div>
 
-              {/* SECCIÓN: Asignaciones */}
+              {/* COLUMNA DERECHA: Asignaciones */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-6 flex items-center">
                   <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -393,61 +430,38 @@ const RegisterPage = () => {
                 </h3>
 
                 <div className="space-y-6">
-                  {/* Rol */}
-                  <div>
-                    <label htmlFor="rol_id" className="block text-sm font-medium text-gray-700 mb-1">
-                      Rol *
-                    </label>
-                    <select
-                      id="rol_id"
-                      name="rol_id"
-                      value={formData.rol_id}
-                      onChange={handleChange}
-                      className={`input-field ${errors.rol_id ? 'border-red-500' : ''}`}
-                    >
-                      <option value="">Seleccionar rol</option>
-                      {roles.map(rol => (
-                        <option key={rol.id} value={rol.id}>{rol.nombre}</option>
-                      ))}
-                    </select>
-                    {errors.rol_id && <p className="mt-1 text-sm text-red-600">{errors.rol_id}</p>}
-                  </div>
-
-                  {/* Materias (solo para docentes) */}
+                  {/* Materias */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Asignación de Materias
-                      <span className="text-gray-500 text-xs ml-2">(Máximo 2 materias)</span>
+                      <span className="text-gray-500 text-xs ml-2">(Máximo 3 materias)</span>
                     </label>
                     <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
                       {materias.length === 0 ? (
                         <p className="text-sm text-gray-500 italic">No hay materias disponibles</p>
                       ) : (
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {materias.map((materia) => (
-                            <label
+                            <button
                               key={materia.id}
-                              className={`flex items-center p-2 rounded-lg hover:bg-white cursor-pointer transition ${
-                                selectedMaterias.includes(materia.id) ? 'bg-white shadow-sm' : ''
-                              }`}
+                              type="button"
+                              onClick={() => handleToggleMateria(materia.id)}
+                              disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3}
+                              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                                selectedMaterias.includes(materia.id)
+                                  ? 'bg-salesiano-verde-600 text-white shadow-md'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                              } ${!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={materia.nombre}
                             >
-                              <input
-                                type="checkbox"
-                                checked={selectedMaterias.includes(materia.id)}
-                                onChange={() => handleToggleMateria(materia.id)}
-                                disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 2}
-                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500 flex-shrink-0"
-                              />
-                              <span className="ml-2 text-sm text-gray-900 truncate" title={materia.nombre}>
-                                {materia.nombre}
-                              </span>
-                            </label>
+                              {materia.nombre}
+                            </button>
                           ))}
                         </div>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-gray-600">
-                      {selectedMaterias.length}/2 materias seleccionadas
+                      {selectedMaterias.length}/3 materias seleccionadas
                     </p>
                     {errors.materias && <p className="mt-1 text-sm text-red-600">{errors.materias}</p>}
                   </div>
@@ -455,38 +469,35 @@ const RegisterPage = () => {
                   {/* Grados/Cursos */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Asignación de Grados/Cursos
-                      <span className="text-gray-500 text-xs ml-2">(Máximo 6 grados)</span>
+                      Asignación de Cursos
+                      <span className="text-gray-500 text-xs ml-2">(Máximo 6 cursos)</span>
                     </label>
                     <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
                       {grados.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No hay grados disponibles</p>
+                        <p className="text-sm text-gray-500 italic">No hay cursos disponibles</p>
                       ) : (
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {grados.map((grado) => (
-                            <label
+                            <button
                               key={grado.id}
-                              className={`flex items-center p-2 rounded-lg hover:bg-white cursor-pointer transition ${
-                                selectedGrados.includes(grado.id) ? 'bg-white shadow-sm' : ''
-                              }`}
+                              type="button"
+                              onClick={() => handleToggleGrado(grado.id)}
+                              disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
+                              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                                selectedGrados.includes(grado.id)
+                                  ? 'bg-salesiano-naranja-600 text-white shadow-md'
+                                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                              } ${!selectedGrados.includes(grado.id) && selectedGrados.length >= 6 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              title={grado.nombre}
                             >
-                              <input
-                                type="checkbox"
-                                checked={selectedGrados.includes(grado.id)}
-                                onChange={() => handleToggleGrado(grado.id)}
-                                disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
-                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500 flex-shrink-0"
-                              />
-                              <span className="ml-2 text-sm text-gray-900 truncate" title={grado.nombre}>
-                                {grado.nombre}
-                              </span>
-                            </label>
+                              {grado.nombre}
+                            </button>
                           ))}
                         </div>
                       )}
                     </div>
                     <p className="mt-1 text-xs text-gray-600">
-                      {selectedGrados.length}/6 grados seleccionados
+                      {selectedGrados.length}/6 cursos seleccionados
                     </p>
                     {errors.grados && <p className="mt-1 text-sm text-red-600">{errors.grados}</p>}
                   </div>

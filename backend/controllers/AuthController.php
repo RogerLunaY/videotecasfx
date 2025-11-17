@@ -195,8 +195,8 @@ class AuthController
         $materiasIds = $data['materias_ids'] ?? [];
         $gradosIds = $data['grados_ids'] ?? [];
 
-        if (!empty($materiasIds) && count($materiasIds) > 2) {
-            $this->enviarRespuesta(400, false, null, 'No se pueden asignar más de 2 materias');
+        if (!empty($materiasIds) && count($materiasIds) > 3) {
+            $this->enviarRespuesta(400, false, null, 'No se pueden asignar más de 3 materias');
             return;
         }
 
