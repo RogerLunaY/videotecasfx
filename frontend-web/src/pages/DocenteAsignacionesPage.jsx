@@ -46,11 +46,16 @@ const DocenteAsignacionesPage = () => {
         getGrados()
       ]);
 
-      setDocentes(docentesData.data.docentes || []);
+      console.log('Docentes cargados:', docentesData?.length || 0);
+
+      // Ahora los servicios son consistentes - todos retornan el array directamente
+      setDocentes(docentesData || []);
       setMaterias(materiasData || []);
       setGrados(gradosData || []);
     } catch (error) {
       console.error('Error loading data:', error);
+      console.error('Error details:', error.response?.data);
+      alert('Error al cargar los datos. Verifique que existan docentes registrados en el sistema.');
     } finally {
       setLoading(false);
     }

@@ -9,7 +9,8 @@ import api from './api';
  */
 export const getAllDocentesAsignaciones = async () => {
   const response = await api.get('/docentes-asignaciones');
-  return response.data;
+  // Retornar directamente el array de docentes para ser consistente con otros servicios
+  return response.data.data.docentes;
 };
 
 /**
