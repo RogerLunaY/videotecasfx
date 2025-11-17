@@ -54,6 +54,17 @@ const RegisterPage = () => {
     }
   }, [roles]);
 
+  // Limpiar asignaciones cuando se cambia a rol Administrador
+  useEffect(() => {
+    const rolDocente = roles.find(r => r.nombre === 'Docente');
+    const isDocente = formData.rol_id === rolDocente?.id;
+
+    if (!isDocente && (selectedMaterias.length > 0 || selectedGrados.length > 0)) {
+      setSelectedMaterias([]);
+      setSelectedGrados([]);
+    }
+  }, [formData.rol_id, roles]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -429,7 +440,22 @@ const RegisterPage = () => {
                   Asignaciones
                 </h3>
 
-                <div className="space-y-6">
+                {(() => {
+                  const rolDocente = roles.find(r => r.nombre === 'Docente');
+                  const isDocente = formData.rol_id === rolDocente?.id;
+
+                  if (!isDocente) {
+                    return (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                        <p className="text-sm text-gray-600">
+                          Las asignaciones solo están disponibles para el rol <strong>Docente</strong>
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-6">
                   {/* Materias */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -502,6 +528,8 @@ const RegisterPage = () => {
                     {errors.grados && <p className="mt-1 text-sm text-red-600">{errors.grados}</p>}
                   </div>
                 </div>
+                  );
+                })()}
               </div>
             </div>
 

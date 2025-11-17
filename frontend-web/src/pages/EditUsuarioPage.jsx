@@ -47,6 +47,17 @@ const EditUsuarioPage = () => {
     loadUser();
   }, [id]);
 
+  // Limpiar asignaciones cuando se cambia a rol Administrador
+  useEffect(() => {
+    const rolDocente = roles.find(r => r.nombre === 'Docente');
+    const isDocente = formData.rol_id === rolDocente?.id;
+
+    if (!isDocente && (selectedMaterias.length > 0 || selectedGrados.length > 0)) {
+      setSelectedMaterias([]);
+      setSelectedGrados([]);
+    }
+  }, [formData.rol_id, roles]);
+
   const loadUser = async () => {
     try {
       setLoading(true);
@@ -418,86 +429,103 @@ const EditUsuarioPage = () => {
                   Asignaciones
                 </h3>
 
-                <div className="space-y-6">
-                  {/* Materias */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Asignación de Materias
-                      <span className="text-gray-500 text-xs ml-2">(Máximo 3 materias)</span>
-                    </label>
-                    <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
-                      {materias.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No hay materias disponibles</p>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {materias.map((materia) => (
-                            <button
-                              key={materia.id}
-                              type="button"
-                              onClick={() => handleToggleMateria(materia.id)}
-                              disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3}
-                              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
-                                selectedMaterias.includes(materia.id)
-                                  ? 'bg-salesiano-verde-600 text-white shadow-md'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                              } ${!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={materia.nombre}
-                            >
-                              {materia.nombre}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-1 text-xs text-gray-600">
-                      {selectedMaterias.length}/3 materias seleccionadas
-                    </p>
-                    {errors.materias && <p className="mt-1 text-sm text-red-600">{errors.materias}</p>}
-                  </div>
+                {(() => {
+                  const rolDocente = roles.find(r => r.nombre === 'Docente');
+                  const isDocente = formData.rol_id === rolDocente?.id;
 
-                  {/* Grados/Cursos */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Asignación de Cursos
-                      <span className="text-gray-500 text-xs ml-2">(Máximo 6 cursos)</span>
-                    </label>
-                    <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
-                      {grados.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">No hay cursos disponibles</p>
-                      ) : (
-                        <div className="flex flex-wrap gap-2">
-                          {grados.map((grado) => (
-                            <button
-                              key={grado.id}
-                              type="button"
-                              onClick={() => handleToggleGrado(grado.id)}
-                              disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
-                              className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
-                                selectedGrados.includes(grado.id)
-                                  ? 'bg-salesiano-naranja-600 text-white shadow-md'
-                                  : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
-                              } ${!selectedGrados.includes(grado.id) && selectedGrados.length >= 6 ? 'opacity-50 cursor-not-allowed' : ''}`}
-                              title={grado.nombre}
-                            >
-                              {grado.nombre}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <p className="mt-1 text-xs text-gray-600">
-                      {selectedGrados.length}/6 cursos seleccionados
-                    </p>
-                    {errors.grados && <p className="mt-1 text-sm text-red-600">{errors.grados}</p>}
-                  </div>
+                  if (!isDocente) {
+                    return (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center">
+                        <p className="text-sm text-gray-600">
+                          Las asignaciones solo están disponibles para el rol <strong>Docente</strong>
+                        </p>
+                      </div>
+                    );
+                  }
 
-                  {/* Nota sobre contraseña */}
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-700">
-                      <strong>Nota:</strong> Para cambiar la contraseña del usuario, use la función "Cambiar Contraseña" en el perfil del usuario.
-                    </p>
-                  </div>
-                </div>
+                  return (
+                    <div className="space-y-6">
+                      {/* Materias */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Asignación de Materias
+                          <span className="text-gray-500 text-xs ml-2">(Máximo 3 materias)</span>
+                        </label>
+                        <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
+                          {materias.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No hay materias disponibles</p>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {materias.map((materia) => (
+                                <button
+                                  key={materia.id}
+                                  type="button"
+                                  onClick={() => handleToggleMateria(materia.id)}
+                                  disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                                    selectedMaterias.includes(materia.id)
+                                      ? 'bg-salesiano-verde-600 text-white shadow-md'
+                                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                                  } ${!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 3 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                  title={materia.nombre}
+                                >
+                                  {materia.nombre}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {selectedMaterias.length}/3 materias seleccionadas
+                        </p>
+                        {errors.materias && <p className="mt-1 text-sm text-red-600">{errors.materias}</p>}
+                      </div>
+
+                      {/* Grados/Cursos */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          Asignación de Cursos
+                          <span className="text-gray-500 text-xs ml-2">(Máximo 6 cursos)</span>
+                        </label>
+                        <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
+                          {grados.length === 0 ? (
+                            <p className="text-sm text-gray-500 italic">No hay cursos disponibles</p>
+                          ) : (
+                            <div className="flex flex-wrap gap-2">
+                              {grados.map((grado) => (
+                                <button
+                                  key={grado.id}
+                                  type="button"
+                                  onClick={() => handleToggleGrado(grado.id)}
+                                  disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm ${
+                                    selectedGrados.includes(grado.id)
+                                      ? 'bg-salesiano-naranja-600 text-white shadow-md'
+                                      : 'bg-white text-gray-700 hover:bg-gray-100 border border-gray-300'
+                                  } ${!selectedGrados.includes(grado.id) && selectedGrados.length >= 6 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                  title={grado.nombre}
+                                >
+                                  {grado.nombre}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-600">
+                          {selectedGrados.length}/6 cursos seleccionados
+                        </p>
+                        {errors.grados && <p className="mt-1 text-sm text-red-600">{errors.grados}</p>}
+                      </div>
+
+                      {/* Nota sobre contraseña */}
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                        <p className="text-sm text-blue-700">
+                          <strong>Nota:</strong> Para cambiar la contraseña del usuario, use la función "Cambiar Contraseña" en el perfil del usuario.
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
 

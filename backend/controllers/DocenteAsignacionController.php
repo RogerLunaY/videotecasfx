@@ -63,7 +63,7 @@ class DocenteAsignacionController
 
         // Verificar que el docente existe
         $docente = $this->usuarioModel->obtenerPorId($id);
-        if (!$docente || $docente['rol'] !== 'Docente') {
+        if (!$docente || $docente['rol_nombre'] !== 'Docente') {
             $this->enviarRespuesta(404, false, null, 'Docente no encontrado');
             return;
         }
@@ -110,7 +110,7 @@ class DocenteAsignacionController
 
         // Verificar que el docente existe
         $docente = $this->usuarioModel->obtenerPorId($id);
-        if (!$docente || $docente['rol'] !== 'Docente') {
+        if (!$docente || $docente['rol_nombre'] !== 'Docente') {
             $this->enviarRespuesta(404, false, null, 'Docente no encontrado');
             return;
         }
@@ -168,7 +168,7 @@ class DocenteAsignacionController
 
         // Verificar que el docente existe
         $docente = $this->usuarioModel->obtenerPorId($id);
-        if (!$docente || $docente['rol'] !== 'Docente') {
+        if (!$docente || $docente['rol_nombre'] !== 'Docente') {
             $this->enviarRespuesta(404, false, null, 'Docente no encontrado');
             return;
         }
