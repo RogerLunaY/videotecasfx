@@ -142,48 +142,29 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
--- TABLA: docente_materias
--- Descripción: Asignación de materias a docentes
--- Relación N:M entre usuarios(docentes) y materias
+-- TABLA: asignaciones
+-- Descripción: Asignaciones de materias y grados a docentes
+-- Tabla unificada que reemplaza docente_materias y docente_grados
+-- Relación N:M entre usuarios(docentes) y recursos (materias/grados)
 -- =====================================================
-CREATE TABLE IF NOT EXISTS docente_materias (
+CREATE TABLE IF NOT EXISTS asignaciones (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     docente_id INT UNSIGNED NOT NULL,
-    materia_id INT UNSIGNED NOT NULL,
+    tipo ENUM('materia', 'grado') NOT NULL COMMENT 'Tipo de recurso asignado',
+    recurso_id INT UNSIGNED NOT NULL COMMENT 'ID del recurso (materia_id o grado_id)',
     fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     asignado_por INT UNSIGNED COMMENT 'Admin que realizó la asignación',
 
     FOREIGN KEY (docente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE CASCADE,
     FOREIGN KEY (asignado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
 
-    UNIQUE KEY unique_docente_materia (docente_id, materia_id),
+    UNIQUE KEY unique_docente_tipo_recurso (docente_id, tipo, recurso_id),
     INDEX idx_docente (docente_id),
-    INDEX idx_materia (materia_id)
+    INDEX idx_tipo (tipo),
+    INDEX idx_recurso (recurso_id),
+    INDEX idx_docente_tipo (docente_id, tipo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Asignación de materias a docentes';
-
--- =====================================================
--- TABLA: docente_grados
--- Descripción: Asignación de grados/cursos a docentes
--- Relación N:M entre usuarios(docentes) y grados
--- =====================================================
-CREATE TABLE IF NOT EXISTS docente_grados (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    docente_id INT UNSIGNED NOT NULL,
-    grado_id INT UNSIGNED NOT NULL,
-    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    asignado_por INT UNSIGNED COMMENT 'Admin que realizó la asignación',
-
-    FOREIGN KEY (docente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (grado_id) REFERENCES grados(id) ON DELETE CASCADE,
-    FOREIGN KEY (asignado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-
-    UNIQUE KEY unique_docente_grado (docente_id, grado_id),
-    INDEX idx_docente (docente_id),
-    INDEX idx_grado (grado_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Asignación de grados a docentes';
+COMMENT='Asignaciones de materias y grados a docentes (tabla unificada)';
 
 -- =====================================================
 -- TABLA: videos

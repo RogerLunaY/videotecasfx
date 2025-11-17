@@ -5,7 +5,7 @@
  * U.E. San Francisco Xavier
  *
  * @author Roger Omar Luna Yujra
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 require_once __DIR__ . '/../config/database.php';
@@ -13,12 +13,15 @@ require_once __DIR__ . '/../config/database.php';
 /**
  * Clase DocenteAsignacion - Modelo para asignaciones de materias y grados a docentes
  *
- * Maneja las relaciones N:M entre docentes y materias/grados
+ * Versión 2.0: Tabla unificada 'asignaciones' que consolida materias y grados
  */
 class DocenteAsignacion
 {
     /** @var PDO Conexión a la base de datos */
     private PDO $conn;
+
+    /** @var string Tabla de asignaciones */
+    private string $table = 'asignaciones';
 
     /**
      * Constructor
@@ -30,105 +33,81 @@ class DocenteAsignacion
     }
 
     /**
-     * Asigna una materia a un docente
+     * Asigna recursos (materias o grados) a un docente
      *
      * @param int $docenteId ID del docente
-     * @param int $materiaId ID de la materia
+     * @param string $tipo Tipo de recurso ('materia' o 'grado')
+     * @param array $recursoIds Array de IDs de recursos
      * @param int $asignadoPor ID del admin que asigna
      * @return bool
      */
-    public function asignarMateria(int $docenteId, int $materiaId, int $asignadoPor): bool
+    public function asignarRecursos(int $docenteId, string $tipo, array $recursoIds, int $asignadoPor): bool
     {
-        $query = "INSERT INTO docente_materias (docente_id, materia_id, asignado_por)
-                  VALUES (:docente_id, :materia_id, :asignado_por)
-                  ON DUPLICATE KEY UPDATE fecha_asignacion = CURRENT_TIMESTAMP";
+        if (!in_array($tipo, ['materia', 'grado'])) {
+            error_log("[DocenteAsignacion::asignarRecursos] Tipo inválido: {$tipo}");
+            return false;
+        }
 
         try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
-            $stmt->bindParam(':asignado_por', $asignadoPor, PDO::PARAM_INT);
+            $this->conn->beginTransaction();
 
-            return $stmt->execute();
+            // Eliminar asignaciones actuales de este tipo
+            $deleteQuery = "DELETE FROM {$this->table}
+                           WHERE docente_id = :docente_id AND tipo = :tipo";
+            $stmt = $this->conn->prepare($deleteQuery);
+            $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+            $stmt->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $stmt->execute();
+
+            // Insertar nuevas asignaciones
+            if (!empty($recursoIds)) {
+                $insertQuery = "INSERT INTO {$this->table}
+                               (docente_id, tipo, recurso_id, asignado_por)
+                               VALUES (:docente_id, :tipo, :recurso_id, :asignado_por)";
+                $stmt = $this->conn->prepare($insertQuery);
+
+                foreach ($recursoIds as $recursoId) {
+                    $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+                    $stmt->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+                    $stmt->bindValue(':recurso_id', $recursoId, PDO::PARAM_INT);
+                    $stmt->bindValue(':asignado_por', $asignadoPor, PDO::PARAM_INT);
+                    $stmt->execute();
+                }
+            }
+
+            $this->conn->commit();
+            return true;
         } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::asignarMateria] Error: " . $e->getMessage());
+            $this->conn->rollBack();
+            error_log("[DocenteAsignacion::asignarRecursos] Error: " . $e->getMessage());
             return false;
         }
     }
 
     /**
-     * Desasigna una materia de un docente
+     * Asigna múltiples materias a un docente (reemplaza las existentes)
      *
      * @param int $docenteId ID del docente
-     * @param int $materiaId ID de la materia
-     * @return bool
-     */
-    public function desasignarMateria(int $docenteId, int $materiaId): bool
-    {
-        $query = "DELETE FROM docente_materias
-                  WHERE docente_id = :docente_id AND materia_id = :materia_id";
-
-        try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
-
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::desasignarMateria] Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Asigna un grado a un docente
-     *
-     * @param int $docenteId ID del docente
-     * @param int $gradoId ID del grado
+     * @param array $materiaIds Array de IDs de materias
      * @param int $asignadoPor ID del admin que asigna
      * @return bool
      */
-    public function asignarGrado(int $docenteId, int $gradoId, int $asignadoPor): bool
+    public function asignarMaterias(int $docenteId, array $materiaIds, int $asignadoPor): bool
     {
-        $query = "INSERT INTO docente_grados (docente_id, grado_id, asignado_por)
-                  VALUES (:docente_id, :grado_id, :asignado_por)
-                  ON DUPLICATE KEY UPDATE fecha_asignacion = CURRENT_TIMESTAMP";
-
-        try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':grado_id', $gradoId, PDO::PARAM_INT);
-            $stmt->bindParam(':asignado_por', $asignadoPor, PDO::PARAM_INT);
-
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::asignarGrado] Error: " . $e->getMessage());
-            return false;
-        }
+        return $this->asignarRecursos($docenteId, 'materia', $materiaIds, $asignadoPor);
     }
 
     /**
-     * Desasigna un grado de un docente
+     * Asigna múltiples grados a un docente (reemplaza los existentes)
      *
      * @param int $docenteId ID del docente
-     * @param int $gradoId ID del grado
+     * @param array $gradoIds Array de IDs de grados
+     * @param int $asignadoPor ID del admin que asigna
      * @return bool
      */
-    public function desasignarGrado(int $docenteId, int $gradoId): bool
+    public function asignarGrados(int $docenteId, array $gradoIds, int $asignadoPor): bool
     {
-        $query = "DELETE FROM docente_grados
-                  WHERE docente_id = :docente_id AND grado_id = :grado_id";
-
-        try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':grado_id', $gradoId, PDO::PARAM_INT);
-
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::desasignarGrado] Error: " . $e->getMessage());
-            return false;
-        }
+        return $this->asignarRecursos($docenteId, 'grado', $gradoIds, $asignadoPor);
     }
 
     /**
@@ -141,15 +120,16 @@ class DocenteAsignacion
     {
         $query = "SELECT
                     m.*,
-                    dm.fecha_asignacion
+                    a.fecha_asignacion
                   FROM materias m
-                  INNER JOIN docente_materias dm ON m.id = dm.materia_id
-                  WHERE dm.docente_id = :docente_id
+                  INNER JOIN {$this->table} a ON m.id = a.recurso_id
+                  WHERE a.docente_id = :docente_id
+                    AND a.tipo = 'materia'
                   ORDER BY m.nombre";
 
         try {
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
+            $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -169,15 +149,16 @@ class DocenteAsignacion
     {
         $query = "SELECT
                     g.*,
-                    dg.fecha_asignacion
+                    a.fecha_asignacion
                   FROM grados g
-                  INNER JOIN docente_grados dg ON g.id = dg.grado_id
-                  WHERE dg.docente_id = :docente_id
+                  INNER JOIN {$this->table} a ON g.id = a.recurso_id
+                  WHERE a.docente_id = :docente_id
+                    AND a.tipo = 'grado'
                   ORDER BY g.orden";
 
         try {
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
+            $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -210,22 +191,7 @@ class DocenteAsignacion
      */
     public function tieneMateria(int $docenteId, int $materiaId): bool
     {
-        $query = "SELECT COUNT(*) as count
-                  FROM docente_materias
-                  WHERE docente_id = :docente_id AND materia_id = :materia_id";
-
-        try {
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
-            $stmt->execute();
-
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result['count'] > 0;
-        } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::tieneMateria] Error: " . $e->getMessage());
-            return false;
-        }
+        return $this->tieneRecurso($docenteId, 'materia', $materiaId);
     }
 
     /**
@@ -237,104 +203,36 @@ class DocenteAsignacion
      */
     public function tieneGrado(int $docenteId, int $gradoId): bool
     {
+        return $this->tieneRecurso($docenteId, 'grado', $gradoId);
+    }
+
+    /**
+     * Verifica si un docente tiene asignado un recurso específico
+     *
+     * @param int $docenteId ID del docente
+     * @param string $tipo Tipo de recurso ('materia' o 'grado')
+     * @param int $recursoId ID del recurso
+     * @return bool
+     */
+    private function tieneRecurso(int $docenteId, string $tipo, int $recursoId): bool
+    {
         $query = "SELECT COUNT(*) as count
-                  FROM docente_grados
-                  WHERE docente_id = :docente_id AND grado_id = :grado_id";
+                  FROM {$this->table}
+                  WHERE docente_id = :docente_id
+                    AND tipo = :tipo
+                    AND recurso_id = :recurso_id";
 
         try {
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->bindParam(':grado_id', $gradoId, PDO::PARAM_INT);
+            $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+            $stmt->bindValue(':tipo', $tipo, PDO::PARAM_STR);
+            $stmt->bindValue(':recurso_id', $recursoId, PDO::PARAM_INT);
             $stmt->execute();
 
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             return $result['count'] > 0;
         } catch (PDOException $e) {
-            error_log("[DocenteAsignacion::tieneGrado] Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Asigna múltiples materias a un docente (reemplaza las existentes)
-     *
-     * @param int $docenteId ID del docente
-     * @param array $materiaIds Array de IDs de materias
-     * @param int $asignadoPor ID del admin que asigna
-     * @return bool
-     */
-    public function asignarMaterias(int $docenteId, array $materiaIds, int $asignadoPor): bool
-    {
-        try {
-            $this->conn->beginTransaction();
-
-            // Eliminar asignaciones actuales
-            $deleteQuery = "DELETE FROM docente_materias WHERE docente_id = :docente_id";
-            $stmt = $this->conn->prepare($deleteQuery);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // Insertar nuevas asignaciones
-            if (!empty($materiaIds)) {
-                $insertQuery = "INSERT INTO docente_materias (docente_id, materia_id, asignado_por)
-                               VALUES (:docente_id, :materia_id, :asignado_por)";
-                $stmt = $this->conn->prepare($insertQuery);
-
-                foreach ($materiaIds as $materiaId) {
-                    $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
-                    $stmt->bindValue(':materia_id', $materiaId, PDO::PARAM_INT);
-                    $stmt->bindValue(':asignado_por', $asignadoPor, PDO::PARAM_INT);
-                    $stmt->execute();
-                }
-            }
-
-            $this->conn->commit();
-            return true;
-        } catch (PDOException $e) {
-            $this->conn->rollBack();
-            error_log("[DocenteAsignacion::asignarMaterias] Error: " . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Asigna múltiples grados a un docente (reemplaza los existentes)
-     *
-     * @param int $docenteId ID del docente
-     * @param array $gradoIds Array de IDs de grados
-     * @param int $asignadoPor ID del admin que asigna
-     * @return bool
-     */
-    public function asignarGrados(int $docenteId, array $gradoIds, int $asignadoPor): bool
-    {
-        try {
-            $this->conn->beginTransaction();
-
-            // Eliminar asignaciones actuales
-            $deleteQuery = "DELETE FROM docente_grados WHERE docente_id = :docente_id";
-            $stmt = $this->conn->prepare($deleteQuery);
-            $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-            $stmt->execute();
-
-            // Insertar nuevas asignaciones
-            if (!empty($gradoIds)) {
-                $insertQuery = "INSERT INTO docente_grados (docente_id, grado_id, asignado_por)
-                               VALUES (:docente_id, :grado_id, :asignado_por)";
-                $stmt = $this->conn->prepare($insertQuery);
-
-                foreach ($gradoIds as $gradoId) {
-                    $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
-                    $stmt->bindValue(':grado_id', $gradoId, PDO::PARAM_INT);
-                    $stmt->bindValue(':asignado_por', $asignadoPor, PDO::PARAM_INT);
-                    $stmt->execute();
-                }
-            }
-
-            $this->conn->commit();
-            return true;
-        } catch (PDOException $e) {
-            $this->conn->rollBack();
-            error_log("[DocenteAsignacion::asignarGrados] Error: " . $e->getMessage());
+            error_log("[DocenteAsignacion::tieneRecurso] Error: " . $e->getMessage());
             return false;
         }
     }
@@ -346,7 +244,23 @@ class DocenteAsignacion
      */
     public function obtenerTodosConAsignaciones(): array
     {
-        $query = "SELECT * FROM vista_docentes_asignaciones ORDER BY nombre_completo";
+        $query = "SELECT
+                    u.id,
+                    CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) as nombre_completo,
+                    u.email,
+                    u.ci,
+                    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'materia' THEN m.nombre END ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
+                    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'grado' THEN g.nombre END ORDER BY g.orden SEPARATOR ', ') as grados_asignados,
+                    COUNT(DISTINCT CASE WHEN a.tipo = 'materia' THEN a.id END) as total_materias,
+                    COUNT(DISTINCT CASE WHEN a.tipo = 'grado' THEN a.id END) as total_grados
+                  FROM usuarios u
+                  INNER JOIN roles r ON u.rol_id = r.id
+                  LEFT JOIN {$this->table} a ON u.id = a.docente_id
+                  LEFT JOIN materias m ON a.tipo = 'materia' AND a.recurso_id = m.id
+                  LEFT JOIN grados g ON a.tipo = 'grado' AND a.recurso_id = g.id
+                  WHERE r.nombre = 'Docente' AND u.estado = 'activo'
+                  GROUP BY u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.email, u.ci
+                  ORDER BY nombre_completo";
 
         try {
             $stmt = $this->conn->query($query);
@@ -354,6 +268,50 @@ class DocenteAsignacion
         } catch (PDOException $e) {
             error_log("[DocenteAsignacion::obtenerTodosConAsignaciones] Error: " . $e->getMessage());
             return [];
+        }
+    }
+
+    /**
+     * Obtiene estadísticas de asignaciones
+     *
+     * @return array
+     */
+    public function obtenerEstadisticas(): array
+    {
+        $query = "SELECT
+                    COUNT(DISTINCT docente_id) as total_docentes,
+                    COUNT(DISTINCT CASE WHEN tipo = 'materia' THEN id END) as total_asignaciones_materias,
+                    COUNT(DISTINCT CASE WHEN tipo = 'grado' THEN id END) as total_asignaciones_grados,
+                    COUNT(*) as total_asignaciones
+                  FROM {$this->table}";
+
+        try {
+            $stmt = $this->conn->query($query);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            return $result ?: [];
+        } catch (PDOException $e) {
+            error_log("[DocenteAsignacion::obtenerEstadisticas] Error: " . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Elimina todas las asignaciones de un docente
+     *
+     * @param int $docenteId ID del docente
+     * @return bool
+     */
+    public function eliminarAsignacionesDocente(int $docenteId): bool
+    {
+        $query = "DELETE FROM {$this->table} WHERE docente_id = :docente_id";
+
+        try {
+            $stmt = $this->conn->prepare($query);
+            $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+            return $stmt->execute();
+        } catch (PDOException $e) {
+            error_log("[DocenteAsignacion::eliminarAsignacionesDocente] Error: " . $e->getMessage());
+            return false;
         }
     }
 }
