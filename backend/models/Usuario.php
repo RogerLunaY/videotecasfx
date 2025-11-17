@@ -122,16 +122,6 @@ class Usuario
             $params[':estado'] = $filtros['estado'];
         }
 
-        if (!empty($filtros['materia_id'])) {
-            $where[] = "u.materia_id = :materia_id";
-            $params[':materia_id'] = $filtros['materia_id'];
-        }
-
-        if (!empty($filtros['grado_id'])) {
-            $where[] = "u.grado_id = :grado_id";
-            $params[':grado_id'] = $filtros['grado_id'];
-        }
-
         if (!empty($filtros['busqueda'])) {
             $where[] = "(u.nombre LIKE :busqueda OR u.apellido_paterno LIKE :busqueda OR u.email LIKE :busqueda OR u.ci LIKE :busqueda)";
             $params[':busqueda'] = "%{$filtros['busqueda']}%";
@@ -139,12 +129,16 @@ class Usuario
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre, g.nombre as grado_nombre
+        $query = "SELECT u.*,
+                         r.nombre as rol,
+                         GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
+                         u.fecha_creacion as fecha_registro
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
+                LEFT JOIN docentes_materias dm ON u.id = dm.docente_id
+                LEFT JOIN materias m ON dm.materia_id = m.id
                 {$whereClause}
+                GROUP BY u.id
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
 
