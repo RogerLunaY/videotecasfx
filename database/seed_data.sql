@@ -181,25 +181,25 @@ INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, pas
 ('Vladimir', 'Mamani', 'Quispe', '1234567', 'vladimir.mamani@atsi.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '71234567', 'activo'),
 ('Grethel', 'Alvarez', 'Mamani', '2345678', 'grethel.alvarez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '72345678', 'activo');
 
--- Docentes
-INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, grado_id, materia_id, telefono, estado) VALUES
--- Docentes de Matemática (materia_id: 4)
-('Juan', 'Pérez', 'García', '3456789', 'juan.perez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 1, 4, '73456789', 'activo'),
-('María', 'López', 'Fernández', '4567890', 'maria.lopez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 4, 4, '74567890', 'activo'),
+-- Docentes (sin grado_id ni materia_id, se manejan por tabla asignaciones)
+INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, telefono, estado) VALUES
+-- Docentes de Matemática
+('Juan', 'Pérez', 'García', '3456789', 'juan.perez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '73456789', 'activo'),
+('María', 'López', 'Fernández', '4567890', 'maria.lopez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '74567890', 'activo'),
 
--- Docentes de Lengua Castellana (materia_id: 6)
-('Carlos', 'Mamani', 'Condori', '5678901', 'carlos.mamani@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 2, 6, '75678901', 'activo'),
-('Ana', 'Quispe', 'Flores', '6789012', 'ana.quispe@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 5, 6, '76789012', 'activo'),
+-- Docentes de Lengua Castellana
+('Carlos', 'Mamani', 'Condori', '5678901', 'carlos.mamani@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '75678901', 'activo'),
+('Ana', 'Quispe', 'Flores', '6789012', 'ana.quispe@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '76789012', 'activo'),
 
 -- Docentes de Ciencias Naturales
-('Roberto', 'Choque', 'Luna', '7890123', 'roberto.choque@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 3, 1, '77890123', 'activo'),  -- Biología-Geografía (1)
-('Patricia', 'Alanoca', 'Ticona', '8901234', 'patricia.alanoca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 3, 2, '78901234', 'activo'),  -- Física (2)
-('Jorge', 'Apaza', 'Condori', '9012345', 'jorge.apaza@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 4, 3, '79012345', 'activo'),  -- Química (3)
+('Roberto', 'Choque', 'Luna', '7890123', 'roberto.choque@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '77890123', 'activo'),  -- Biología-Geografía
+('Patricia', 'Alanoca', 'Ticona', '8901234', 'patricia.alanoca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '78901234', 'activo'),  -- Física
+('Jorge', 'Apaza', 'Condori', '9012345', 'jorge.apaza@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '79012345', 'activo'),  -- Química
 
 -- Docentes de otras materias
-('Luis', 'Huanca', 'Marca', '1023456', 'luis.huanca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 2, 9, '71023456', 'activo'),  -- Ciencias Sociales (9)
-('Sandra', 'Callisaya', 'Nina', '2034567', 'sandra.callisaya@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 1, 8, '72034567', 'activo'),  -- Lengua Extranjera (8)
-('Miguel', 'Ticona', 'Pari', '3045678', 'miguel.ticona@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 5, 5, '73045678', 'activo');  -- Técnica Tecnológica (5)
+('Luis', 'Huanca', 'Marca', '1023456', 'luis.huanca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '71023456', 'activo'),  -- Ciencias Sociales
+('Sandra', 'Callisaya', 'Nina', '2034567', 'sandra.callisaya@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '72034567', 'activo'),  -- Lengua Extranjera
+('Miguel', 'Ticona', 'Pari', '3045678', 'miguel.ticona@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '73045678', 'activo');  -- Técnica Tecnológica
 
 -- =====================================================
 -- INSERTAR ASIGNACIONES (Docente + Materia + Grado)
@@ -259,38 +259,38 @@ INSERT INTO asignaciones (docente_id, materia_id, grado_id, estado, usuario_asig
 INSERT INTO videos (titulo, descripcion, archivo_path, archivo_nombre, thumbnail_path, duracion, tamanio, formato, resolucion, codec, tema_id, materia_id, grado_id, docente_id, visualizaciones, estado) VALUES
 
 -- Matemática (materia_id: 4) - Grado 1
-('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', 17, 4, 1, 3, 45, 'activo'),
-('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', 17, 4, 1, 3, 38, 'activo'),
-('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', 18, 4, 1, 3, 52, 'activo'),
+('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', NULL, 4, 1, 3, 45, 'activo'),
+('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', NULL, 4, 1, 3, 38, 'activo'),
+('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', NULL, 4, 1, 3, 52, 'activo'),
 
 -- Matemática (materia_id: 4) - Grado 4
-('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 17, 4, 4, 4, 67, 'activo'),
-('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 19, 4, 4, 4, 71, 'activo'),
+('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', NULL, 4, 4, 4, 67, 'activo'),
+('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', NULL, 4, 4, 4, 71, 'activo'),
 
 -- Lengua Castellana (materia_id: 6) - Grado 2
-('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', 22, 6, 2, 5, 43, 'activo'),
-('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', 23, 6, 2, 5, 56, 'activo'),
+('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', NULL, 6, 2, 5, 43, 'activo'),
+('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', NULL, 6, 2, 5, 56, 'activo'),
 
 -- Lengua Castellana (materia_id: 6) - Grado 5
-('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', 23, 6, 5, 6, 39, 'activo'),
-('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', 24, 6, 5, 6, 47, 'activo'),
+('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', NULL, 6, 5, 6, 39, 'activo'),
+('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', NULL, 6, 5, 6, 47, 'activo'),
 
 -- Biología-Geografía (materia_id: 1) - Grado 3
-('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 1, 1, 3, 7, 84, 'activo'),
-('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 1, 1, 3, 7, 92, 'activo'),
-('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', 2, 1, 3, 7, 78, 'activo'),
+('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', NULL, 1, 3, 7, 84, 'activo'),
+('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', NULL, 1, 3, 7, 92, 'activo'),
+('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', NULL, 1, 3, 7, 78, 'activo'),
 
 -- Física (materia_id: 2) - Grado 3
-('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 6, 2, 3, 8, 95, 'activo'),
-('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', 6, 2, 3, 8, 81, 'activo'),
+('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', NULL, 2, 3, 8, 95, 'activo'),
+('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', NULL, 2, 3, 8, 81, 'activo'),
 
 -- Química (materia_id: 3) - Grado 4
-('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/4to/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 10, 3, 4, 9, 73, 'activo'),
-('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/4to/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 11, 3, 4, 9, 68, 'activo'),
+('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/4to/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', NULL, 3, 4, 9, 73, 'activo'),
+('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/4to/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', NULL, 3, 4, 9, 68, 'activo'),
 
 -- Ciencias Sociales (materia_id: 9) - Grado 2
-('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', 26, 9, 2, 10, 61, 'activo'),
-('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', 27, 9, 2, 10, 54, 'activo'),
+('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', NULL, 9, 2, 10, 61, 'activo'),
+('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', NULL, 9, 2, 10, 54, 'activo'),
 
 -- Lengua Extranjera (materia_id: 8) - Grado 1
 ('Present Simple Tense', 'Tiempo presente simple en inglés', 'uploads/videos/ingles/1ro/present_simple.mp4', 'present_simple.mp4', 'uploads/thumbnails/present_simple.jpg', 960, 41943040, 'mp4', '720p', 'h264', NULL, 8, 1, 11, 49, 'activo'),
