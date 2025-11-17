@@ -50,11 +50,14 @@ const UsuariosPage = () => {
         if (!params[key]) delete params[key];
       });
 
+      console.log('Loading users with params:', params);
       const response = await getUsers(params);
+      console.log('Response from API:', response);
       setUsers(response.usuarios || []);
       setPagination(response.pagination || pagination);
     } catch (error) {
       console.error('Error loading users:', error);
+      console.error('Error response:', error.response?.data);
     } finally {
       setLoading(false);
     }
