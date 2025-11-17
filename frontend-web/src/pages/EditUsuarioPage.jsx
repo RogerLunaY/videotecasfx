@@ -258,8 +258,8 @@ const EditUsuarioPage = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* COLUMNA IZQUIERDA: Datos Personales */}
+            <div className="space-y-6">
+              {/* SECCIÓN: Datos Personales */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-4 flex items-center">
                   <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -366,13 +366,13 @@ const EditUsuarioPage = () => {
                 </div>
               </div>
 
-              {/* COLUMNA DERECHA: Rol, Estado y Asignaciones */}
+              {/* SECCIÓN: Asignaciones */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-6 flex items-center">
                   <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
-                  Rol, Estado y Asignaciones
+                  Asignaciones
                 </h3>
 
                 <div className="space-y-6">
