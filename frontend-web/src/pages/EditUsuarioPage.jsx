@@ -215,7 +215,9 @@ const EditUsuarioPage = () => {
 
       // Si es docente, actualizar asignaciones
       const rolDocente = roles.find(r => r.nombre === 'Docente');
-      if (formData.rol_id === rolDocente?.id || formData.rol_id === 2) {
+      const isDocente = formData.rol_id === rolDocente?.id;
+
+      if (isDocente) {
         try {
           await actualizarAsignaciones(id, selectedMaterias, selectedGrados);
         } catch (error) {
