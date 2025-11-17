@@ -281,9 +281,9 @@ class DocenteAsignacion
                 $stmt = $this->conn->prepare($insertQuery);
 
                 foreach ($materiaIds as $materiaId) {
-                    $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-                    $stmt->bindParam(':materia_id', $materiaId, PDO::PARAM_INT);
-                    $stmt->bindParam(':asignado_por', $asignadoPor, PDO::PARAM_INT);
+                    $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+                    $stmt->bindValue(':materia_id', $materiaId, PDO::PARAM_INT);
+                    $stmt->bindValue(':asignado_por', $asignadoPor, PDO::PARAM_INT);
                     $stmt->execute();
                 }
             }
@@ -323,9 +323,9 @@ class DocenteAsignacion
                 $stmt = $this->conn->prepare($insertQuery);
 
                 foreach ($gradoIds as $gradoId) {
-                    $stmt->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
-                    $stmt->bindParam(':grado_id', $gradoId, PDO::PARAM_INT);
-                    $stmt->bindParam(':asignado_por', $asignadoPor, PDO::PARAM_INT);
+                    $stmt->bindValue(':docente_id', $docenteId, PDO::PARAM_INT);
+                    $stmt->bindValue(':grado_id', $gradoId, PDO::PARAM_INT);
+                    $stmt->bindValue(':asignado_por', $asignadoPor, PDO::PARAM_INT);
                     $stmt->execute();
                 }
             }
