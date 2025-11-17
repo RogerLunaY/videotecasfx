@@ -311,6 +311,7 @@ CREATE TABLE IF NOT EXISTS tokens_refresh (
 -- =====================================================
 
 -- Trigger: Incrementar visualizaciones al registrar reproducción
+DROP TRIGGER IF EXISTS after_reproduccion_insert$$
 DELIMITER $$
 CREATE TRIGGER after_reproduccion_insert
 AFTER INSERT ON reproducciones
@@ -323,6 +324,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear usuario
+DROP TRIGGER IF EXISTS after_usuario_insert$$
 DELIMITER $$
 CREATE TRIGGER after_usuario_insert
 AFTER INSERT ON usuarios
@@ -336,6 +338,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear video
+DROP TRIGGER IF EXISTS after_video_insert$$
 DELIMITER $$
 CREATE TRIGGER after_video_insert
 AFTER INSERT ON videos
@@ -349,6 +352,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al eliminar video
+DROP TRIGGER IF EXISTS before_video_delete$$
 DELIMITER $$
 CREATE TRIGGER before_video_delete
 BEFORE DELETE ON videos
