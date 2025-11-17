@@ -129,16 +129,24 @@ class Usuario
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT u.*,
+        $query = "SELECT u.id,
+                         u.nombre,
+                         u.apellido_paterno,
+                         u.apellido_materno,
+                         u.ci,
+                         u.email,
+                         u.telefono,
+                         u.rol_id,
+                         u.estado,
+                         u.fecha_creacion as fecha_registro,
                          r.nombre as rol,
-                         GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
-                         u.fecha_creacion as fecha_registro
+                         GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
                 LEFT JOIN docentes_materias dm ON u.id = dm.docente_id
                 LEFT JOIN materias m ON dm.materia_id = m.id
                 {$whereClause}
-                GROUP BY u.id
+                GROUP BY u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.ci, u.email, u.telefono, u.rol_id, u.estado, u.fecha_creacion, r.nombre
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
 
