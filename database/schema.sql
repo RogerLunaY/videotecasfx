@@ -120,8 +120,6 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email VARCHAR(150) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     rol_id INT UNSIGNED NOT NULL,
-    grado_id INT UNSIGNED COMMENT 'Grado asignado al docente',
-    materia_id INT UNSIGNED COMMENT 'Materia que enseña el docente',
     telefono VARCHAR(20),
     foto_perfil VARCHAR(255),
     estado ENUM('activo', 'inactivo', 'suspendido') DEFAULT 'activo',
@@ -131,15 +129,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (rol_id) REFERENCES roles(id),
-    FOREIGN KEY (grado_id) REFERENCES grados(id) ON DELETE SET NULL,
-    FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE SET NULL,
     INDEX idx_email (email),
     INDEX idx_ci (ci),
     INDEX idx_rol (rol_id),
-    INDEX idx_estado (estado),
-    INDEX idx_grado (grado_id),
-    INDEX idx_materia (materia_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    INDEX idx_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Administradores y docentes del sistema. Las asignaciones docente-materia-grado se gestionan en la tabla asignaciones';
 
 -- =====================================================
 -- TABLA: asignaciones
@@ -296,8 +291,8 @@ CREATE TABLE IF NOT EXISTS tokens_refresh (
 -- =====================================================
 
 -- Trigger: Incrementar visualizaciones al registrar reproducción
-DROP TRIGGER IF EXISTS after_reproduccion_insert$$
 DELIMITER $$
+DROP TRIGGER IF EXISTS after_reproduccion_insert$$
 CREATE TRIGGER after_reproduccion_insert
 AFTER INSERT ON reproducciones
 FOR EACH ROW
@@ -309,8 +304,8 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear usuario
-DROP TRIGGER IF EXISTS after_usuario_insert$$
 DELIMITER $$
+DROP TRIGGER IF EXISTS after_usuario_insert$$
 CREATE TRIGGER after_usuario_insert
 AFTER INSERT ON usuarios
 FOR EACH ROW
@@ -323,8 +318,8 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear video
-DROP TRIGGER IF EXISTS after_video_insert$$
 DELIMITER $$
+DROP TRIGGER IF EXISTS after_video_insert$$
 CREATE TRIGGER after_video_insert
 AFTER INSERT ON videos
 FOR EACH ROW
@@ -337,8 +332,8 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al eliminar video
-DROP TRIGGER IF EXISTS before_video_delete$$
 DELIMITER $$
+DROP TRIGGER IF EXISTS before_video_delete$$
 CREATE TRIGGER before_video_delete
 BEFORE DELETE ON videos
 FOR EACH ROW
@@ -369,6 +364,10 @@ SELECT
     v.visualizaciones,
     v.estado,
     v.fecha_subida,
+    v.materia_id,
+    v.grado_id,
+    v.tema_id,
+    v.docente_id,
     m.nombre AS materia_nombre,
     m.sigla AS materia_sigla,
     m.color AS materia_color,
