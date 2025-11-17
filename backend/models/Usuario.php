@@ -139,11 +139,7 @@ class Usuario
                          u.rol_id,
                          u.estado,
                          u.fecha_creacion as fecha_registro,
-                         r.nombre as rol,
-                         (SELECT GROUP_CONCAT(DISTINCT m2.nombre ORDER BY m2.nombre SEPARATOR ', ')
-                          FROM docentes_materias dm2
-                          LEFT JOIN materias m2 ON dm2.materia_id = m2.id
-                          WHERE dm2.docente_id = u.id) as materias_asignadas
+                         r.nombre as rol
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
                 {$whereClause}
