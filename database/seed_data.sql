@@ -339,7 +339,7 @@ INSERT INTO reproducciones (video_id, usuario_id, ip_address, tiempo_reproducido
 
 INSERT INTO estadisticas (tipo, categoria, datos_json, fecha_referencia) VALUES
 ('general', 'resumen', JSON_OBJECT(
-    'total_videos', 20,
+    'total_videos', 22,
     'total_docentes', 10,
     'total_reproducciones', 15,
     'materia_mas_popular', 'Biología',
@@ -372,6 +372,6 @@ SELECT '=============================================' AS '';
 SELECT 'Base de datos inicializada correctamente' AS 'ESTADO';
 SELECT '=============================================' AS '';
 SELECT 'Usuarios creados: 12 (2 administradores, 10 docentes)' AS 'INFO';
-SELECT 'Videos de prueba: 20' AS 'INFO';
+SELECT 'Videos de prueba: 22' AS 'INFO';
 SELECT 'Password por defecto: Password123!' AS 'INFO';
 SELECT '=============================================' AS '';
