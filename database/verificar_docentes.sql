@@ -50,20 +50,19 @@ SELECT
     r.nombre AS rol,
     u.estado,
     CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) AS nombre_completo,
-    GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') AS materias_asignadas,
-    GROUP_CONCAT(DISTINCT m.id ORDER BY m.nombre SEPARATOR ',') AS materia_ids,
-    GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') AS grados_asignados,
-    GROUP_CONCAT(DISTINCT g.id ORDER BY g.orden SEPARATOR ',') AS grado_ids,
-    COUNT(DISTINCT dm.materia_id) AS total_materias,
-    COUNT(DISTINCT dg.grado_id) AS total_grados
+    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'materia' THEN m.nombre END ORDER BY m.nombre SEPARATOR ', ') AS materias_asignadas,
+    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'materia' THEN m.id END ORDER BY m.nombre SEPARATOR ',') AS materia_ids,
+    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'grado' THEN g.nombre END ORDER BY g.orden SEPARATOR ', ') AS grados_asignados,
+    GROUP_CONCAT(DISTINCT CASE WHEN a.tipo = 'grado' THEN g.id END ORDER BY g.orden SEPARATOR ',') AS grado_ids,
+    COUNT(DISTINCT CASE WHEN a.tipo = 'materia' THEN a.id END) AS total_materias,
+    COUNT(DISTINCT CASE WHEN a.tipo = 'grado' THEN a.id END) AS total_grados
 FROM usuarios u
 INNER JOIN roles r ON u.rol_id = r.id
-LEFT JOIN docente_materias dm ON u.id = dm.docente_id
-LEFT JOIN materias m ON dm.materia_id = m.id
-LEFT JOIN docente_grados dg ON u.id = dg.docente_id
-LEFT JOIN grados g ON dg.grado_id = g.id
+LEFT JOIN asignaciones a ON u.id = a.docente_id
+LEFT JOIN materias m ON a.tipo = 'materia' AND a.recurso_id = m.id
+LEFT JOIN grados g ON a.tipo = 'grado' AND a.recurso_id = g.id
 WHERE r.nombre = 'Docente'
-GROUP BY u.id;
+GROUP BY u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.email, r.nombre, u.estado;
 
 SELECT 'Vista recreada exitosamente' AS resultado;
 */

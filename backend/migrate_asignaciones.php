@@ -1,8 +1,19 @@
 <?php
 /**
  * Script de Migración - Asignaciones de Docentes
- * Crea las tablas docente_materias y docente_grados
+ *
+ * ⚠️ OBSOLETO - Este archivo ya NO se debe usar
+ *
+ * Las tablas docente_materias y docente_grados fueron reemplazadas
+ * por una tabla unificada 'asignaciones'.
+ *
+ * Para migrar a la nueva estructura, usar:
+ * database/migrations/optimize_asignaciones.sql
+ *
+ * @deprecated Usar database/migrations/optimize_asignaciones.sql
  */
+
+die("❌ Este script está OBSOLETO. Usar database/migrations/optimize_asignaciones.sql\n");
 
 require_once __DIR__ . '/config/database.php';
 
