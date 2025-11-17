@@ -258,8 +258,11 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm text-blue-700">
-                  El docente solo podrá subir y gestionar videos de las materias y grados asignados.
-                  Si no se asigna ninguna materia o grado, el docente no podrá subir videos.
+                  <strong>Importante:</strong> Se crearán asignaciones para todas las combinaciones de materia × grado seleccionadas.
+                  Por ejemplo, si selecciona 2 materias y 3 grados, se crearán 6 asignaciones (2 × 3 = 6).
+                </p>
+                <p className="text-sm text-blue-700 mt-2">
+                  El docente solo podrá subir y gestionar videos de las combinaciones materia-grado asignadas.
                 </p>
               </div>
             </div>

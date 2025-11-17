@@ -176,7 +176,7 @@ INSERT INTO temas (nombre, materia_id, grado_id, orden) VALUES
 -- Password para todos: "Password123!" (hasheado con bcrypt costo 12)
 -- Hash generado: $2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u
 
--- Administrador del sistema
+-- Administradores del sistema
 INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, telefono, estado) VALUES
 ('Vladimir', 'Mamani', 'Quispe', '1234567', 'vladimir.mamani@atsi.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '71234567', 'activo'),
 ('Grethel', 'Alvarez', 'Mamani', '2345678', 'grethel.alvarez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '72345678', 'activo');
@@ -200,6 +200,55 @@ INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, pas
 ('Luis', 'Huanca', 'Marca', '1023456', 'luis.huanca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 2, 9, '71023456', 'activo'),  -- Ciencias Sociales (9)
 ('Sandra', 'Callisaya', 'Nina', '2034567', 'sandra.callisaya@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 1, 8, '72034567', 'activo'),  -- Lengua Extranjera (8)
 ('Miguel', 'Ticona', 'Pari', '3045678', 'miguel.ticona@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 5, 5, '73045678', 'activo');  -- Técnica Tecnológica (5)
+
+-- =====================================================
+-- INSERTAR ASIGNACIONES (Docente + Materia + Grado)
+-- =====================================================
+-- NOTA: La tabla asignaciones reemplaza a docente_materias y docente_grados
+-- Permite asignar a un docente una combinación específica de materia-grado
+-- Ejemplo: Juan Pérez enseña Matemática en 1ro y 2do de secundaria
+
+INSERT INTO asignaciones (docente_id, materia_id, grado_id, estado, usuario_asignador_id) VALUES
+-- Juan Pérez (ID: 3) - Matemática
+(3, 4, 1, 'activa', 1),  -- Matemática en 1ro de Secundaria
+(3, 4, 2, 'activa', 1),  -- Matemática en 2do de Secundaria
+
+-- María López (ID: 4) - Matemática
+(4, 4, 4, 'activa', 1),  -- Matemática en 4to de Secundaria
+(4, 4, 5, 'activa', 1),  -- Matemática en 5to de Secundaria
+
+-- Carlos Mamani (ID: 5) - Lengua Castellana
+(5, 6, 2, 'activa', 1),  -- Lengua Castellana en 2do de Secundaria
+(5, 6, 3, 'activa', 1),  -- Lengua Castellana en 3ro de Secundaria
+
+-- Ana Quispe (ID: 6) - Lengua Castellana
+(6, 6, 5, 'activa', 1),  -- Lengua Castellana en 5to de Secundaria
+(6, 6, 6, 'activa', 1),  -- Lengua Castellana en 6to de Secundaria
+
+-- Roberto Choque (ID: 7) - Biología-Geografía
+(7, 1, 3, 'activa', 1),  -- Biología-Geografía en 3ro de Secundaria
+(7, 1, 4, 'activa', 1),  -- Biología-Geografía en 4to de Secundaria
+
+-- Patricia Alanoca (ID: 8) - Física
+(8, 2, 3, 'activa', 1),  -- Física en 3ro de Secundaria
+(8, 2, 4, 'activa', 1),  -- Física en 4to de Secundaria
+
+-- Jorge Apaza (ID: 9) - Química
+(9, 3, 4, 'activa', 1),  -- Química en 4to de Secundaria
+(9, 3, 5, 'activa', 1),  -- Química en 5to de Secundaria
+(9, 3, 6, 'activa', 1),  -- Química en 6to de Secundaria
+
+-- Luis Huanca (ID: 10) - Ciencias Sociales
+(10, 9, 2, 'activa', 1),  -- Ciencias Sociales en 2do de Secundaria
+(10, 9, 3, 'activa', 1),  -- Ciencias Sociales en 3ro de Secundaria
+
+-- Sandra Callisaya (ID: 11) - Lengua Extranjera
+(11, 8, 1, 'activa', 1),  -- Lengua Extranjera en 1ro de Secundaria
+(11, 8, 2, 'activa', 1),  -- Lengua Extranjera en 2do de Secundaria
+
+-- Miguel Ticona (ID: 12) - Técnica Tecnológica
+(12, 5, 5, 'activa', 1),  -- Técnica Tecnológica en 5to de Secundaria
+(12, 5, 6, 'activa', 1);  -- Técnica Tecnológica en 6to de Secundaria
 
 -- =====================================================
 -- INSERTAR VIDEOS DE PRUEBA

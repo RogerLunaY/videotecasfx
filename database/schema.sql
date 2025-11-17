@@ -142,48 +142,33 @@ CREATE TABLE IF NOT EXISTS usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
--- TABLA: docente_materias
--- Descripción: Asignación de materias a docentes
--- Relación N:M entre usuarios(docentes) y materias
+-- TABLA: asignaciones
+-- Descripción: Asignación de materias y grados a docentes
+-- Relación que vincula docente + materia + grado
+-- Un docente puede enseñar múltiples combinaciones de materia-grado
 -- =====================================================
-CREATE TABLE IF NOT EXISTS docente_materias (
+CREATE TABLE IF NOT EXISTS asignaciones (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    docente_id INT UNSIGNED NOT NULL,
-    materia_id INT UNSIGNED NOT NULL,
-    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    asignado_por INT UNSIGNED COMMENT 'Admin que realizó la asignación',
+    docente_id INT UNSIGNED NOT NULL COMMENT 'Docente asignado',
+    materia_id INT UNSIGNED NOT NULL COMMENT 'Materia asignada',
+    grado_id INT UNSIGNED NOT NULL COMMENT 'Grado asignado',
+    estado ENUM('activa', 'inactiva') DEFAULT 'activa' COMMENT 'Estado de la asignación',
+    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de asignación',
+    usuario_asignador_id INT UNSIGNED COMMENT 'Usuario que realizó la asignación (auditoría)',
 
     FOREIGN KEY (docente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (materia_id) REFERENCES materias(id) ON DELETE CASCADE,
-    FOREIGN KEY (asignado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
-
-    UNIQUE KEY unique_docente_materia (docente_id, materia_id),
-    INDEX idx_docente (docente_id),
-    INDEX idx_materia (materia_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Asignación de materias a docentes';
-
--- =====================================================
--- TABLA: docente_grados
--- Descripción: Asignación de grados/cursos a docentes
--- Relación N:M entre usuarios(docentes) y grados
--- =====================================================
-CREATE TABLE IF NOT EXISTS docente_grados (
-    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    docente_id INT UNSIGNED NOT NULL,
-    grado_id INT UNSIGNED NOT NULL,
-    fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    asignado_por INT UNSIGNED COMMENT 'Admin que realizó la asignación',
-
-    FOREIGN KEY (docente_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (grado_id) REFERENCES grados(id) ON DELETE CASCADE,
-    FOREIGN KEY (asignado_por) REFERENCES usuarios(id) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_asignador_id) REFERENCES usuarios(id) ON DELETE SET NULL,
 
-    UNIQUE KEY unique_docente_grado (docente_id, grado_id),
+    UNIQUE KEY unique_docente_materia_grado (docente_id, materia_id, grado_id),
     INDEX idx_docente (docente_id),
-    INDEX idx_grado (grado_id)
+    INDEX idx_materia (materia_id),
+    INDEX idx_grado (grado_id),
+    INDEX idx_estado (estado),
+    INDEX idx_materia_grado (materia_id, grado_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-COMMENT='Asignación de grados a docentes';
+COMMENT='Asignación de combinaciones materia-grado a docentes';
 
 -- =====================================================
 -- TABLA: videos
@@ -473,14 +458,14 @@ SELECT
     GROUP_CONCAT(DISTINCT m.id ORDER BY m.nombre SEPARATOR ',') AS materia_ids,
     GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') AS grados_asignados,
     GROUP_CONCAT(DISTINCT g.id ORDER BY g.orden SEPARATOR ',') AS grado_ids,
-    COUNT(DISTINCT dm.materia_id) AS total_materias,
-    COUNT(DISTINCT dg.grado_id) AS total_grados
+    COUNT(DISTINCT a.materia_id) AS total_materias,
+    COUNT(DISTINCT a.grado_id) AS total_grados,
+    COUNT(DISTINCT a.id) AS total_asignaciones
 FROM usuarios u
 INNER JOIN roles r ON u.rol_id = r.id
-LEFT JOIN docente_materias dm ON u.id = dm.docente_id
-LEFT JOIN materias m ON dm.materia_id = m.id
-LEFT JOIN docente_grados dg ON u.id = dg.docente_id
-LEFT JOIN grados g ON dg.grado_id = g.id
+LEFT JOIN asignaciones a ON u.id = a.docente_id AND a.estado = 'activa'
+LEFT JOIN materias m ON a.materia_id = m.id
+LEFT JOIN grados g ON a.grado_id = g.id
 WHERE r.nombre = 'Docente'
 GROUP BY u.id;
 
