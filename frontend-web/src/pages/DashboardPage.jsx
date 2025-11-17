@@ -144,80 +144,42 @@ const DashboardPage = () => {
             </p>
           </div>
 
-          {/* Estadísticas del Docente */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            {/* Total Mis Videos */}
-            <div className="bg-gradient-to-br from-salesiano-azul-500 to-salesiano-azul-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-blue-100">Mis Videos</h3>
-                <svg className="w-8 h-8 text-salesiano-amarillo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* Estadísticas del Docente - Diseño Minimalista */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {/* Mis Videos */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_videos || 0}</p>
-              <p className="text-sm text-blue-100 mt-1">Videos subidos</p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{stats?.total_videos || 0}</p>
+              <p className="text-sm text-gray-600">videos subidos</p>
             </div>
 
-            {/* Total Visualizaciones */}
-            <div className="bg-gradient-to-br from-salesiano-amarillo-400 to-salesiano-amarillo-500 rounded-xl shadow-lg p-6 text-salesiano-azul-900">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-salesiano-azul-800">Visualizaciones</h3>
-                <svg className="w-8 h-8 text-salesiano-azul-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Visualizaciones */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_visualizaciones || 0}</p>
-              <p className="text-sm text-salesiano-azul-800 mt-1">Vistas totales</p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{stats?.total_visualizaciones || 0}</p>
+              <p className="text-sm text-gray-600">vistas totales</p>
             </div>
 
-            {/* Espacio Usado */}
-            <div className="bg-white border-2 border-salesiano-azul-200 rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Espacio Usado</h3>
-                <svg className="w-8 h-8 text-salesiano-azul-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
+            {/* Promedio */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold text-gray-900">
-                {formatFileSize(stats?.espacio_usado || 0)}
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">
+                {stats?.total_videos > 0 ? Math.round((stats?.total_visualizaciones || 0) / stats.total_videos) : 0}
               </p>
-              <p className="text-sm text-gray-600 mt-1">De tus videos</p>
-            </div>
-          </div>
-
-          {/* Acciones Rápidas */}
-          <div className="mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Link
-                to="/upload"
-                className="bg-gradient-to-r from-salesiano-azul-500 to-salesiano-azul-600 text-white rounded-xl p-6 hover:from-salesiano-azul-600 hover:to-salesiano-azul-700 transition shadow-lg hover:shadow-xl flex items-center group"
-              >
-                <div className="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center mr-4 group-hover:bg-white/30 transition">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">Subir Nuevo Video</h3>
-                  <p className="text-sm text-blue-100">Comparte contenido educativo</p>
-                </div>
-              </Link>
-
-              <Link
-                to="/perfil"
-                className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-salesiano-azul-400 transition shadow-md hover:shadow-lg flex items-center group"
-              >
-                <div className="w-14 h-14 bg-salesiano-azul-50 rounded-xl flex items-center justify-center mr-4 group-hover:bg-salesiano-azul-100 transition">
-                  <svg className="w-8 h-8 text-salesiano-azul-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg text-gray-900">Mi Perfil</h3>
-                  <p className="text-sm text-gray-600">Editar información</p>
-                </div>
-              </Link>
+              <p className="text-sm text-gray-600">vistas/video</p>
             </div>
           </div>
 
@@ -416,100 +378,53 @@ const DashboardPage = () => {
           </p>
         </div>
 
-        {/* Acciones Rápidas */}
+        {/* Estadísticas Generales - Diseño Minimalista */}
         <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Link
-              to="/upload"
-              className="bg-gradient-to-r from-salesiano-azul-500 to-salesiano-azul-600 text-white rounded-xl p-6 hover:from-salesiano-azul-600 hover:to-salesiano-azul-700 transition shadow-lg hover:shadow-xl flex items-center"
-            >
-              <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-lg">Subir Video</h3>
-                <p className="text-sm text-blue-100">Comparte contenido</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/videos"
-              className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-salesiano-azul-400 transition shadow-md hover:shadow-lg flex items-center"
-            >
-              <svg className="w-8 h-8 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-lg text-gray-900">Todos los Videos</h3>
-                <p className="text-sm text-gray-600">Ver catálogo completo</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/usuarios"
-              className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-salesiano-azul-400 transition shadow-md hover:shadow-lg flex items-center"
-            >
-              <svg className="w-8 h-8 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-lg text-gray-900">Usuarios</h3>
-                <p className="text-sm text-gray-600">Administrar usuarios</p>
-              </div>
-            </Link>
-          </div>
-        </div>
-
-        {/* Estadísticas Generales */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Estadísticas Generales</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <h2 className="text-xl font-semibold text-gray-900 mb-4">Estadísticas</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {/* Total Videos */}
-            <div className="bg-gradient-to-br from-salesiano-azul-500 to-salesiano-azul-600 rounded-xl shadow-lg p-6 text-white">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-blue-100">Total Videos</h3>
-                <svg className="w-8 h-8 text-salesiano-amarillo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_videos || 0}</p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{stats?.total_videos || 0}</p>
+              <p className="text-sm text-gray-600">videos activos</p>
             </div>
 
-            {/* Total Visualizaciones */}
-            <div className="bg-gradient-to-br from-salesiano-amarillo-400 to-salesiano-amarillo-500 rounded-xl shadow-lg p-6 text-salesiano-azul-900">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-salesiano-azul-800">Visualizaciones</h3>
-                <svg className="w-8 h-8 text-salesiano-azul-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Visualizaciones */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_visualizaciones || 0}</p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{stats?.total_visualizaciones || 0}</p>
+              <p className="text-sm text-gray-600">vistas totales</p>
             </div>
 
-            {/* Total Docentes */}
-            <div className="bg-white border-2 border-salesiano-azul-200 rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Docentes</h3>
-                <svg className="w-8 h-8 text-salesiano-azul-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Docentes */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold text-gray-900">{stats?.total_docentes || 0}</p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{stats?.total_docentes || 0}</p>
+              <p className="text-sm text-gray-600">docentes</p>
             </div>
 
-            {/* Espacio Usado */}
-            <div className="bg-white border-2 border-salesiano-azul-200 rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm font-medium text-gray-600">Espacio Usado</h3>
-                <svg className="w-8 h-8 text-salesiano-azul-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            {/* Espacio */}
+            <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
+              <div className="flex justify-end mb-2">
+                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold text-gray-900">
-                {formatFileSize(stats?.espacio_usado || 0)}
-              </p>
+              <p className="text-5xl font-bold text-salesiano-azul-600 mb-1">{formatFileSize(stats?.espacio_usado || 0)}</p>
+              <p className="text-sm text-gray-600">en uso</p>
             </div>
           </div>
         </div>

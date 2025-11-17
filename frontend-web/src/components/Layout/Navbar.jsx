@@ -13,20 +13,11 @@ const Navbar = () => {
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const handleLogout = async () => {
     setShowUserMenu(false);
     await logout();
     navigate('/login');
-  };
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/videos?busqueda=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchQuery('');
-    }
   };
 
   return (
@@ -71,33 +62,15 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Barra de Búsqueda */}
-          <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar videos..."
-                className="w-full px-4 py-2 pl-10 rounded-lg bg-white/90 backdrop-blur-sm border-2 border-transparent focus:border-salesiano-amarillo-400 focus:bg-white focus:outline-none transition text-gray-800"
-              />
-              <svg
-                className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 transform -translate-y-1/2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </form>
+          {/* Spacer para centrar navegación */}
+          <div className="flex-1"></div>
 
           {/* Usuario / Login */}
           <div className="flex items-center space-x-3">
             {isAuthenticated ? (
               <>
-                {/* Menú de Dashboard para usuarios autenticados */}
-                <div className="hidden lg:flex items-center space-x-1 mr-2">
+                {/* Menú de navegación principal */}
+                <div className="hidden lg:flex items-center space-x-2 mr-2">
                   <Link
                     to="/dashboard"
                     className="px-3 py-2 bg-salesiano-amarillo-500 text-salesiano-azul-900 hover:bg-salesiano-amarillo-400 rounded-lg transition font-semibold text-sm"
@@ -106,37 +79,27 @@ const Navbar = () => {
                   </Link>
 
                   {isAdmin() && (
-                    <>
-                      <Link
-                        to="/usuarios"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Usuarios
-                      </Link>
-                      <Link
-                        to="/upload"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Subir Video
-                      </Link>
-                    </>
+                    <Link
+                      to="/usuarios"
+                      className="flex items-center space-x-2 px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm font-medium"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                      <span>Usuarios</span>
+                    </Link>
                   )}
 
                   {isDocente() && !isAdmin() && (
-                    <>
-                      <Link
-                        to="/mis-videos"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Mis Videos
-                      </Link>
-                      <Link
-                        to="/upload"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Subir Video
-                      </Link>
-                    </>
+                    <Link
+                      to="/perfil"
+                      className="flex items-center space-x-2 px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm font-medium"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span>Mi Perfil</span>
+                    </Link>
                   )}
                 </div>
 
@@ -263,27 +226,6 @@ const Navbar = () => {
         {/* Mobile Menu */}
         {showMobileMenu && (
           <div className="lg:hidden py-4 border-t border-white/20">
-            {/* Búsqueda Móvil */}
-            <form onSubmit={handleSearch} className="mb-3 px-2">
-              <div className="relative">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Buscar videos..."
-                  className="w-full px-4 py-2 pl-10 rounded-lg bg-white/90 focus:bg-white focus:outline-none focus:ring-2 focus:ring-salesiano-amarillo-400 text-gray-800"
-                />
-                <svg
-                  className="w-5 h-5 text-gray-500 absolute left-3 top-1/2 transform -translate-y-1/2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </form>
-
             {/* Menú Público - Solo si NO está autenticado */}
             {!isAuthenticated && (
               <>
