@@ -238,14 +238,15 @@ const RegisterPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* COLUMNA IZQUIERDA: Datos Personales */}
               <div className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-6 flex items-center">
+                <h3 className="text-xl font-semibold text-salesiano-azul-700 mb-4 flex items-center">
                   <svg className="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Datos Personales
                 </h3>
 
-                <div className="space-y-4">
+                {/* Grid 2 columnas para campos */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {/* Nombre */}
                   <div>
                     <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-1">
@@ -329,8 +330,8 @@ const RegisterPage = () => {
                     />
                   </div>
 
-                  {/* Email */}
-                  <div>
+                  {/* Email - ocupa 2 columnas */}
+                  <div className="md:col-span-2">
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
                       Email *
                     </label>
@@ -418,11 +419,11 @@ const RegisterPage = () => {
                       Asignación de Materias
                       <span className="text-gray-500 text-xs ml-2">(Máximo 2 materias)</span>
                     </label>
-                    <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto bg-gray-50">
+                    <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
                       {materias.length === 0 ? (
                         <p className="text-sm text-gray-500 italic">No hay materias disponibles</p>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
                           {materias.map((materia) => (
                             <label
                               key={materia.id}
@@ -435,13 +436,10 @@ const RegisterPage = () => {
                                 checked={selectedMaterias.includes(materia.id)}
                                 onChange={() => handleToggleMateria(materia.id)}
                                 disabled={!selectedMaterias.includes(materia.id) && selectedMaterias.length >= 2}
-                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500"
+                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500 flex-shrink-0"
                               />
-                              <span className="ml-3 text-sm text-gray-900">
+                              <span className="ml-2 text-sm text-gray-900 truncate" title={materia.nombre}>
                                 {materia.nombre}
-                              </span>
-                              <span className="ml-auto text-xs text-gray-500">
-                                {materia.sigla}
                               </span>
                             </label>
                           ))}
@@ -460,11 +458,11 @@ const RegisterPage = () => {
                       Asignación de Grados/Cursos
                       <span className="text-gray-500 text-xs ml-2">(Máximo 6 grados)</span>
                     </label>
-                    <div className="border border-gray-200 rounded-lg p-4 max-h-64 overflow-y-auto bg-gray-50">
+                    <div className="border border-gray-200 rounded-lg p-3 max-h-64 overflow-y-auto bg-gray-50">
                       {grados.length === 0 ? (
                         <p className="text-sm text-gray-500 italic">No hay grados disponibles</p>
                       ) : (
-                        <div className="space-y-2">
+                        <div className="grid grid-cols-2 gap-2">
                           {grados.map((grado) => (
                             <label
                               key={grado.id}
@@ -477,16 +475,11 @@ const RegisterPage = () => {
                                 checked={selectedGrados.includes(grado.id)}
                                 onChange={() => handleToggleGrado(grado.id)}
                                 disabled={!selectedGrados.includes(grado.id) && selectedGrados.length >= 6}
-                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500"
+                                className="w-4 h-4 text-salesiano-azul-600 border-gray-300 rounded focus:ring-salesiano-azul-500 flex-shrink-0"
                               />
-                              <span className="ml-3 text-sm text-gray-900">
+                              <span className="ml-2 text-sm text-gray-900 truncate" title={grado.nombre}>
                                 {grado.nombre}
                               </span>
-                              {grado.sigla && (
-                                <span className="ml-auto text-xs text-gray-500">
-                                  {grado.sigla}
-                                </span>
-                              )}
                             </label>
                           ))}
                         </div>
