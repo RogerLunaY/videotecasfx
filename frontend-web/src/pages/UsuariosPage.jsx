@@ -178,19 +178,19 @@ const UsuariosPage = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Nombre Completo
+                      Usuario
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Asignación
+                      Email
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Rol
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Fecha de Registro
+                      Estado
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
+                      Registro
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Acciones
@@ -198,71 +198,55 @@ const UsuariosPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => {
-                    const nombreCompleto = `${user.nombre} ${user.apellido_paterno} ${user.apellido_materno || ''}`.trim();
-                    const tieneAsignacion = user.materias_asignadas && user.materias_asignadas.trim() !== '';
-
-                    return (
-                      <tr key={user.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <div className="flex-shrink-0 h-10 w-10">
-                              <div className="h-10 w-10 rounded-full bg-salesiano-azul-600 text-white flex items-center justify-center font-semibold">
-                                {user.nombre?.charAt(0)}{user.apellido_paterno?.charAt(0)}
-                              </div>
-                            </div>
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">
-                                {nombreCompleto}
-                              </div>
+                  {users.map((user) => (
+                    <tr key={user.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <div className="flex-shrink-0 h-10 w-10">
+                            <div className="h-10 w-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">
+                              {user.nombre?.charAt(0)}{user.apellido_paterno?.charAt(0)}
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4">
-                          {user.rol === 'Docente' ? (
-                            tieneAsignacion ? (
-                              <div className="text-sm text-gray-900">
-                                Profesor de <span className="font-medium">{user.materias_asignadas}</span>
-                              </div>
-                            ) : (
-                              <span className="text-sm font-medium text-red-600">
-                                Sin asignar
-                              </span>
-                            )
-                          ) : (
-                            <span className="text-sm text-gray-500">-</span>
-                          )}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.rol)}`}>
-                            {user.rol}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {formatDate(user.fecha_registro)}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeColor(user.estado)}`}>
-                            {user.estado}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <Link
-                            to={`/usuarios/${user.id}/editar`}
-                            className="text-salesiano-azul-600 hover:text-salesiano-azul-900 mr-4"
-                          >
-                            Editar
-                          </Link>
-                          <button
-                            onClick={() => setDeleteModal({ show: true, user })}
-                            className="text-red-600 hover:text-red-900"
-                          >
-                            Eliminar
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {user.nombre} {user.apellido_paterno}
+                            </div>
+                            <div className="text-sm text-gray-500">CI: {user.ci}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.email}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.rol)}`}>
+                          {user.rol}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeColor(user.estado)}`}>
+                          {user.estado}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatDate(user.fecha_registro)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <Link
+                          to={`/usuarios/${user.id}/editar`}
+                          className="text-primary-600 hover:text-primary-900 mr-4"
+                        >
+                          Editar
+                        </Link>
+                        <button
+                          onClick={() => setDeleteModal({ show: true, user })}
+                          className="text-red-600 hover:text-red-900"
+                        >
+                          Eliminar
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
