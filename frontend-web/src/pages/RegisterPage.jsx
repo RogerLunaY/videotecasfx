@@ -13,7 +13,7 @@ import LoadingSpinner from '../components/Common/LoadingSpinner';
 const RegisterPage = () => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const { roles, materias, grados, loading: resourcesLoading } = useResources();
+  const { roles, loading: resourcesLoading } = useResources();
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -25,8 +25,6 @@ const RegisterPage = () => {
     password_confirmation: '',
     telefono: '',
     rol_id: '',
-    materia_id: '',
-    grado_id: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -111,8 +109,6 @@ const RegisterPage = () => {
       // Remover campos vacíos opcionales
       if (!dataToSend.apellido_materno.trim()) delete dataToSend.apellido_materno;
       if (!dataToSend.telefono.trim()) delete dataToSend.telefono;
-      if (!dataToSend.materia_id) delete dataToSend.materia_id;
-      if (!dataToSend.grado_id) delete dataToSend.grado_id;
       delete dataToSend.password_confirmation;
 
       await registerUser(dataToSend);
@@ -130,8 +126,6 @@ const RegisterPage = () => {
         password_confirmation: '',
         telefono: '',
         rol_id: '',
-        materia_id: '',
-        grado_id: '',
       });
 
       // Redirigir después de 2 segundos
@@ -303,10 +297,10 @@ const RegisterPage = () => {
                 </div>
               </div>
 
-              {/* Rol y Asignación */}
+              {/* Rol */}
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rol y Asignación</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Rol del Sistema</h3>
+                <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label htmlFor="rol_id" className="block text-sm font-medium text-gray-700 mb-1">
                       Rol *
@@ -325,43 +319,10 @@ const RegisterPage = () => {
                     </select>
                     {errors.rol_id && <p className="mt-1 text-sm text-red-600">{errors.rol_id}</p>}
                   </div>
-
-                  <div>
-                    <label htmlFor="materia_id" className="block text-sm font-medium text-gray-700 mb-1">
-                      Materia
-                    </label>
-                    <select
-                      id="materia_id"
-                      name="materia_id"
-                      value={formData.materia_id}
-                      onChange={handleChange}
-                      className="input-field"
-                    >
-                      <option value="">Seleccionar materia</option>
-                      {materias.map(materia => (
-                        <option key={materia.id} value={materia.id}>{materia.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="grado_id" className="block text-sm font-medium text-gray-700 mb-1">
-                      Grado
-                    </label>
-                    <select
-                      id="grado_id"
-                      name="grado_id"
-                      value={formData.grado_id}
-                      onChange={handleChange}
-                      className="input-field"
-                    >
-                      <option value="">Seleccionar grado</option>
-                      {grados.map(grado => (
-                        <option key={grado.id} value={grado.id}>{grado.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
                 </div>
+                <p className="mt-2 text-sm text-gray-500">
+                  <strong>Nota:</strong> Para asignar materias y grados a docentes, use el botón "Asignar" en la lista de usuarios después de crear el usuario.
+                </p>
               </div>
 
               {/* Buttons */}
