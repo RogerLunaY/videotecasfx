@@ -18,6 +18,7 @@ import VideosPage from './pages/VideosPage';
 import VideoDetailPage from './pages/VideoDetailPage';
 import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
+import EditUsuarioPage from './pages/EditUsuarioPage';
 import PerfilPage from './pages/PerfilPage';
 import DocenteAsignacionesPage from './pages/DocenteAsignacionesPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -128,6 +129,15 @@ function App() {
         element={
           <ProtectedRoute requireAdmin>
             <UsuariosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/usuarios/:id/editar"
+        element={
+          <ProtectedRoute requireAdmin>
+            <EditUsuarioPage />
           </ProtectedRoute>
         }
       />
