@@ -9,6 +9,7 @@
  */
 
 require_once __DIR__ . '/../models/Usuario.php';
+require_once __DIR__ . '/../models/DocenteAsignacion.php';
 require_once __DIR__ . '/../utils/JWTHandler.php';
 require_once __DIR__ . '/../utils/Logger.php';
 require_once __DIR__ . '/../middleware/ValidationMiddleware.php';
@@ -131,18 +132,26 @@ class AuthController
         // Log de login exitoso
         $this->logger->auth('login', $email, true, $usuario['id']);
 
+        // Preparar datos del usuario
+        $userData = [
+            'id' => $usuario['id'],
+            'nombre' => $usuario['nombre'],
+            'apellido_paterno' => $usuario['apellido_paterno'],
+            'apellido_materno' => $usuario['apellido_materno'],
+            'email' => $usuario['email'],
+            'rol' => $usuario['rol_nombre']
+        ];
+
+        // Si es docente, obtener sus asignaciones de la tabla asignaciones
+        if ($usuario['rol_nombre'] === 'Docente') {
+            $asignacionModel = new DocenteAsignacion();
+            $asignaciones = $asignacionModel->obtenerAsignacionesDocente($usuario['id']);
+            $userData['asignaciones'] = $asignaciones;
+        }
+
         // Respuesta exitosa
         $this->enviarRespuesta(200, true, [
-            'user' => [
-                'id' => $usuario['id'],
-                'nombre' => $usuario['nombre'],
-                'apellido_paterno' => $usuario['apellido_paterno'],
-                'apellido_materno' => $usuario['apellido_materno'],
-                'email' => $usuario['email'],
-                'rol' => $usuario['rol_nombre'],
-                'materia_id' => $usuario['materia_id'],
-                'grado_id' => $usuario['grado_id']
-            ],
+            'user' => $userData,
             'tokens' => [
                 'access_token' => $accessToken,
                 'refresh_token' => $refreshToken,

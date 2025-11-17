@@ -34,6 +34,9 @@ class Usuario
     public ?string $password = null;
     public ?string $password_hash = null;
     public ?int $rol_id = null;
+    // NOTA: grado_id y materia_id son campos legacy.
+    // Para docentes, usar la tabla 'asignaciones' en su lugar.
+    // Estos campos deberían ser NULL para docentes.
     public ?int $grado_id = null;
     public ?int $materia_id = null;
     public ?string $telefono = null;
@@ -57,6 +60,9 @@ class Usuario
     /**
      * Crea un nuevo usuario en la base de datos
      *
+     * IMPORTANTE: Para docentes, grado_id y materia_id deben ser NULL.
+     * Las asignaciones de docentes se manejan a través de la tabla 'asignaciones'.
+     *
      * @return bool|int ID del usuario creado o false si falla
      */
     public function crear()
@@ -74,6 +80,13 @@ class Usuario
             // Hash del password
             $hashed_password = password_hash($this->password, PASSWORD_BCRYPT, ['cost' => 12]);
 
+            // Para docentes (rol_id = 2), forzar grado_id y materia_id a NULL
+            // ya que las asignaciones se manejan en la tabla asignaciones
+            if ($this->rol_id == 2) {
+                $this->grado_id = null;
+                $this->materia_id = null;
+            }
+
             // Bind de parámetros
             $stmt->bindParam(':nombre', $this->nombre);
             $stmt->bindParam(':apellido_paterno', $this->apellido_paterno);
@@ -82,8 +95,8 @@ class Usuario
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password_hash', $hashed_password);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
+            $stmt->bindParam(':grado_id', $this->grado_id, PDO::PARAM_INT);
+            $stmt->bindParam(':materia_id', $this->materia_id, PDO::PARAM_INT);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
@@ -122,15 +135,9 @@ class Usuario
             $params[':estado'] = $filtros['estado'];
         }
 
-        if (!empty($filtros['materia_id'])) {
-            $where[] = "u.materia_id = :materia_id";
-            $params[':materia_id'] = $filtros['materia_id'];
-        }
-
-        if (!empty($filtros['grado_id'])) {
-            $where[] = "u.grado_id = :grado_id";
-            $params[':grado_id'] = $filtros['grado_id'];
-        }
+        // NOTA: Los filtros materia_id y grado_id han sido removidos.
+        // Para docentes, usar DocenteAsignacion::obtenerDocentesPorMateria() o similar.
+        // Estos campos son legacy y NULL para docentes.
 
         if (!empty($filtros['busqueda'])) {
             $where[] = "(u.nombre LIKE :busqueda OR u.apellido_paterno LIKE :busqueda OR u.email LIKE :busqueda OR u.ci LIKE :busqueda)";
@@ -261,10 +268,19 @@ class Usuario
     /**
      * Actualiza los datos de un usuario
      *
+     * IMPORTANTE: Para docentes, grado_id y materia_id se fuerzan a NULL automáticamente.
+     * Las asignaciones de docentes se manejan a través de la tabla 'asignaciones'.
+     *
      * @return bool True si se actualizó correctamente, false en caso contrario
      */
     public function actualizar(): bool
     {
+        // Para docentes (rol_id = 2), forzar grado_id y materia_id a NULL
+        if ($this->rol_id == 2) {
+            $this->grado_id = null;
+            $this->materia_id = null;
+        }
+
         $query = "UPDATE {$this->table}
                 SET nombre = :nombre,
                     apellido_paterno = :apellido_paterno,
@@ -288,8 +304,8 @@ class Usuario
             $stmt->bindParam(':ci', $this->ci);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
+            $stmt->bindParam(':grado_id', $this->grado_id, PDO::PARAM_INT);
+            $stmt->bindParam(':materia_id', $this->materia_id, PDO::PARAM_INT);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
