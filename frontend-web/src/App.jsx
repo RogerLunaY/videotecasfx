@@ -19,6 +19,7 @@ import VideoDetailPage from './pages/VideoDetailPage';
 import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
 import PerfilPage from './pages/PerfilPage';
+import DocenteAsignacionesPage from './pages/DocenteAsignacionesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Components
@@ -127,6 +128,15 @@ function App() {
         element={
           <ProtectedRoute requireAdmin>
             <UsuariosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/asignaciones"
+        element={
+          <ProtectedRoute requireAdmin>
+            <DocenteAsignacionesPage />
           </ProtectedRoute>
         }
       />
