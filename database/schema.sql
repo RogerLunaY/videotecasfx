@@ -489,6 +489,7 @@ GROUP BY u.id;
 -- =====================================================
 
 -- Procedimiento: Obtener estadísticas generales
+DROP PROCEDURE IF EXISTS sp_estadisticas_generales$$
 DELIMITER $$
 CREATE PROCEDURE sp_estadisticas_generales()
 BEGIN
@@ -503,6 +504,7 @@ END$$
 DELIMITER ;
 
 -- Procedimiento: Limpiar tokens expirados
+DROP PROCEDURE IF EXISTS sp_limpiar_tokens_expirados$$
 DELIMITER $$
 CREATE PROCEDURE sp_limpiar_tokens_expirados()
 BEGIN
@@ -514,6 +516,7 @@ END$$
 DELIMITER ;
 
 -- Procedimiento: Obtener videos por filtros
+DROP PROCEDURE IF EXISTS sp_buscar_videos$$
 DELIMITER $$
 CREATE PROCEDURE sp_buscar_videos(
     IN p_materia_id INT,
