@@ -462,7 +462,7 @@ SELECT
     u.apellido_paterno,
     u.apellido_materno,
     u.email,
-    u.rol,
+    r.nombre AS rol,
     u.estado,
     CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) AS nombre_completo,
     GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') AS materias_asignadas,
@@ -472,11 +472,12 @@ SELECT
     COUNT(DISTINCT dm.materia_id) AS total_materias,
     COUNT(DISTINCT dg.grado_id) AS total_grados
 FROM usuarios u
+INNER JOIN roles r ON u.rol_id = r.id
 LEFT JOIN docente_materias dm ON u.id = dm.docente_id
 LEFT JOIN materias m ON dm.materia_id = m.id
 LEFT JOIN docente_grados dg ON u.id = dg.docente_id
 LEFT JOIN grados g ON dg.grado_id = g.id
-WHERE u.rol = 'Docente'
+WHERE r.nombre = 'Docente'
 GROUP BY u.id;
 
 -- =====================================================
