@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS tokens_refresh (
 -- =====================================================
 
 -- Trigger: Incrementar visualizaciones al registrar reproducción
-DROP TRIGGER IF EXISTS after_reproduccion_insert$$
+DROP TRIGGER IF EXISTS after_reproduccion_insert;
 DELIMITER $$
 CREATE TRIGGER after_reproduccion_insert
 AFTER INSERT ON reproducciones
@@ -309,7 +309,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear usuario
-DROP TRIGGER IF EXISTS after_usuario_insert$$
+DROP TRIGGER IF EXISTS after_usuario_insert;
 DELIMITER $$
 CREATE TRIGGER after_usuario_insert
 AFTER INSERT ON usuarios
@@ -323,7 +323,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al crear video
-DROP TRIGGER IF EXISTS after_video_insert$$
+DROP TRIGGER IF EXISTS after_video_insert;
 DELIMITER $$
 CREATE TRIGGER after_video_insert
 AFTER INSERT ON videos
@@ -337,7 +337,7 @@ END$$
 DELIMITER ;
 
 -- Trigger: Registrar log al eliminar video
-DROP TRIGGER IF EXISTS before_video_delete$$
+DROP TRIGGER IF EXISTS before_video_delete;
 DELIMITER $$
 CREATE TRIGGER before_video_delete
 BEFORE DELETE ON videos
@@ -369,13 +369,17 @@ SELECT
     v.visualizaciones,
     v.estado,
     v.fecha_subida,
+    v.materia_id,
     m.nombre AS materia_nombre,
     m.sigla AS materia_sigla,
     m.color AS materia_color,
+    v.grado_id,
     g.nombre AS grado_nombre,
     g.nivel AS grado_nivel,
+    v.tema_id,
     t.nombre AS tema_nombre,
     t.nombre_corto AS tema_corto,
+    v.docente_id,
     CONCAT(u.nombre, ' ', u.apellido_paterno, ' ', IFNULL(u.apellido_materno, '')) AS docente_nombre,
     u.email AS docente_email
 FROM videos v
@@ -560,14 +564,18 @@ BEGIN
         'diaria',
         'resumen',
         JSON_OBJECT(
-            'videos_subidos', COUNT(DISTINCT v.id),
-            'reproducciones', COUNT(r.id),
+            'videos_subidos', (
+                SELECT COUNT(*)
+                FROM videos
+                WHERE DATE(fecha_subida) = CURDATE() - INTERVAL 1 DAY
+            ),
+            'reproducciones', COUNT(DISTINCT r.id),
             'usuarios_activos', COUNT(DISTINCT l.usuario_id)
         ),
         CURDATE() - INTERVAL 1 DAY
-    FROM videos v
-    LEFT JOIN reproducciones r ON r.video_id = v.id
-        AND DATE(r.fecha_inicio) = CURDATE() - INTERVAL 1 DAY
-    LEFT JOIN logs_sistema l ON DATE(l.fecha) = CURDATE() - INTERVAL 1 DAY;
+    FROM reproducciones r
+    LEFT JOIN logs_sistema l ON DATE(l.fecha) = CURDATE() - INTERVAL 1 DAY
+        AND l.usuario_id IS NOT NULL
+    WHERE DATE(r.fecha_inicio) = CURDATE() - INTERVAL 1 DAY;
 END$$
 DELIMITER ;
