@@ -140,13 +140,13 @@ class Usuario
                          u.estado,
                          u.fecha_creacion as fecha_registro,
                          r.nombre as rol,
-                         GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas
+                         (SELECT GROUP_CONCAT(DISTINCT m2.nombre ORDER BY m2.nombre SEPARATOR ', ')
+                          FROM docentes_materias dm2
+                          LEFT JOIN materias m2 ON dm2.materia_id = m2.id
+                          WHERE dm2.docente_id = u.id) as materias_asignadas
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN docentes_materias dm ON u.id = dm.docente_id
-                LEFT JOIN materias m ON dm.materia_id = m.id
                 {$whereClause}
-                GROUP BY u.id, u.nombre, u.apellido_paterno, u.apellido_materno, u.ci, u.email, u.telefono, u.rol_id, u.estado, u.fecha_creacion, r.nombre
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
 
@@ -163,9 +163,15 @@ class Usuario
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Log para depuración
+            error_log("[Usuario::obtenerTodos] Query ejecutado exitosamente. Usuarios encontrados: " . count($result));
+
+            return $result;
         } catch (PDOException $e) {
             error_log("[Usuario::obtenerTodos] Error: " . $e->getMessage());
+            error_log("[Usuario::obtenerTodos] Query: " . $query);
             return false;
         }
     }
