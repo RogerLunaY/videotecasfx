@@ -34,8 +34,6 @@ class Usuario
     public ?string $password = null;
     public ?string $password_hash = null;
     public ?int $rol_id = null;
-    public ?int $grado_id = null;
-    public ?int $materia_id = null;
     public ?string $telefono = null;
     public ?string $foto_perfil = null;
     public ?string $estado = 'activo';
@@ -63,10 +61,10 @@ class Usuario
     {
         $query = "INSERT INTO {$this->table}
                 (nombre, apellido_paterno, apellido_materno, ci, email, password_hash,
-                 rol_id, grado_id, materia_id, telefono, estado)
+                 rol_id, telefono, estado)
                 VALUES
                 (:nombre, :apellido_paterno, :apellido_materno, :ci, :email, :password_hash,
-                 :rol_id, :grado_id, :materia_id, :telefono, :estado)";
+                 :rol_id, :telefono, :estado)";
 
         try {
             $stmt = $this->conn->prepare($query);
@@ -82,8 +80,6 @@ class Usuario
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password_hash', $hashed_password);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
@@ -122,16 +118,6 @@ class Usuario
             $params[':estado'] = $filtros['estado'];
         }
 
-        if (!empty($filtros['materia_id'])) {
-            $where[] = "u.materia_id = :materia_id";
-            $params[':materia_id'] = $filtros['materia_id'];
-        }
-
-        if (!empty($filtros['grado_id'])) {
-            $where[] = "u.grado_id = :grado_id";
-            $params[':grado_id'] = $filtros['grado_id'];
-        }
-
         if (!empty($filtros['busqueda'])) {
             $where[] = "(u.nombre LIKE :busqueda OR u.apellido_paterno LIKE :busqueda OR u.email LIKE :busqueda OR u.ci LIKE :busqueda)";
             $params[':busqueda'] = "%{$filtros['busqueda']}%";
@@ -139,11 +125,9 @@ class Usuario
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre, g.nombre as grado_nombre
+        $query = "SELECT u.*, r.nombre as rol_nombre
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
                 {$whereClause}
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
@@ -176,12 +160,9 @@ class Usuario
      */
     public function obtenerPorId(int $id)
     {
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre,
-                         m.sigla as materia_sigla, g.nombre as grado_nombre
+        $query = "SELECT u.*, r.nombre as rol_nombre
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
                 WHERE u.id = :id
                 LIMIT 1";
 
@@ -272,8 +253,6 @@ class Usuario
                     ci = :ci,
                     email = :email,
                     rol_id = :rol_id,
-                    grado_id = :grado_id,
-                    materia_id = :materia_id,
                     telefono = :telefono,
                     estado = :estado
                 WHERE id = :id";
@@ -288,8 +267,6 @@ class Usuario
             $stmt->bindParam(':ci', $this->ci);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 

@@ -64,8 +64,6 @@ class UsuarioController
         $filtros = [];
         if (isset($_GET['rol_id'])) $filtros['rol_id'] = (int)$_GET['rol_id'];
         if (isset($_GET['estado'])) $filtros['estado'] = $_GET['estado'];
-        if (isset($_GET['materia_id'])) $filtros['materia_id'] = (int)$_GET['materia_id'];
-        if (isset($_GET['grado_id'])) $filtros['grado_id'] = (int)$_GET['grado_id'];
         if (isset($_GET['busqueda'])) $filtros['busqueda'] = $_GET['busqueda'];
 
         // Obtener usuarios
@@ -117,7 +115,8 @@ class UsuarioController
      * Crea un nuevo usuario
      *
      * POST /api/usuarios
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id }
+     * Nota: Las asignaciones de materia-grado se gestionan mediante DocenteAsignacionController
      *
      * @return void
      */
@@ -163,8 +162,6 @@ class UsuarioController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = $data['estado'] ?? 'activo';
 
@@ -185,7 +182,8 @@ class UsuarioController
      * Actualiza un usuario existente
      *
      * PUT /api/usuarios/{id}
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, materia_id, grado_id, estado }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, estado }
+     * Nota: Las asignaciones de materia-grado se gestionan mediante DocenteAsignacionController
      *
      * @param int $id ID del usuario
      * @return void
@@ -249,8 +247,6 @@ class UsuarioController
         $this->usuarioModel->ci = $data['ci'] ?? $usuarioExistente['ci'];
         $this->usuarioModel->email = $data['email'] ?? $usuarioExistente['email'];
         $this->usuarioModel->rol_id = $data['rol_id'] ?? $usuarioExistente['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? $usuarioExistente['materia_id'];
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? $usuarioExistente['grado_id'];
         $this->usuarioModel->telefono = $data['telefono'] ?? $usuarioExistente['telefono'];
         $this->usuarioModel->estado = $data['estado'] ?? $usuarioExistente['estado'];
 

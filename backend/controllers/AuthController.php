@@ -139,9 +139,7 @@ class AuthController
                 'apellido_paterno' => $usuario['apellido_paterno'],
                 'apellido_materno' => $usuario['apellido_materno'],
                 'email' => $usuario['email'],
-                'rol' => $usuario['rol_nombre'],
-                'materia_id' => $usuario['materia_id'],
-                'grado_id' => $usuario['grado_id']
+                'rol' => $usuario['rol_nombre']
             ],
             'tokens' => [
                 'access_token' => $accessToken,
@@ -156,7 +154,8 @@ class AuthController
      * Registro de nuevo usuario (solo administradores)
      *
      * POST /api/auth/register
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id }
+     * Nota: Las asignaciones de materia-grado se gestionan mediante DocenteAsignacionController
      *
      * @return void
      */
@@ -171,9 +170,7 @@ class AuthController
             'ci' => 'required|alphanumeric|min:5|max:20',
             'email' => 'required|email|max:150',
             'password' => 'required|min:8|max:100',
-            'rol_id' => 'required|integer',
-            'materia_id' => 'integer',
-            'grado_id' => 'integer'
+            'rol_id' => 'required|integer'
         ];
 
         if (!$this->validator->validar($data, $reglas)) {
@@ -201,8 +198,6 @@ class AuthController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = 'activo';
 
