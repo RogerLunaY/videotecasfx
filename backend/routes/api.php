@@ -315,7 +315,7 @@ $router->get('/api/roles', function() {
     $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     header('Content-Type: application/json');
-    echo json_encode(['success' => true, 'data' => ['roles' => $roles]]);
+    echo json_encode(['success' => true, 'roles' => $roles]);
 });
 
 // -----------------------------------------------------

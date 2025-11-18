@@ -52,7 +52,7 @@ class CampoController
 
         echo json_encode([
             'success' => true,
-            'data' => ['campos' => $campos]
+            'campos' => $campos
         ]);
     }
 

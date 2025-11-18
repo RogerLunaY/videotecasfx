@@ -61,7 +61,7 @@ class TemaController
 
         echo json_encode([
             'success' => true,
-            'data' => ['temas' => $temas]
+            'temas' => $temas
         ]);
     }
 
