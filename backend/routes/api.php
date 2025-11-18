@@ -234,8 +234,28 @@ $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
 // -----------------------------------------------------
 // Rutas de Asignaciones de Docentes (Solo Admin)
 // -----------------------------------------------------
+// Listar todos los docentes con sus asignaciones
 $router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarTodos']);
+
+// Obtener asignaciones de un docente específico
 $router->get('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'obtenerAsignaciones']);
+
+// Crear una asignación individual (materia + grado)
+$router->post('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'crear']);
+
+// Asignar múltiples combinaciones materia-grado (reemplaza las existentes)
+$router->put('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'asignarMultiples']);
+
+// Eliminar una asignación específica
+$router->delete('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'eliminar']);
+
+// Actualizar estado de una asignación
+$router->patch('/api/docentes/{id}/asignaciones/estado', [$docenteAsignacionController, 'actualizarEstado']);
+
+// Listar todas las asignaciones del sistema
+$router->get('/api/asignaciones', [$docenteAsignacionController, 'listarTodas']);
+
+// Rutas deprecadas (mantienen compatibilidad con versión anterior)
 $router->post('/api/docentes/{id}/materias', [$docenteAsignacionController, 'asignarMaterias']);
 $router->post('/api/docentes/{id}/grados', [$docenteAsignacionController, 'asignarGrados']);
 
