@@ -12,7 +12,7 @@ const resourceService = {
    */
   async getCampos() {
     const response = await api.get('/campos');
-    return response.data.campos;
+    return response.campos;
   },
 
   /**
@@ -23,7 +23,7 @@ const resourceService = {
   async getMaterias(campoId = null) {
     const params = campoId ? { campo_id: campoId } : {};
     const response = await api.get('/materias', { params });
-    return response.data.materias;
+    return response.materias;
   },
 
   /**
@@ -32,7 +32,7 @@ const resourceService = {
    */
   async getMateriasByCampo() {
     const response = await api.get('/materias/por-campo');
-    return response.data.campos;
+    return response.campos;
   },
 
   /**
@@ -41,7 +41,7 @@ const resourceService = {
    */
   async getGrados() {
     const response = await api.get('/grados');
-    return response.data.grados;
+    return response.grados;
   },
 
   /**
@@ -60,7 +60,7 @@ const resourceService = {
     }
 
     const response = await api.get('/temas', { params });
-    return response.data.temas;
+    return response.temas;
   },
 
   /**
@@ -69,7 +69,7 @@ const resourceService = {
    */
   async getRoles() {
     const response = await api.get('/roles');
-    return response.data.roles;
+    return response.roles;
   },
 };
 

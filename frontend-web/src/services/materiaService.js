@@ -16,7 +16,7 @@ const materiaService = {
     if (filters.campo_id) params.campo_id = filters.campo_id;
 
     const response = await api.get('/materias', { params });
-    return response.data.materias;
+    return response.materias;
   },
 
   /**
@@ -26,7 +26,7 @@ const materiaService = {
    */
   async getById(id) {
     const response = await api.get(`/materias/${id}`);
-    return response.data.materia;
+    return response.materia;
   },
 
   /**
@@ -38,7 +38,7 @@ const materiaService = {
   async getWithTemas(id, gradoId = null) {
     const params = gradoId ? { grado_id: gradoId } : {};
     const response = await api.get(`/materias/${id}/temas`, { params });
-    return response.data.materia;
+    return response.materia;
   },
 
   /**
@@ -47,7 +47,7 @@ const materiaService = {
    */
   async getByCampo() {
     const response = await api.get('/materias/por-campo');
-    return response.data.campos;
+    return response.campos;
   },
 };
 

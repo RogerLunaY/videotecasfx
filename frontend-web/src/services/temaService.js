@@ -17,7 +17,7 @@ const temaService = {
     if (filters.grado_id) params.grado_id = filters.grado_id;
 
     const response = await api.get('/temas', { params });
-    return response.data.temas;
+    return response.temas;
   },
 
   /**
@@ -27,7 +27,7 @@ const temaService = {
    */
   async getById(id) {
     const response = await api.get(`/temas/${id}`);
-    return response.data.tema;
+    return response.tema;
   },
 
   /**
@@ -41,7 +41,7 @@ const temaService = {
     if (filters.grado_id) params.grado_id = filters.grado_id;
 
     const response = await api.get('/temas/estructura', { params });
-    return response.data.estructura;
+    return response.estructura;
   },
 
   /**
@@ -56,7 +56,7 @@ const temaService = {
     if (filters.grado_id) params.grado_id = filters.grado_id;
 
     const response = await api.get('/temas/buscar', { params });
-    return response.data.temas;
+    return response.temas;
   },
 };
 

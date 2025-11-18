@@ -12,7 +12,7 @@ const gradoService = {
    */
   async getAll() {
     const response = await api.get('/grados');
-    return response.data.grados;
+    return response.grados;
   },
 
   /**
@@ -22,7 +22,7 @@ const gradoService = {
    */
   async getById(id) {
     const response = await api.get(`/grados/${id}`);
-    return response.data.grado;
+    return response.grado;
   },
 
   /**
@@ -34,7 +34,7 @@ const gradoService = {
   async getWithTemas(id, materiaId = null) {
     const params = materiaId ? { materia_id: materiaId } : {};
     const response = await api.get(`/grados/${id}/temas`, { params });
-    return response.data.grado;
+    return response.grado;
   },
 };
 

@@ -12,7 +12,7 @@ const campoService = {
    */
   async getAll() {
     const response = await api.get('/campos');
-    return response.data.campos;
+    return response.campos;
   },
 
   /**
@@ -22,7 +22,7 @@ const campoService = {
    */
   async getById(id) {
     const response = await api.get(`/campos/${id}`);
-    return response.data.campo;
+    return response.campo;
   },
 
   /**
@@ -32,7 +32,7 @@ const campoService = {
    */
   async getWithMaterias(id) {
     const response = await api.get(`/campos/${id}/materias`);
-    return response.data.campo;
+    return response.campo;
   },
 };
 
