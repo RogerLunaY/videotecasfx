@@ -103,6 +103,18 @@ class Router
     }
 
     /**
+     * Registra una ruta PATCH
+     *
+     * @param string $path Patrón de la ruta
+     * @param callable $callback Función a ejecutar
+     * @return void
+     */
+    public function patch(string $path, callable $callback): void
+    {
+        $this->addRoute('PATCH', $path, $callback);
+    }
+
+    /**
      * Agrega una ruta al registro
      *
      * @param string $method Método HTTP
