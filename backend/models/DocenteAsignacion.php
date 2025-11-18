@@ -124,14 +124,21 @@ class DocenteAsignacion
      */
     public function obtenerMateriasDocente(int $docenteId): array
     {
-        $query = "SELECT DISTINCT
-                    m.*,
+        $query = "SELECT
+                    m.id,
+                    m.nombre,
+                    m.descripcion,
+                    m.sigla,
+                    m.color,
+                    m.icono,
+                    m.estado,
+                    m.fecha_creacion,
                     GROUP_CONCAT(g.nombre ORDER BY g.orden SEPARATOR ', ') AS grados
                   FROM {$this->table} a
                   INNER JOIN materias m ON a.materia_id = m.id
                   INNER JOIN grados g ON a.grado_id = g.id
                   WHERE a.docente_id = :docente_id AND a.estado = 'activa'
-                  GROUP BY m.id
+                  GROUP BY m.id, m.nombre, m.descripcion, m.sigla, m.color, m.icono, m.estado, m.fecha_creacion
                   ORDER BY m.nombre";
 
         try {
@@ -154,14 +161,21 @@ class DocenteAsignacion
      */
     public function obtenerGradosDocente(int $docenteId): array
     {
-        $query = "SELECT DISTINCT
-                    g.*,
+        $query = "SELECT
+                    g.id,
+                    g.nombre,
+                    g.descripcion,
+                    g.nivel,
+                    g.sigla,
+                    g.orden,
+                    g.estado,
+                    g.fecha_creacion,
                     GROUP_CONCAT(m.nombre ORDER BY m.nombre SEPARATOR ', ') AS materias
                   FROM {$this->table} a
                   INNER JOIN grados g ON a.grado_id = g.id
                   INNER JOIN materias m ON a.materia_id = m.id
                   WHERE a.docente_id = :docente_id AND a.estado = 'activa'
-                  GROUP BY g.id
+                  GROUP BY g.id, g.nombre, g.descripcion, g.nivel, g.sigla, g.orden, g.estado, g.fecha_creacion
                   ORDER BY g.orden";
 
         try {
