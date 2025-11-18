@@ -179,9 +179,9 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
               {error}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Materias */}
-              <div>
+              <div className="md:col-span-2">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-semibold text-gray-900">
                     Materias ({materiasSeleccionadas.length}/{materiasDisponibles.length})
@@ -197,7 +197,7 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto p-2">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
                   {materiasDisponibles.length === 0 ? (
                     <p className="text-gray-500 text-sm text-center py-4">No hay materias disponibles</p>
                   ) : (
@@ -229,7 +229,7 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
               </div>
 
               {/* Grados */}
-              <div>
+              <div className="md:col-span-1">
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="text-lg font-semibold text-gray-900">
                     Grados ({gradosSeleccionados.length}/{gradosDisponibles.length})
