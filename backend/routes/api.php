@@ -235,7 +235,7 @@ $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
 // Rutas de Asignaciones de Docentes (Solo Admin)
 // -----------------------------------------------------
 // Listar todos los docentes con sus asignaciones
-$router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarTodos']);
+$router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarDocentes']);
 
 // Obtener asignaciones de un docente específico
 $router->get('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'obtenerAsignaciones']);
