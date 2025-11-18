@@ -17,6 +17,10 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
+  // Límites de asignaciones
+  const MAX_MATERIAS = 3;
+  const MAX_GRADOS = 6;
+
   // Listas disponibles
   const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const [gradosDisponibles, setGradosDisponibles] = useState([]);
@@ -64,6 +68,11 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
     if (materiasSeleccionadas.includes(materiaId)) {
       setMateriasSeleccionadas(materiasSeleccionadas.filter(id => id !== materiaId));
     } else {
+      if (materiasSeleccionadas.length >= MAX_MATERIAS) {
+        setError(`Solo puedes seleccionar hasta ${MAX_MATERIAS} materias`);
+        setTimeout(() => setError(null), 3000);
+        return;
+      }
       setMateriasSeleccionadas([...materiasSeleccionadas, materiaId]);
     }
   };
@@ -72,23 +81,44 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
     if (gradosSeleccionados.includes(gradoId)) {
       setGradosSeleccionados(gradosSeleccionados.filter(id => id !== gradoId));
     } else {
+      if (gradosSeleccionados.length >= MAX_GRADOS) {
+        setError(`Solo puedes seleccionar hasta ${MAX_GRADOS} grados`);
+        setTimeout(() => setError(null), 3000);
+        return;
+      }
       setGradosSeleccionados([...gradosSeleccionados, gradoId]);
     }
   };
 
   const handleSelectAllMaterias = () => {
-    if (materiasSeleccionadas.length === materiasDisponibles.length) {
+    if (materiasSeleccionadas.length === materiasDisponibles.length ||
+        materiasSeleccionadas.length === MAX_MATERIAS) {
       setMateriasSeleccionadas([]);
     } else {
-      setMateriasSeleccionadas(materiasDisponibles.map(m => m.id));
+      const todasLasMaterias = materiasDisponibles.map(m => m.id);
+      const materiasASeleccionar = todasLasMaterias.slice(0, MAX_MATERIAS);
+      setMateriasSeleccionadas(materiasASeleccionar);
+
+      if (todasLasMaterias.length > MAX_MATERIAS) {
+        setError(`Solo se pueden seleccionar hasta ${MAX_MATERIAS} materias. Se seleccionaron las primeras ${MAX_MATERIAS}.`);
+        setTimeout(() => setError(null), 3000);
+      }
     }
   };
 
   const handleSelectAllGrados = () => {
-    if (gradosSeleccionados.length === gradosDisponibles.length) {
+    if (gradosSeleccionados.length === gradosDisponibles.length ||
+        gradosSeleccionados.length === MAX_GRADOS) {
       setGradosSeleccionados([]);
     } else {
-      setGradosSeleccionados(gradosDisponibles.map(g => g.id));
+      const todosLosGrados = gradosDisponibles.map(g => g.id);
+      const gradosASeleccionar = todosLosGrados.slice(0, MAX_GRADOS);
+      setGradosSeleccionados(gradosASeleccionar);
+
+      if (todosLosGrados.length > MAX_GRADOS) {
+        setError(`Solo se pueden seleccionar hasta ${MAX_GRADOS} grados. Se seleccionaron los primeros ${MAX_GRADOS}.`);
+        setTimeout(() => setError(null), 3000);
+      }
     }
   };
 
@@ -96,6 +126,13 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
     try {
       setSaving(true);
       setError(null);
+
+      // Validar que hay al menos una materia y un grado seleccionados
+      if (materiasSeleccionadas.length === 0 || gradosSeleccionados.length === 0) {
+        setError('Debes seleccionar al menos una materia y un grado');
+        setSaving(false);
+        return;
+      }
 
       await actualizarAsignaciones(
         docente.id,
@@ -110,7 +147,7 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
       onClose();
     } catch (err) {
       console.error('Error saving assignments:', err);
-      setError('Error al guardar las asignaciones');
+      setError(err.response?.data?.message || 'Error al guardar las asignaciones');
     } finally {
       setSaving(false);
     }
@@ -258,6 +295,9 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
               </div>
               <div className="ml-3 flex-1">
                 <p className="text-sm text-blue-700">
+                  <strong>Límites:</strong> Un docente puede tener máximo {MAX_MATERIAS} materias y {MAX_GRADOS} grados asignados.
+                </p>
+                <p className="text-sm text-blue-700 mt-2">
                   <strong>Importante:</strong> Se crearán asignaciones para todas las combinaciones de materia × grado seleccionadas.
                   Por ejemplo, si selecciona 2 materias y 3 grados, se crearán 6 asignaciones (2 × 3 = 6).
                 </p>

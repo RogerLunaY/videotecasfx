@@ -234,6 +234,7 @@ $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
 // -----------------------------------------------------
 // Rutas de Asignaciones de Docentes (Solo Admin)
 // -----------------------------------------------------
+$router->get('/api/asignaciones/limites', [$docenteAsignacionController, 'obtenerLimites']);
 $router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarDocentes']);
 $router->get('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'obtenerAsignaciones']);
 $router->post('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'crear']);

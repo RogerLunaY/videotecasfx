@@ -13,6 +13,7 @@ require_once __DIR__ . '/../models/Usuario.php';
 require_once __DIR__ . '/../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../middleware/RoleMiddleware.php';
 require_once __DIR__ . '/../utils/Logger.php';
+require_once __DIR__ . '/../config/AsignacionLimites.php';
 
 /**
  * Clase DocenteAsignacionController - Controlador de asignaciones
@@ -130,6 +131,23 @@ class DocenteAsignacionController
             return;
         }
 
+        // Obtener asignaciones actuales para validar límites
+        $asignacionesActuales = $this->asignacionModel->obtenerPorDocente($id, 'activa');
+        $nuevaAsignacion = ['materia_id' => $materiaId, 'grado_id' => $gradoId];
+
+        // Agregar la nueva asignación temporalmente para validar
+        $asignacionesParaValidar = array_merge($asignacionesActuales, [$nuevaAsignacion]);
+
+        // Validar límites
+        $validacion = AsignacionLimites::validarTodo($asignacionesParaValidar);
+        if (!$validacion['valido']) {
+            $this->enviarRespuesta(400, false, [
+                'errores' => $validacion['errores'],
+                'estadisticas' => $validacion['estadisticas']
+            ], 'No se puede crear la asignación: ' . implode('. ', $validacion['errores']));
+            return;
+        }
+
         // Crear asignación
         $resultado = $this->asignacionModel->crear(
             $id,
@@ -206,6 +224,16 @@ class DocenteAsignacionController
                 );
                 return;
             }
+        }
+
+        // Validar límites de asignaciones
+        $validacion = AsignacionLimites::validarTodo($data['asignaciones']);
+        if (!$validacion['valido']) {
+            $this->enviarRespuesta(400, false, [
+                'errores' => $validacion['errores'],
+                'estadisticas' => $validacion['estadisticas']
+            ], 'No se pueden asignar: ' . implode('. ', $validacion['errores']));
+            return;
         }
 
         // Verificar que el docente existe
@@ -414,6 +442,25 @@ class DocenteAsignacionController
         $docentes = $this->asignacionModel->obtenerTodosConAsignaciones();
 
         $this->enviarRespuesta(200, true, ['docentes' => $docentes]);
+    }
+
+    /**
+     * Obtiene los límites de asignaciones configurados
+     *
+     * GET /api/asignaciones/limites
+     *
+     * @return void
+     */
+    public function obtenerLimites(): void
+    {
+        // Verificar autenticación
+        $usuario = AuthMiddleware::proteger();
+        if (!$usuario) return;
+
+        // Cualquier usuario autenticado puede consultar los límites
+        $limites = AsignacionLimites::obtenerLimites();
+
+        $this->enviarRespuesta(200, true, ['limites' => $limites]);
     }
 
     /**
