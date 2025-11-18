@@ -234,8 +234,11 @@ $router->get('/api/usuarios/rol/{rol}', [$usuarioController, 'byRole']);
 // -----------------------------------------------------
 // Rutas de Asignaciones de Docentes (Solo Admin)
 // -----------------------------------------------------
-$router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarTodos']);
+$router->get('/api/docentes-asignaciones', [$docenteAsignacionController, 'listarDocentes']);
 $router->get('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'obtenerAsignaciones']);
+$router->post('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'crear']);
+$router->put('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'asignarMultiples']);
+$router->delete('/api/docentes/{id}/asignaciones', [$docenteAsignacionController, 'eliminar']);
 $router->post('/api/docentes/{id}/materias', [$docenteAsignacionController, 'asignarMaterias']);
 $router->post('/api/docentes/{id}/grados', [$docenteAsignacionController, 'asignarGrados']);
 
