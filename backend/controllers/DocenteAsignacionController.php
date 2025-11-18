@@ -117,6 +117,12 @@ class DocenteAsignacionController
         $gradoId = (int) $data['grado_id'];
         $estado = $data['estado'] ?? 'activa';
 
+        // Validar estado
+        if (!in_array($estado, ['activa', 'inactiva'])) {
+            $this->enviarRespuesta(400, false, null, 'Estado inválido. Debe ser activa o inactiva');
+            return;
+        }
+
         // Verificar que el docente existe
         $docente = $this->usuarioModel->obtenerPorId($id);
         if (!$docente || $docente['rol'] !== 'Docente') {
