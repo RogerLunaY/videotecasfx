@@ -159,7 +159,9 @@ class DocenteAsignacionController
 
         if ($resultado) {
             $this->logger->info(
+                'Asignacion',
                 "Asignación creada para docente {$docente['nombre']}",
+                null,
                 [
                     'docente_id' => $id,
                     'materia_id' => $materiaId,
@@ -252,7 +254,9 @@ class DocenteAsignacionController
 
         if ($resultado) {
             $this->logger->info(
+                'Asignacion',
                 "Asignaciones actualizadas para docente {$docente['nombre']}",
+                null,
                 [
                     'docente_id' => $id,
                     'cantidad' => count($data['asignaciones']),
@@ -313,7 +317,9 @@ class DocenteAsignacionController
 
         if ($resultado) {
             $this->logger->info(
+                'Asignacion',
                 "Asignación eliminada para docente {$docente['nombre']}",
+                null,
                 [
                     'docente_id' => $id,
                     'materia_id' => $materiaId,
@@ -375,7 +381,9 @@ class DocenteAsignacionController
 
         if ($resultado) {
             $this->logger->info(
+                'Asignacion',
                 "Estado de asignación actualizado",
+                null,
                 [
                     'docente_id' => $id,
                     'materia_id' => $materiaId,
