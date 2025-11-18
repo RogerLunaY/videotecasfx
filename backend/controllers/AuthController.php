@@ -78,7 +78,7 @@ class AuthController
 
         // Verificar si el usuario está bloqueado
         if ($this->usuarioModel->estaBloqueado($email)) {
-            $this->logger->warning('login_bloqueado', "Intento de login con cuenta bloqueada: {$email}");
+            $this->logger->warning('Autenticacion', "Intento de login con cuenta bloqueada: {$email}", null, ['email' => $email]);
             $this->enviarRespuesta(423, false, null, 'Cuenta bloqueada temporalmente. Intente más tarde.');
             return;
         }
@@ -94,17 +94,17 @@ class AuthController
             $usuarioData = $this->usuarioModel->obtenerPorEmail($email);
             if ($usuarioData && $usuarioData['intentos_login'] >= 5) {
                 $this->usuarioModel->bloquearUsuario($email, 15);
-                $this->logger->warning('usuario_bloqueado', "Usuario bloqueado por intentos fallidos: {$email}");
+                $this->logger->warning('Autenticacion', "Usuario bloqueado por intentos fallidos: {$email}", null, ['email' => $email, 'intentos' => $usuarioData['intentos_login']]);
             }
 
-            $this->logger->warning('login_fallido', "Credenciales inválidas para: {$email}");
+            $this->logger->warning('Autenticacion', "Credenciales inválidas para: {$email}", null, ['email' => $email]);
             $this->enviarRespuesta(401, false, null, 'Credenciales inválidas');
             return;
         }
 
         // Verificar estado del usuario
         if ($usuario['estado'] !== 'activo') {
-            $this->logger->warning('login_inactivo', "Intento de login con cuenta inactiva: {$email}");
+            $this->logger->warning('Autenticacion', "Intento de login con cuenta inactiva: {$email}", null, ['email' => $email, 'estado' => $usuario['estado']]);
             $this->enviarRespuesta(403, false, null, 'Cuenta inactiva. Contacte al administrador.');
             return;
         }
@@ -209,14 +209,14 @@ class AuthController
         $usuarioId = $this->usuarioModel->crear();
 
         if ($usuarioId) {
-            $this->logger->info('usuario_registrado', "Nuevo usuario registrado: {$data['email']}", $usuarioId);
+            $this->logger->info('Registro', "Nuevo usuario registrado: {$data['email']}", $usuarioId, ['email' => $data['email'], 'rol_id' => $data['rol_id']]);
 
             $this->enviarRespuesta(201, true, [
                 'id' => $usuarioId,
                 'email' => $data['email']
             ], 'Usuario registrado exitosamente');
         } else {
-            $this->logger->error('error_registro', "Error al registrar usuario: {$data['email']}");
+            $this->logger->error('Registro', "Error al registrar usuario: {$data['email']}", null, ['email' => $data['email']]);
             $this->enviarRespuesta(500, false, null, 'Error al registrar usuario');
         }
     }
@@ -281,7 +281,7 @@ class AuthController
             $usuario['nombre'] . ' ' . $usuario['apellido_paterno']
         );
 
-        $this->logger->info('token_refresh', "Token refrescado para usuario: {$usuario['email']}", $usuario['id']);
+        $this->logger->info('Autenticacion', "Token refrescado para usuario: {$usuario['email']}", $usuario['id'], ['email' => $usuario['email']]);
 
         $this->enviarRespuesta(200, true, [
             'access_token' => $newAccessToken,
@@ -313,7 +313,7 @@ class AuthController
             $stmt->execute();
         }
 
-        $this->logger->info('logout', 'Usuario cerró sesión');
+        $this->logger->info('Autenticacion', 'Usuario cerró sesión', null, []);
 
         $this->enviarRespuesta(200, true, null, 'Logout exitoso');
     }
