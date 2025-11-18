@@ -2,7 +2,7 @@
  * Página de Registro (solo para admins)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useResources } from '../hooks/useResources';
@@ -40,6 +40,16 @@ const RegisterPage = () => {
   // Límites
   const MAX_MATERIAS = 3;
   const MAX_GRADOS = 6;
+
+  // Establecer rol "Docente" como predeterminado cuando se carguen los roles
+  useEffect(() => {
+    if (roles.length > 0 && !formData.rol_id) {
+      const rolDocente = roles.find(r => r.nombre === 'Docente');
+      if (rolDocente) {
+        setFormData(prev => ({ ...prev, rol_id: rolDocente.id }));
+      }
+    }
+  }, [roles]);
 
   // Solo admins pueden acceder
   if (!isAdmin()) {
