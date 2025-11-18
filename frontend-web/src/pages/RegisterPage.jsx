@@ -44,7 +44,7 @@ const RegisterPage = () => {
   // Establecer rol "Docente" como predeterminado cuando se carguen los roles
   useEffect(() => {
     if (roles.length > 0 && !formData.rol_id) {
-      const rolDocente = roles.find(r => r.nombre === 'Docente');
+      const rolDocente = roles.find(r => r.nombre?.toLowerCase() === 'docente');
       if (rolDocente) {
         setFormData(prev => ({ ...prev, rol_id: rolDocente.id }));
       }
@@ -76,7 +76,7 @@ const RegisterPage = () => {
     setFormData(prev => ({ ...prev, rol_id: rolId }));
     // Si cambia de docente a otro rol, limpiar asignaciones
     const rolSeleccionado = roles.find(r => r.id === rolId);
-    if (rolSeleccionado && rolSeleccionado.nombre !== 'Docente') {
+    if (rolSeleccionado && rolSeleccionado.nombre?.toLowerCase() !== 'docente') {
       setMateriasSeleccionadas([]);
       setGradosSeleccionados([]);
     }
@@ -122,7 +122,7 @@ const RegisterPage = () => {
 
   const isDocente = () => {
     const rolSeleccionado = roles.find(r => r.id === formData.rol_id);
-    return rolSeleccionado && rolSeleccionado.nombre === 'Docente';
+    return rolSeleccionado && rolSeleccionado.nombre?.toLowerCase() === 'docente';
   };
 
   const validate = () => {

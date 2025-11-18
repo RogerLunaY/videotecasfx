@@ -65,7 +65,8 @@ const EditUserPage = () => {
         });
 
         // Si es docente, cargar sus asignaciones
-        if (userData.rol === 'Docente' || userData.rol_id === 2) {
+        const rolDocente = roles.find(r => r.id === userData.rol_id);
+        if (rolDocente && rolDocente.nombre?.toLowerCase() === 'docente') {
           try {
             const asignaciones = await getDocenteAsignaciones(id);
             const materiasIds = (asignaciones.materias || []).map(m => m.id);
@@ -108,7 +109,7 @@ const EditUserPage = () => {
     setFormData(prev => ({ ...prev, rol_id: rolId }));
     // Si cambia de docente a otro rol, limpiar asignaciones
     const rolSeleccionado = roles.find(r => r.id === rolId);
-    if (rolSeleccionado && rolSeleccionado.nombre !== 'Docente') {
+    if (rolSeleccionado && rolSeleccionado.nombre?.toLowerCase() !== 'docente') {
       setMateriasSeleccionadas([]);
       setGradosSeleccionados([]);
     }
@@ -154,7 +155,7 @@ const EditUserPage = () => {
 
   const isDocente = () => {
     const rolSeleccionado = roles.find(r => r.id === formData.rol_id);
-    return rolSeleccionado && rolSeleccionado.nombre === 'Docente';
+    return rolSeleccionado && rolSeleccionado.nombre?.toLowerCase() === 'docente';
   };
 
   const validate = () => {
