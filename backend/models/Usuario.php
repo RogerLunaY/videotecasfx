@@ -140,19 +140,32 @@ class Usuario
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
         $query = "SELECT
-                    u.*,
+                    u.id,
+                    u.nombre,
+                    u.apellido_paterno,
+                    u.apellido_materno,
+                    u.email,
+                    u.ci,
+                    u.telefono,
+                    u.rol_id,
+                    u.estado,
+                    u.foto_perfil,
+                    u.fecha_creacion,
+                    u.fecha_actualizacion,
+                    u.ultimo_acceso,
+                    u.intentos_login,
                     r.nombre as rol,
                     r.nombre as rol_nombre,
                     GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
                     GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') as grados_asignados,
-                    COUNT(DISTINCT a.id) as total_asignaciones
+                    COUNT(DISTINCT CASE WHEN a.estado = 'activa' THEN a.id END) as total_asignaciones
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN asignaciones a ON u.id = a.docente_id AND a.estado = 'activa'
-                LEFT JOIN materias m ON a.materia_id = m.id
-                LEFT JOIN grados g ON a.grado_id = g.id
+                LEFT JOIN asignaciones a ON u.id = a.docente_id
+                LEFT JOIN materias m ON a.materia_id = m.id AND a.estado = 'activa'
+                LEFT JOIN grados g ON a.grado_id = g.id AND a.estado = 'activa'
                 {$whereClause}
-                GROUP BY u.id, r.nombre
+                GROUP BY u.id
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
 
@@ -185,19 +198,32 @@ class Usuario
     public function obtenerPorId(int $id)
     {
         $query = "SELECT
-                    u.*,
+                    u.id,
+                    u.nombre,
+                    u.apellido_paterno,
+                    u.apellido_materno,
+                    u.email,
+                    u.ci,
+                    u.telefono,
+                    u.rol_id,
+                    u.estado,
+                    u.foto_perfil,
+                    u.fecha_creacion,
+                    u.fecha_actualizacion,
+                    u.ultimo_acceso,
+                    u.intentos_login,
                     r.nombre as rol,
                     r.nombre as rol_nombre,
                     GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
                     GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') as grados_asignados,
-                    COUNT(DISTINCT a.id) as total_asignaciones
+                    COUNT(DISTINCT CASE WHEN a.estado = 'activa' THEN a.id END) as total_asignaciones
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN asignaciones a ON u.id = a.docente_id AND a.estado = 'activa'
-                LEFT JOIN materias m ON a.materia_id = m.id
-                LEFT JOIN grados g ON a.grado_id = g.id
+                LEFT JOIN asignaciones a ON u.id = a.docente_id
+                LEFT JOIN materias m ON a.materia_id = m.id AND a.estado = 'activa'
+                LEFT JOIN grados g ON a.grado_id = g.id AND a.estado = 'activa'
                 WHERE u.id = :id
-                GROUP BY u.id, r.nombre
+                GROUP BY u.id
                 LIMIT 1";
 
         try {
