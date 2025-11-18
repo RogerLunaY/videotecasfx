@@ -477,7 +477,7 @@ class DocenteAsignacionController
      */
     public function asignarMaterias(int $id): void
     {
-        $this->logger->warning("Método deprecado asignarMaterias llamado. Use asignarMultiples()");
+        $this->logger->warning('Advertencia', "Método deprecado asignarMaterias llamado. Use asignarMultiples()");
 
         $this->enviarRespuesta(
             410,
@@ -496,7 +496,7 @@ class DocenteAsignacionController
      */
     public function asignarGrados(int $id): void
     {
-        $this->logger->warning("Método deprecado asignarGrados llamado. Use asignarMultiples()");
+        $this->logger->warning('Advertencia', "Método deprecado asignarGrados llamado. Use asignarMultiples()");
 
         $this->enviarRespuesta(
             410,
