@@ -197,32 +197,39 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto p-2">
                   {materiasDisponibles.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No hay materias disponibles</p>
+                    <p className="text-gray-500 text-sm text-center py-4">No hay materias disponibles</p>
                   ) : (
                     materiasDisponibles.map((materia) => (
-                      <label
+                      <button
                         key={materia.id}
-                        className="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                        type="button"
+                        onClick={() => handleMateriaToggle(materia.id)}
+                        className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
+                          materiasSeleccionadas.includes(materia.id)
+                            ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
+                            : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
+                        }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={materiasSeleccionadas.includes(materia.id)}
-                          onChange={() => handleMateriaToggle(materia.id)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                        />
-                        <div className="ml-3 flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {materia.nombre}
-                          </p>
-                          {materia.descripcion && (
-                            <p className="text-xs text-gray-500">
-                              {materia.descripcion}
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold">
+                              {materia.nombre}
                             </p>
+                            {materia.descripcion && (
+                              <p className="text-xs text-gray-600 mt-1">
+                                {materia.descripcion}
+                              </p>
+                            )}
+                          </div>
+                          {materiasSeleccionadas.includes(materia.id) && (
+                            <svg className="w-5 h-5 text-primary-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
                           )}
                         </div>
-                      </label>
+                      </button>
                     ))
                   )}
                 </div>
@@ -237,7 +244,7 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                   <button
                     type="button"
                     onClick={handleSelectAllGrados}
-                    className="text-sm text-primary-600 hover:text-primary-800"
+                    className="text-sm text-blue-600 hover:text-blue-800"
                   >
                     {gradosSeleccionados.length === gradosDisponibles.length
                       ? 'Deseleccionar todos'
@@ -245,30 +252,37 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-96 overflow-y-auto border border-gray-200 rounded-lg p-4">
+                <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto p-2">
                   {gradosDisponibles.length === 0 ? (
-                    <p className="text-gray-500 text-sm">No hay grados disponibles</p>
+                    <p className="text-gray-500 text-sm text-center py-4">No hay grados disponibles</p>
                   ) : (
                     gradosDisponibles.map((grado) => (
-                      <label
+                      <button
                         key={grado.id}
-                        className="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
+                        type="button"
+                        onClick={() => handleGradoToggle(grado.id)}
+                        className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
+                          gradosSeleccionados.includes(grado.id)
+                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-lg'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                        }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={gradosSeleccionados.includes(grado.id)}
-                          onChange={() => handleGradoToggle(grado.id)}
-                          className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-                        />
-                        <div className="ml-3 flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {grado.nombre}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            Nivel: {grado.nivel}
-                          </p>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold">
+                              {grado.nombre}
+                            </p>
+                            <p className="text-xs text-gray-600 mt-1">
+                              Nivel: {grado.nivel}
+                            </p>
+                          </div>
+                          {gradosSeleccionados.includes(grado.id) && (
+                            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                          )}
                         </div>
-                      </label>
+                      </button>
                     ))
                   )}
                 </div>
