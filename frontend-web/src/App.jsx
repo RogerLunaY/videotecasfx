@@ -9,6 +9,7 @@ import { useAuth } from './context/AuthContext';
 // Pages
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import EditUserPage from './pages/EditUserPage';
 import HomePage from './pages/HomePage';
 import MateriasPage from './pages/MateriasPage';
 import CursosPage from './pages/CursosPage';
@@ -127,6 +128,15 @@ function App() {
         element={
           <ProtectedRoute requireAdmin>
             <UsuariosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/usuarios/:id/editar"
+        element={
+          <ProtectedRoute requireAdmin>
+            <EditUserPage />
           </ProtectedRoute>
         }
       />
