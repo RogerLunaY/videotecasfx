@@ -47,8 +47,8 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
         getGrados()
       ]);
 
-      setMateriasDisponibles(materiasData.materias || []);
-      setGradosDisponibles(gradosData.grados || []);
+      setMateriasDisponibles(materiasData || []);
+      setGradosDisponibles(gradosData || []);
 
       // Establecer selecciones actuales
       const materiasIds = (asignacionesData.materias || []).map(m => m.id);
