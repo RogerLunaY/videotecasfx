@@ -123,12 +123,12 @@ class Usuario
         }
 
         if (!empty($filtros['materia_id'])) {
-            $where[] = "u.materia_id = :materia_id";
+            $where[] = "EXISTS (SELECT 1 FROM asignaciones a WHERE a.docente_id = u.id AND a.materia_id = :materia_id AND a.estado = 'activa')";
             $params[':materia_id'] = $filtros['materia_id'];
         }
 
         if (!empty($filtros['grado_id'])) {
-            $where[] = "u.grado_id = :grado_id";
+            $where[] = "EXISTS (SELECT 1 FROM asignaciones a WHERE a.docente_id = u.id AND a.grado_id = :grado_id AND a.estado = 'activa')";
             $params[':grado_id'] = $filtros['grado_id'];
         }
 
@@ -139,12 +139,20 @@ class Usuario
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre, g.nombre as grado_nombre
+        $query = "SELECT
+                    u.*,
+                    r.nombre as rol,
+                    r.nombre as rol_nombre,
+                    GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
+                    GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') as grados_asignados,
+                    COUNT(DISTINCT a.id) as total_asignaciones
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
+                LEFT JOIN asignaciones a ON u.id = a.docente_id AND a.estado = 'activa'
+                LEFT JOIN materias m ON a.materia_id = m.id
+                LEFT JOIN grados g ON a.grado_id = g.id
                 {$whereClause}
+                GROUP BY u.id, r.nombre
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
 
@@ -176,13 +184,20 @@ class Usuario
      */
     public function obtenerPorId(int $id)
     {
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre,
-                         m.sigla as materia_sigla, g.nombre as grado_nombre
+        $query = "SELECT
+                    u.*,
+                    r.nombre as rol,
+                    r.nombre as rol_nombre,
+                    GROUP_CONCAT(DISTINCT m.nombre ORDER BY m.nombre SEPARATOR ', ') as materias_asignadas,
+                    GROUP_CONCAT(DISTINCT g.nombre ORDER BY g.orden SEPARATOR ', ') as grados_asignados,
+                    COUNT(DISTINCT a.id) as total_asignaciones
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
+                LEFT JOIN asignaciones a ON u.id = a.docente_id AND a.estado = 'activa'
+                LEFT JOIN materias m ON a.materia_id = m.id
+                LEFT JOIN grados g ON a.grado_id = g.id
                 WHERE u.id = :id
+                GROUP BY u.id, r.nombre
                 LIMIT 1";
 
         try {
@@ -494,18 +509,33 @@ class Usuario
         $params = [];
 
         if (!empty($filtros['rol_id'])) {
-            $where[] = "rol_id = :rol_id";
+            $where[] = "u.rol_id = :rol_id";
             $params[':rol_id'] = $filtros['rol_id'];
         }
 
         if (!empty($filtros['estado'])) {
-            $where[] = "estado = :estado";
+            $where[] = "u.estado = :estado";
             $params[':estado'] = $filtros['estado'];
+        }
+
+        if (!empty($filtros['materia_id'])) {
+            $where[] = "EXISTS (SELECT 1 FROM asignaciones a WHERE a.docente_id = u.id AND a.materia_id = :materia_id AND a.estado = 'activa')";
+            $params[':materia_id'] = $filtros['materia_id'];
+        }
+
+        if (!empty($filtros['grado_id'])) {
+            $where[] = "EXISTS (SELECT 1 FROM asignaciones a WHERE a.docente_id = u.id AND a.grado_id = :grado_id AND a.estado = 'activa')";
+            $params[':grado_id'] = $filtros['grado_id'];
+        }
+
+        if (!empty($filtros['busqueda'])) {
+            $where[] = "(u.nombre LIKE :busqueda OR u.apellido_paterno LIKE :busqueda OR u.email LIKE :busqueda OR u.ci LIKE :busqueda)";
+            $params[':busqueda'] = "%{$filtros['busqueda']}%";
         }
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT COUNT(*) as total FROM {$this->table} {$whereClause}";
+        $query = "SELECT COUNT(DISTINCT u.id) as total FROM {$this->table} u {$whereClause}";
 
         try {
             $stmt = $this->conn->prepare($query);
