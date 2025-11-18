@@ -51,7 +51,7 @@ class GradoController
 
         echo json_encode([
             'success' => true,
-            'data' => ['grados' => $grados]
+            'grados' => $grados
         ]);
     }
 

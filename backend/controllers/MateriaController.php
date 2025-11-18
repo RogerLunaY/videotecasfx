@@ -57,7 +57,7 @@ class MateriaController
 
         echo json_encode([
             'success' => true,
-            'data' => ['materias' => $materias]
+            'materias' => $materias
         ]);
     }
 
