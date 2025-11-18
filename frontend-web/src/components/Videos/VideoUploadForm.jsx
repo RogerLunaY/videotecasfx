@@ -4,7 +4,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useResources } from '../../hooks/useResources';
+import { useDocenteAsignaciones } from '../../hooks/useDocenteAsignaciones';
 import { uploadVideo } from '../../services/videoService';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
@@ -14,7 +14,7 @@ const MAX_TAGS = 10;
 
 const VideoUploadForm = () => {
   const navigate = useNavigate();
-  const { materias, grados, temas, loading: resourcesLoading } = useResources();
+  const { materias, grados, temas, loading: resourcesLoading } = useDocenteAsignaciones();
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
   const videoPreviewRef = useRef(null);
