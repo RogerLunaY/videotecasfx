@@ -49,9 +49,8 @@ const VideoUploadForm = () => {
 
   const steps = [
     { number: 1, name: 'Información', icon: '📝' },
-    { number: 2, name: 'Clasificación', icon: '📚' },
-    { number: 3, name: 'Archivos', icon: '📁' },
-    { number: 4, name: 'Confirmar', icon: '✓' },
+    { number: 2, name: 'Archivos', icon: '📁' },
+    { number: 3, name: 'Confirmar', icon: '✓' },
   ];
 
   // Generar thumbnail del video
@@ -251,9 +250,6 @@ const VideoUploadForm = () => {
       if (!formData.titulo.trim()) {
         newErrors.titulo = 'El título es requerido';
       }
-    }
-
-    if (step === 2) {
       if (!formData.materia_id) {
         newErrors.materia_id = 'La materia es requerida';
       }
@@ -265,7 +261,7 @@ const VideoUploadForm = () => {
       }
     }
 
-    if (step === 3) {
+    if (step === 2) {
       if (!files.video) {
         newErrors.video = 'El archivo de video es requerido';
       } else {
@@ -306,7 +302,7 @@ const VideoUploadForm = () => {
 
   const handleNextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, 4));
+      setCurrentStep(prev => Math.min(prev + 1, 3));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -319,7 +315,7 @@ const VideoUploadForm = () => {
   const handleSubmit = async () => {
     setErrorMessage('');
 
-    if (!validateStep(3)) {
+    if (!validateStep(2)) {
       return;
     }
 
@@ -444,200 +440,211 @@ const VideoUploadForm = () => {
 
       {/* Contenido del Paso Actual */}
       <div className="bg-white rounded-lg shadow-md p-8 min-h-[500px] animate-slide-in">
-        {/* PASO 1: Información Básica */}
+        {/* PASO 1: Información y Clasificación */}
         {currentStep === 1 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">📝 Información del Video</h2>
-              <p className="text-gray-600">Proporciona los detalles básicos de tu video educativo</p>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">📝 Información y Clasificación</h2>
+              <p className="text-gray-600">Proporciona los detalles de tu video educativo y selecciona su clasificación</p>
             </div>
 
-            <div>
-              <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
-                Título del Video *
-              </label>
-              <input
-                type="text"
-                id="titulo"
-                name="titulo"
-                value={formData.titulo}
-                onChange={handleChange}
-                className={`input-field text-lg ${errors.titulo ? 'border-red-500' : ''}`}
-                placeholder="Ej: Introducción al Álgebra Lineal"
-                maxLength={MAX_TITULO_LENGTH}
-              />
-              <div className="flex justify-between mt-1">
+            {/* Layout de dos columnas */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Columna Izquierda: Información */}
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-2 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">📝 Información</h3>
+                </div>
+
                 <div>
-                  {errors.titulo && <p className="text-sm text-red-600">{errors.titulo}</p>}
+                  <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
+                    Título del Video *
+                  </label>
+                  <input
+                    type="text"
+                    id="titulo"
+                    name="titulo"
+                    value={formData.titulo}
+                    onChange={handleChange}
+                    className={`input-field text-lg ${errors.titulo ? 'border-red-500' : ''}`}
+                    placeholder="Ej: Introducción al Álgebra Lineal"
+                    maxLength={MAX_TITULO_LENGTH}
+                  />
+                  <div className="flex justify-between mt-1">
+                    <div>
+                      {errors.titulo && <p className="text-sm text-red-600">{errors.titulo}</p>}
+                    </div>
+                    <p className={`text-sm ${formData.titulo.length > MAX_TITULO_LENGTH * 0.9 ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
+                      {formData.titulo.length}/{MAX_TITULO_LENGTH}
+                    </p>
+                  </div>
                 </div>
-                <p className={`text-sm ${formData.titulo.length > MAX_TITULO_LENGTH * 0.9 ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
-                  {formData.titulo.length}/{MAX_TITULO_LENGTH}
-                </p>
-              </div>
-            </div>
 
-            <div>
-              <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-2">
-                Descripción
-              </label>
-              <textarea
-                id="descripcion"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-                rows={6}
-                className="input-field"
-                placeholder="Describe el contenido del video, los temas que se cubren y lo que los estudiantes aprenderán..."
-                maxLength={MAX_DESCRIPCION_LENGTH}
-              />
-              <div className="flex justify-end mt-1">
-                <p className={`text-sm ${formData.descripcion.length > MAX_DESCRIPCION_LENGTH * 0.9 ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
-                  {formData.descripcion.length}/{MAX_DESCRIPCION_LENGTH}
-                </p>
-              </div>
-            </div>
+                <div>
+                  <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-2">
+                    Descripción
+                  </label>
+                  <textarea
+                    id="descripcion"
+                    name="descripcion"
+                    value={formData.descripcion}
+                    onChange={handleChange}
+                    rows={6}
+                    className="input-field"
+                    placeholder="Describe el contenido del video, los temas que se cubren y lo que los estudiantes aprenderán..."
+                    maxLength={MAX_DESCRIPCION_LENGTH}
+                  />
+                  <div className="flex justify-end mt-1">
+                    <p className={`text-sm ${formData.descripcion.length > MAX_DESCRIPCION_LENGTH * 0.9 ? 'text-orange-600 font-medium' : 'text-gray-500'}`}>
+                      {formData.descripcion.length}/{MAX_DESCRIPCION_LENGTH}
+                    </p>
+                  </div>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Etiquetas (Opcional) - Máximo {MAX_TAGS}
-              </label>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleAddTag(e)}
-                  className="input-field flex-1"
-                  placeholder="Escribe una etiqueta y presiona Enter"
-                  disabled={formData.tags.length >= MAX_TAGS}
-                />
-                <button
-                  type="button"
-                  onClick={handleAddTag}
-                  disabled={formData.tags.length >= MAX_TAGS}
-                  className="btn-secondary"
-                >
-                  Agregar
-                </button>
-              </div>
-              {errors.tags && <p className="text-sm text-red-600 mb-2">{errors.tags}</p>}
-              <div className="flex flex-wrap gap-2">
-                {formData.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium animate-scale-in"
-                  >
-                    #{tag}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Etiquetas (Opcional) - Máximo {MAX_TAGS}
+                  </label>
+                  <div className="flex gap-2 mb-3">
+                    <input
+                      type="text"
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleAddTag(e)}
+                      className="input-field flex-1"
+                      placeholder="Escribe una etiqueta y presiona Enter"
+                      disabled={formData.tags.length >= MAX_TAGS}
+                    />
                     <button
                       type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className="ml-1 hover:text-primary-900 transition-colors"
+                      onClick={handleAddTag}
+                      disabled={formData.tags.length >= MAX_TAGS}
+                      className="btn-secondary"
                     >
-                      ×
+                      Agregar
                     </button>
-                  </span>
-                ))}
+                  </div>
+                  {errors.tags && <p className="text-sm text-red-600 mb-2">{errors.tags}</p>}
+                  <div className="flex flex-wrap gap-2">
+                    {formData.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center gap-1 px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-medium animate-scale-in"
+                      >
+                        #{tag}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(tag)}
+                          className="ml-1 hover:text-primary-900 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {formData.tags.length > 0 && (
+                    <p className="text-xs text-gray-500 mt-2">
+                      {formData.tags.length}/{MAX_TAGS} etiquetas
+                    </p>
+                  )}
+                </div>
               </div>
-              {formData.tags.length > 0 && (
-                <p className="text-xs text-gray-500 mt-2">
-                  {formData.tags.length}/{MAX_TAGS} etiquetas
-                </p>
-              )}
+
+              {/* Columna Derecha: Clasificación */}
+              <div className="space-y-6">
+                <div className="border-b border-gray-200 pb-2 mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">📚 Clasificación</h3>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Materia *
+                  </label>
+                  <div className="grid grid-cols-2 gap-3">
+                    {materias.map((materia) => (
+                      <button
+                        key={materia.id}
+                        type="button"
+                        onClick={() => handleMateriaSelect(materia.id)}
+                        className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-sm ${
+                          formData.materia_id == materia.id
+                            ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
+                            : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {materia.nombre}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.materia_id && <p className="mt-2 text-sm text-red-600">{errors.materia_id}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Grado *
+                  </label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {grados.map((grado) => (
+                      <button
+                        key={grado.id}
+                        type="button"
+                        onClick={() => handleGradoSelect(grado.id)}
+                        className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-sm ${
+                          formData.grado_id == grado.id
+                            ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-lg'
+                            : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        {getFirstWord(grado.nombre)}
+                      </button>
+                    ))}
+                  </div>
+                  {errors.grado_id && <p className="mt-2 text-sm text-red-600">{errors.grado_id}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-3">
+                    Tema *
+                  </label>
+                  {!formData.materia_id || !formData.grado_id ? (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
+                      <svg className="w-12 h-12 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-gray-600 font-medium">Selecciona una materia y un grado</p>
+                      <p className="text-gray-500 text-sm mt-1">Los temas aparecerán aquí</p>
+                    </div>
+                  ) : filteredTemas.length === 0 ? (
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+                      <p className="text-yellow-700">No hay temas disponibles para esta materia</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto p-2 bg-gray-50 rounded-lg border border-gray-200">
+                      {filteredTemas.map((tema) => (
+                        <button
+                          key={tema.id}
+                          type="button"
+                          onClick={() => handleTemaSelect(tema.id)}
+                          className={`px-3 py-2 rounded-lg border-2 font-medium transition-all duration-200 text-xs ${
+                            formData.tema_id == tema.id
+                              ? 'border-green-600 bg-green-50 text-green-700 shadow-md'
+                              : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50'
+                          }`}
+                        >
+                          {tema.nombre}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {errors.tema_id && <p className="mt-2 text-sm text-red-600">{errors.tema_id}</p>}
+                </div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* PASO 2: Clasificación */}
+        {/* PASO 2: Archivos */}
         {currentStep === 2 && (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">📚 Clasificación del Video</h2>
-              <p className="text-gray-600">Selecciona la materia, grado y tema correspondiente</p>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Materia * <span className="text-gray-500 font-normal">(Selecciona una)</span>
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {materias.map((materia) => (
-                  <button
-                    key={materia.id}
-                    type="button"
-                    onClick={() => handleMateriaSelect(materia.id)}
-                    className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 ${
-                      formData.materia_id == materia.id
-                        ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
-                        : 'border-gray-200 hover:border-primary-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {materia.nombre}
-                  </button>
-                ))}
-              </div>
-              {errors.materia_id && <p className="mt-2 text-sm text-red-600">{errors.materia_id}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Grado * <span className="text-gray-500 font-normal">(Selecciona uno)</span>
-              </label>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-                {grados.map((grado) => (
-                  <button
-                    key={grado.id}
-                    type="button"
-                    onClick={() => handleGradoSelect(grado.id)}
-                    className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 ${
-                      formData.grado_id == grado.id
-                        ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-lg'
-                        : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    {getFirstWord(grado.nombre)}
-                  </button>
-                ))}
-              </div>
-              {errors.grado_id && <p className="mt-2 text-sm text-red-600">{errors.grado_id}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Tema * <span className="text-gray-500 font-normal">(Selecciona uno)</span>
-              </label>
-              {!formData.materia_id ? (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center">
-                  <p className="text-gray-500">Primero selecciona una materia para ver los temas disponibles</p>
-                </div>
-              ) : filteredTemas.length === 0 ? (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-                  <p className="text-yellow-700">No hay temas disponibles para esta materia</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                  {filteredTemas.map((tema) => (
-                    <button
-                      key={tema.id}
-                      type="button"
-                      onClick={() => handleTemaSelect(tema.id)}
-                      className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 ${
-                        formData.tema_id == tema.id
-                          ? 'border-green-600 bg-green-50 text-green-700 shadow-lg'
-                          : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
-                      }`}
-                    >
-                      {tema.nombre}
-                    </button>
-                  ))}
-                </div>
-              )}
-              {errors.tema_id && <p className="mt-2 text-sm text-red-600">{errors.tema_id}</p>}
-            </div>
-          </div>
-        )}
-
-        {/* PASO 3: Archivos */}
-        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">📁 Archivos del Video</h2>
@@ -803,8 +810,8 @@ const VideoUploadForm = () => {
           </div>
         )}
 
-        {/* PASO 4: Confirmación */}
-        {currentStep === 4 && (
+        {/* PASO 3: Confirmación */}
+        {currentStep === 3 && (
           <div className="space-y-6">
             <div className="text-center mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-2">✓ Revisar y Confirmar</h2>
@@ -958,7 +965,7 @@ const VideoUploadForm = () => {
           {currentStep === 1 ? 'Cancelar' : 'Anterior'}
         </button>
 
-        {currentStep < 4 ? (
+        {currentStep < 3 ? (
           <button
             type="button"
             onClick={handleNextStep}
