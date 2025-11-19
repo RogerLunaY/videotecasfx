@@ -196,13 +196,18 @@ const RegisterPage = () => {
       const response = await registerUser(dataToSend);
       const usuarioCreado = response.usuario || response;
 
-      // Si es docente, crear las asignaciones
-      if (isDocente() && usuarioCreado.id) {
-        await actualizarAsignaciones(
-          usuarioCreado.id,
-          materiasSeleccionadas,
-          gradosSeleccionados
-        );
+      // Si es docente, crear las asignaciones (solo si hay materias y grados seleccionados)
+      if (isDocente() && usuarioCreado.id && materiasSeleccionadas.length > 0 && gradosSeleccionados.length > 0) {
+        try {
+          await actualizarAsignaciones(
+            usuarioCreado.id,
+            materiasSeleccionadas,
+            gradosSeleccionados
+          );
+        } catch (asignacionError) {
+          console.error('Error al asignar materias/grados:', asignacionError);
+          setErrorMessage('Usuario creado pero hubo un error al asignar materias/grados: ' + (asignacionError.response?.data?.message || asignacionError.message));
+        }
       }
 
       setSuccessMessage('Usuario registrado exitosamente');

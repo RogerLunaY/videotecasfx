@@ -217,13 +217,20 @@ const EditUserPage = () => {
 
       await updateUser(id, dataToSend);
 
-      // Si es docente, actualizar las asignaciones
-      if (isDocente()) {
-        await actualizarAsignaciones(
-          id,
-          materiasSeleccionadas,
-          gradosSeleccionados
-        );
+      // Si es docente, actualizar las asignaciones (solo si hay materias y grados seleccionados)
+      if (isDocente() && materiasSeleccionadas.length > 0 && gradosSeleccionados.length > 0) {
+        try {
+          await actualizarAsignaciones(
+            id,
+            materiasSeleccionadas,
+            gradosSeleccionados
+          );
+        } catch (asignacionError) {
+          console.error('Error al asignar materias/grados:', asignacionError);
+          setErrorMessage('Usuario actualizado pero hubo un error al asignar materias/grados: ' + (asignacionError.response?.data?.message || asignacionError.message));
+          setLoading(false);
+          return;
+        }
       }
 
       setSuccessMessage('Usuario actualizado exitosamente');
