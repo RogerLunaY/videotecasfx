@@ -1,0 +1,294 @@
+@startuml Diagrama Entidad-Relación - Base de Datos
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam entity {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+}
+skinparam class {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+}
+
+' ===== ENTIDADES =====
+
+entity roles {
+    * id : INT <<PK>>
+    --
+    * nombre : VARCHAR(50)
+    permisos : JSON
+    descripcion : TEXT
+    * estado : ENUM('activo','inactivo')
+}
+
+entity usuarios {
+    * id : INT <<PK>>
+    --
+    * nombre : VARCHAR(100)
+    * apellido_paterno : VARCHAR(100)
+    apellido_materno : VARCHAR(100)
+    * ci : VARCHAR(20) <<UNIQUE>>
+    * email : VARCHAR(100) <<UNIQUE>>
+    * password_hash : VARCHAR(255)
+    * rol_id : INT <<FK>>
+    grado_id : INT <<FK>>
+    materia_id : INT <<FK>>
+    telefono : VARCHAR(20)
+    foto_perfil : VARCHAR(255)
+    * estado : ENUM('activo','inactivo')
+    ultimo_acceso : DATETIME
+    * intentos_login : INT DEFAULT 0
+    bloqueado_hasta : DATETIME
+    * created_at : TIMESTAMP
+    * updated_at : TIMESTAMP
+}
+
+entity campos {
+    * id : INT <<PK>>
+    --
+    * nombre : VARCHAR(100)
+    descripcion : TEXT
+    color : VARCHAR(7)
+    icono : VARCHAR(50)
+    * estado : ENUM('activo','inactivo')
+    * orden : INT
+}
+
+entity materias {
+    * id : INT <<PK>>
+    --
+    * campo_id : INT <<FK>>
+    * nombre : VARCHAR(100)
+    * sigla : VARCHAR(10)
+    descripcion : TEXT
+    color : VARCHAR(7)
+    icono : VARCHAR(50)
+    * estado : ENUM('activo','inactivo')
+}
+
+entity grados {
+    * id : INT <<PK>>
+    --
+    * nombre : VARCHAR(100)
+    * nivel : INT
+    * sigla : VARCHAR(10)
+    descripcion : TEXT
+    * estado : ENUM('activo','inactivo')
+    * orden : INT
+}
+
+entity temas {
+    * id : INT <<PK>>
+    --
+    * nombre : VARCHAR(200)
+    nombre_corto : VARCHAR(100)
+    descripcion : TEXT
+    * materia_id : INT <<FK>>
+    * grado_id : INT <<FK>>
+    * estado : ENUM('activo','inactivo')
+    * orden : INT
+}
+
+entity asignaciones {
+    * id : INT <<PK>>
+    --
+    * docente_id : INT <<FK>>
+    * materia_id : INT <<FK>>
+    * grado_id : INT <<FK>>
+    * estado : ENUM('activo','inactivo')
+    * fecha_asignacion : DATETIME
+    usuario_asignador_id : INT <<FK>>
+    --
+    <<UNIQUE (docente_id, materia_id, grado_id)>>
+}
+
+entity videos {
+    * id : INT <<PK>>
+    --
+    * titulo : VARCHAR(255)
+    descripcion : TEXT
+    * archivo_path : VARCHAR(500)
+    * archivo_nombre : VARCHAR(255)
+    thumbnail_path : VARCHAR(500)
+    duracion : INT
+    tamanio : BIGINT
+    formato : VARCHAR(20)
+    resolucion : VARCHAR(20)
+    codec : VARCHAR(50)
+    tema_id : INT <<FK>>
+    * materia_id : INT <<FK>>
+    * grado_id : INT <<FK>>
+    * docente_id : INT <<FK>>
+    * visualizaciones : INT DEFAULT 0
+    * estado : ENUM('activo','inactivo','procesando','error')
+    * fecha_subida : DATETIME
+    --
+    <<FULLTEXT INDEX (titulo, descripcion)>>
+}
+
+entity reproducciones {
+    * id : INT <<PK>>
+    --
+    * video_id : INT <<FK>>
+    usuario_id : INT <<FK>>
+    ip_address : VARCHAR(45)
+    user_agent : VARCHAR(500)
+    * tiempo_reproducido : INT DEFAULT 0
+    * porcentaje_visto : INT DEFAULT 0
+    * completado : BOOLEAN DEFAULT 0
+    * fecha_inicio : DATETIME
+    fecha_fin : DATETIME
+}
+
+entity estadisticas {
+    * id : INT <<PK>>
+    --
+    * tipo : ENUM('videos','reproducciones','usuarios','general')
+    * categoria : VARCHAR(100)
+    * datos_json : JSON
+    fecha_referencia : DATE
+    * fecha_generacion : DATETIME
+}
+
+entity logs_sistema {
+    * id : INT <<PK>>
+    --
+    usuario_id : INT <<FK>>
+    * nivel : ENUM('info','warning','error','critical')
+    * accion : VARCHAR(100)
+    descripcion : TEXT
+    entidad : VARCHAR(50)
+    entidad_id : INT
+    ip : VARCHAR(45)
+    user_agent : VARCHAR(500)
+    datos_adicionales : JSON
+    * fecha : DATETIME
+}
+
+entity tokens_refresh {
+    * id : INT <<PK>>
+    --
+    * usuario_id : INT <<FK>>
+    * token_hash : VARCHAR(255) <<UNIQUE>>
+    ip : VARCHAR(45)
+    user_agent : VARCHAR(500)
+    * expira_en : DATETIME
+    * revocado : BOOLEAN DEFAULT 0
+    * fecha_creacion : DATETIME
+}
+
+' ===== RELACIONES =====
+
+' Usuarios
+roles ||--o{ usuarios : "tiene"
+usuarios }o--|| roles : "rol_id"
+
+usuarios }o--o| materias : "materia_id (opcional)"
+usuarios }o--o| grados : "grado_id (opcional)"
+
+' Asignaciones (Tabla Central)
+usuarios ||--o{ asignaciones : "docente"
+asignaciones }o--|| usuarios : "docente_id"
+
+materias ||--o{ asignaciones : "asignada a"
+asignaciones }o--|| materias : "materia_id"
+
+grados ||--o{ asignaciones : "asignado a"
+asignaciones }o--|| grados : "grado_id"
+
+usuarios ||--o{ asignaciones : "asignado por"
+asignaciones }o--o| usuarios : "usuario_asignador_id"
+
+' Campos y Materias
+campos ||--o{ materias : "contiene"
+materias }o--|| campos : "campo_id"
+
+' Temas
+materias ||--o{ temas : "tiene"
+temas }o--|| materias : "materia_id"
+
+grados ||--o{ temas : "para"
+temas }o--|| grados : "grado_id"
+
+' Videos
+usuarios ||--o{ videos : "crea"
+videos }o--|| usuarios : "docente_id"
+
+materias ||--o{ videos : "pertenece a"
+videos }o--|| materias : "materia_id"
+
+grados ||--o{ videos : "para"
+videos }o--|| grados : "grado_id"
+
+temas ||--o{ videos : "sobre"
+videos }o--o| temas : "tema_id (opcional)"
+
+' Reproducciones
+videos ||--o{ reproducciones : "tiene"
+reproducciones }o--|| videos : "video_id"
+
+usuarios ||--o{ reproducciones : "visualiza"
+reproducciones }o--o| usuarios : "usuario_id (opcional)"
+
+' Logs y Tokens
+usuarios ||--o{ logs_sistema : "genera"
+logs_sistema }o--o| usuarios : "usuario_id"
+
+usuarios ||--o{ tokens_refresh : "posee"
+tokens_refresh }o--|| usuarios : "usuario_id"
+
+' ===== NOTAS =====
+
+note top of asignaciones
+  **TABLA CENTRAL DEL SISTEMA**
+  Relaciona docentes con combinaciones materia-grado.
+  Reemplaza las antiguas tablas separadas
+  docente_materias y docente_grados.
+
+  Constraint único evita asignaciones duplicadas.
+end note
+
+note right of videos
+  **Triggers:**
+  - after_video_insert: Log de creación
+  - before_video_delete: Log de eliminación
+
+  **Índice FULLTEXT** en titulo y descripcion
+  para búsquedas eficientes.
+end note
+
+note bottom of reproducciones
+  **Trigger:**
+  - after_reproduccion_insert: Incrementa
+    contador de visualizaciones en videos.
+
+  Soporta usuarios anónimos (usuario_id NULL).
+end note
+
+note left of usuarios
+  **Trigger:**
+  - after_usuario_insert: Log de creación
+
+  **Seguridad:**
+  - password_hash con bcrypt cost 12
+  - Control de intentos de login
+  - Bloqueo temporal tras 5 intentos fallidos
+end note
+
+note bottom of tokens_refresh
+  **Evento Programado:**
+  evento_limpiar_tokens ejecuta cada día
+  el procedimiento sp_limpiar_tokens_expirados()
+
+  Tokens se almacenan hasheados con SHA-256.
+end note
+
+note top of estadisticas
+  **Evento Programado:**
+  evento_estadisticas_diarias genera
+  automáticamente estadísticas cada día.
+
+  Datos flexibles almacenados en JSON.
+end note
+
+@enduml

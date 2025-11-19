@@ -1,0 +1,215 @@
+@startuml Diagrama de Secuencia - Flujo de Autenticación
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceParticipant {
+    BackgroundColor #E8EAF6
+    BorderColor #3F51B5
+}
+
+actor "Cliente\n(Web/Mobile)" as Cliente
+participant "index.php" as Entry
+participant "Router" as Router
+participant "AuthController" as AuthCtrl
+participant "Usuario\nModel" as UserModel
+participant "JWTHandler" as JWT
+participant "Logger" as Logger
+database "Base de Datos" as DB
+
+== Autenticación (Login) ==
+
+Cliente -> Entry : POST /api/auth/login\n{email, password}
+activate Entry
+
+Entry -> Router : enruta petición
+activate Router
+
+Router -> AuthCtrl : login()
+activate AuthCtrl
+
+AuthCtrl -> AuthCtrl : validar datos\n(email, password >= 6 chars)
+
+AuthCtrl -> UserModel : estaBloqueado(email)
+activate UserModel
+UserModel -> DB : SELECT bloqueado_hasta\nWHERE email = ?
+activate DB
+DB --> UserModel : resultado
+deactivate DB
+UserModel --> AuthCtrl : bloqueado: bool
+deactivate UserModel
+
+alt Usuario Bloqueado
+    AuthCtrl --> Cliente : 403 Forbidden\n{error: "Usuario bloqueado..."}
+else Usuario No Bloqueado
+
+    AuthCtrl -> UserModel : verificarPassword(email, password)
+    activate UserModel
+    UserModel -> DB : SELECT id, password_hash, ...\nWHERE email = ?
+    activate DB
+    DB --> UserModel : usuario
+    deactivate DB
+    UserModel -> UserModel : password_verify(password, hash)
+    UserModel --> AuthCtrl : usuario o false
+    deactivate UserModel
+
+    alt Credenciales Inválidas
+        AuthCtrl -> UserModel : incrementarIntentosLogin(email)
+        activate UserModel
+        UserModel -> DB : UPDATE usuarios\nSET intentos_login = intentos_login + 1
+        activate DB
+        DB --> UserModel : ok
+        deactivate DB
+        deactivate UserModel
+
+        AuthCtrl -> UserModel : obtenerIntentos(email)
+        activate UserModel
+        UserModel -> DB : SELECT intentos_login
+        activate DB
+        DB --> UserModel : intentos
+        deactivate DB
+        deactivate UserModel
+
+        alt Intentos >= 5
+            AuthCtrl -> UserModel : bloquearUsuario(email, 15 min)
+            activate UserModel
+            UserModel -> DB : UPDATE usuarios\nSET bloqueado_hasta = NOW() + 15min
+            activate DB
+            DB --> UserModel : ok
+            deactivate DB
+            deactivate UserModel
+
+            AuthCtrl -> Logger : warning('login_bloqueado', ...)
+            activate Logger
+            Logger -> DB : INSERT INTO logs_sistema
+            activate DB
+            DB --> Logger : ok
+            deactivate DB
+            deactivate Logger
+        end
+
+        AuthCtrl --> Cliente : 401 Unauthorized\n{error: "Credenciales inválidas"}
+
+    else Credenciales Válidas
+
+        AuthCtrl -> JWT : generarAccessToken(userId, email, rol, nombre)
+        activate JWT
+        JWT -> JWT : crear payload\n{user_id, email, rol, nombre,\ntype: 'access', exp: +1h}
+        JWT -> JWT : firmar con HMAC-SHA256
+        JWT --> AuthCtrl : accessToken
+        deactivate JWT
+
+        AuthCtrl -> JWT : generarRefreshToken(userId, email)
+        activate JWT
+        JWT -> JWT : crear payload\n{user_id, email, type: 'refresh',\nexp: +7 días}
+        JWT -> JWT : firmar con HMAC-SHA256
+        JWT --> AuthCtrl : refreshToken
+        deactivate JWT
+
+        AuthCtrl -> JWT : hashToken(refreshToken)
+        activate JWT
+        JWT -> JWT : hash('sha256', token)
+        JWT --> AuthCtrl : tokenHash
+        deactivate JWT
+
+        AuthCtrl -> DB : INSERT INTO tokens_refresh\n(usuario_id, token_hash, ...)
+        activate DB
+        DB --> AuthCtrl : ok
+        deactivate DB
+
+        AuthCtrl -> UserModel : actualizarUltimoAcceso(userId)
+        activate UserModel
+        UserModel -> DB : UPDATE usuarios\nSET ultimo_acceso = NOW(),\nintentos_login = 0
+        activate DB
+        DB --> UserModel : ok
+        deactivate DB
+        deactivate UserModel
+
+        AuthCtrl -> Logger : auth('login', 'exitoso', userId)
+        activate Logger
+        Logger -> DB : INSERT INTO logs_sistema
+        activate DB
+        DB --> Logger : ok
+        deactivate DB
+        deactivate Logger
+
+        AuthCtrl --> Cliente : 200 OK\n{\n  user: {id, nombre, email, rol},\n  tokens: {access_token, refresh_token}\n}
+    end
+end
+
+deactivate AuthCtrl
+deactivate Router
+deactivate Entry
+
+== Refresh Token ==
+
+Cliente -> Entry : POST /api/auth/refresh\n{refresh_token}
+activate Entry
+Entry -> Router : enruta
+activate Router
+Router -> AuthCtrl : refresh()
+activate AuthCtrl
+
+AuthCtrl -> JWT : validarToken(refreshToken)
+activate JWT
+JWT -> JWT : verificar firma\nverificar expiración
+JWT --> AuthCtrl : payload válido
+deactivate JWT
+
+AuthCtrl -> JWT : hashToken(refreshToken)
+activate JWT
+JWT --> AuthCtrl : tokenHash
+deactivate JWT
+
+AuthCtrl -> DB : SELECT * FROM tokens_refresh\nWHERE token_hash = ?\nAND revocado = 0\nAND expira_en > NOW()
+activate DB
+DB --> AuthCtrl : token válido
+deactivate DB
+
+alt Token Válido
+    AuthCtrl -> JWT : generarAccessToken(...)
+    activate JWT
+    JWT --> AuthCtrl : nuevo accessToken
+    deactivate JWT
+
+    AuthCtrl --> Cliente : 200 OK\n{access_token: "..."}
+else Token Inválido/Revocado
+    AuthCtrl --> Cliente : 401 Unauthorized\n{error: "Token inválido"}
+end
+
+deactivate AuthCtrl
+deactivate Router
+deactivate Entry
+
+== Logout ==
+
+Cliente -> Entry : POST /api/auth/logout\n{refresh_token}\nAuthorization: Bearer {access_token}
+activate Entry
+Entry -> Router : enruta
+activate Router
+Router -> AuthCtrl : logout()
+activate AuthCtrl
+
+AuthCtrl -> JWT : hashToken(refreshToken)
+activate JWT
+JWT --> AuthCtrl : tokenHash
+deactivate JWT
+
+AuthCtrl -> DB : UPDATE tokens_refresh\nSET revocado = 1\nWHERE token_hash = ?
+activate DB
+DB --> AuthCtrl : ok
+deactivate DB
+
+AuthCtrl -> Logger : auth('logout', 'exitoso', userId)
+activate Logger
+Logger -> DB : INSERT INTO logs_sistema
+activate DB
+DB --> Logger : ok
+deactivate DB
+deactivate Logger
+
+AuthCtrl --> Cliente : 200 OK\n{message: "Sesión cerrada"}
+
+deactivate AuthCtrl
+deactivate Router
+deactivate Entry
+
+@enduml

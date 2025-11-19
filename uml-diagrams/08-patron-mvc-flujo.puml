@@ -1,0 +1,225 @@
+@startuml Patrón MVC - Flujo General de Request
+!theme plain
+skinparam backgroundColor #FEFEFE
+
+package "Cliente" {
+    actor Usuario
+    component [Cliente Web/Mobile] as Cliente
+}
+
+package "Entry Point & Routing" {
+    component [index.php\n**Front Controller**] as IndexPHP
+    component [Router] as Router
+    note right of IndexPHP
+        **Responsabilidades:**
+        - Error handling global
+        - Timezone configuration
+        - CORS headers
+        - Load configuration
+        - Execute router
+    end note
+}
+
+package "Middleware Layer" {
+    component [AuthMiddleware] as AuthMW
+    component [RoleMiddleware] as RoleMW
+    component [ValidationMiddleware] as ValidationMW
+    note bottom of AuthMW
+        Verifica JWT y extrae
+        información del usuario
+    end note
+}
+
+package "Controller Layer" {
+    component [Controllers\n**Business Logic**] as Controllers
+    note right of Controllers
+        9 Controladores:
+        - AuthController
+        - VideoController
+        - UsuarioController
+        - EstadisticaController
+        - DocenteAsignacionController
+        - MateriaController
+        - GradoController
+        - TemaController
+        - CampoController
+    end note
+}
+
+package "Model Layer" {
+    component [Models\n**Data Access**] as Models
+    note right of Models
+        10 Modelos (Repository Pattern):
+        - Usuario
+        - Video
+        - Materia
+        - Grado
+        - Campo
+        - Tema
+        - Reproduccion
+        - Estadistica
+        - DocenteAsignacion
+        - Rol
+    end note
+}
+
+package "Utilities" {
+    component [JWTHandler] as JWT
+    component [Logger] as Logger
+    component [FileHandler] as FileHandler
+    component [VideoProcessor] as VideoProc
+}
+
+package "Database Layer" {
+    database [MySQL/MariaDB\n**Singleton PDO**] as DB
+    component [Triggers] as Triggers
+    component [Views] as Views
+    component [Stored Procedures] as SP
+    component [Events] as Events
+}
+
+collections "File System" as FS
+
+' ===== FLUJO PRINCIPAL =====
+
+Usuario -> Cliente : interacción
+Cliente -> IndexPHP : **1.** HTTP Request\n(GET/POST/PUT/DELETE)
+activate IndexPHP
+
+IndexPHP -> IndexPHP : **2.** Inicializar\n- CORS\n- Error handlers\n- Config
+IndexPHP -> Router : **3.** Enrutar
+activate Router
+
+Router -> AuthMW : **4a.** Autenticar
+activate AuthMW
+AuthMW -> JWT : validar token
+JWT --> AuthMW : usuario
+AuthMW --> Router : autenticado
+deactivate AuthMW
+
+Router -> RoleMW : **4b.** Autorizar
+activate RoleMW
+RoleMW -> Models : consultar permisos
+Models --> RoleMW : permisos
+RoleMW --> Router : autorizado
+deactivate RoleMW
+
+Router -> ValidationMW : **4c.** Validar datos
+activate ValidationMW
+ValidationMW --> Router : datos válidos
+deactivate ValidationMW
+
+Router -> Controllers : **5.** Ejecutar acción
+activate Controllers
+
+Controllers -> Models : **6.** Operación de datos
+activate Models
+
+Models -> DB : **7.** Query SQL\n(Prepared Statements)
+activate DB
+
+DB -> Triggers : ejecutar si aplica
+DB -> Views : consultar si aplica
+DB -> SP : llamar si aplica
+
+DB --> Models : **8.** Resultado
+deactivate DB
+
+Models --> Controllers : **9.** Datos procesados
+deactivate Models
+
+Controllers -> Logger : **10.** Registrar acción
+activate Logger
+Logger -> DB : INSERT log
+Logger --> Controllers : logged
+deactivate Logger
+
+alt Operación con archivos
+    Controllers -> FileHandler : subir/eliminar archivo
+    activate FileHandler
+    FileHandler -> FS : operación I/O
+    FS --> FileHandler : resultado
+    FileHandler --> Controllers : archivo procesado
+    deactivate FileHandler
+end
+
+alt Operación con videos
+    Controllers -> VideoProc : procesar metadatos
+    activate VideoProc
+    VideoProc -> FS : leer archivo
+    VideoProc --> Controllers : metadatos
+    deactivate VideoProc
+end
+
+Controllers --> Router : **11.** Respuesta
+deactivate Controllers
+
+Router --> IndexPHP : **12.** JSON response
+deactivate Router
+
+IndexPHP --> Cliente : **13.** HTTP Response\nJSON
+deactivate IndexPHP
+
+Cliente --> Usuario : **14.** Mostrar resultado
+
+' ===== FLUJOS ESPECIALES =====
+
+note over DB, FS
+    **Flujos Automáticos (Triggers):**
+
+    1. **after_usuario_insert**
+       → Registra creación en logs_sistema
+
+    2. **after_video_insert**
+       → Registra subida en logs_sistema
+
+    3. **before_video_delete**
+       → Registra eliminación en logs_sistema
+
+    4. **after_reproduccion_insert**
+       → Incrementa visualizaciones en videos
+end note
+
+note over Events, SP
+    **Tareas Programadas (Events):**
+
+    1. **evento_limpiar_tokens** (Diario)
+       → Ejecuta sp_limpiar_tokens_expirados()
+       → Elimina refresh tokens expirados
+
+    2. **evento_estadisticas_diarias** (Diario)
+       → Genera estadísticas del día anterior
+       → Inserta en tabla estadisticas
+end note
+
+' ===== PATRONES DE DISEÑO =====
+
+note bottom of IndexPHP
+    **Patrón: Front Controller**
+    Punto único de entrada
+    para todas las requests
+end note
+
+note bottom of Router
+    **Patrón: Chain of Responsibility**
+    Middleware se ejecuta en cadena
+end note
+
+note bottom of Models
+    **Patrón: Repository**
+    Encapsula acceso a datos
+end note
+
+note bottom of DB
+    **Patrón: Singleton**
+    Una única conexión PDO
+    reutilizada en toda la app
+end note
+
+note bottom of JWT
+    **Patrón: Factory**
+    Genera diferentes tipos
+    de tokens (access/refresh)
+end note
+
+@enduml

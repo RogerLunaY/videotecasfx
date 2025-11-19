@@ -1,0 +1,311 @@
+@startuml Diagrama de Componentes - Arquitectura del Sistema
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam component {
+    BackgroundColor #FFF9C4
+    BorderColor #F57C00
+}
+skinparam package {
+    BackgroundColor #E0F7FA
+    BorderColor #0097A7
+}
+skinparam database {
+    BackgroundColor #F3E5F5
+    BorderColor #7B1FA2
+}
+skinparam interface {
+    BackgroundColor #FFEBEE
+    BorderColor #C62828
+}
+
+' ===== CLIENTES =====
+
+package "Clientes" {
+    component [Frontend Web\nReact + Vite\nTailwind CSS] as FrontendWeb
+    component [Frontend Mobile\nReact Native] as FrontendMobile
+}
+
+' ===== API REST =====
+
+package "Backend - API REST (PHP 8.x)" {
+
+    ' Entry Point
+    component [index.php\nFront Controller] as IndexPHP
+    component [Router\napi.php] as Router
+
+    ' Middleware
+    package "Middleware" {
+        component [AuthMiddleware\nJWT Validation] as AuthMW
+        component [RoleMiddleware\nRBAC] as RoleMW
+        component [ValidationMiddleware\nData Validation] as ValidationMW
+    }
+
+    ' Controllers
+    package "Controllers" {
+        component [AuthController\nLogin/Register/Refresh] as AuthCtrl
+        component [VideoController\nCRUD + Streaming] as VideoCtrl
+        component [UsuarioController\nGestión Usuarios] as UserCtrl
+        component [EstadisticaController\nDashboard/Métricas] as StatsCtrl
+        component [DocenteAsignacionController\nAsignaciones] as AsignCtrl
+        component [MateriaController\nGestión Materias] as MateriaCtrl
+        component [GradoController\nGestión Grados] as GradoCtrl
+        component [TemaController\nGestión Temas] as TemaCtrl
+        component [CampoController\nGestión Campos] as CampoCtrl
+    }
+
+    ' Models
+    package "Models (Repository Pattern)" {
+        component [Usuario\nModel] as UserModel
+        component [Video\nModel] as VideoModel
+        component [Materia\nModel] as MateriaModel
+        component [Grado\nModel] as GradoModel
+        component [Campo\nModel] as CampoModel
+        component [Tema\nModel] as TemaModel
+        component [Reproduccion\nModel] as ReproModel
+        component [Estadistica\nModel] as StatsModel
+        component [DocenteAsignacion\nModel] as AsignModel
+        component [Rol\nModel] as RolModel
+    }
+
+    ' Utilities
+    package "Utilities" {
+        component [JWTHandler\nToken Management] as JWT
+        component [Logger\nAuditoría] as Logger
+        component [FileHandler\nFile Uploads] as FileHandler
+        component [VideoProcessor\ngetID3 + FFmpeg] as VideoProc
+    }
+
+    ' Config
+    package "Configuration" {
+        component [Database\nPDO Singleton] as DBConfig
+        component [CORS Config] as CORS
+        component [JWT Config] as JWTConfig
+        component [.env\nEnvironment] as ENV
+    }
+}
+
+' ===== BASE DE DATOS =====
+
+database "MySQL/MariaDB\nvideoteca" {
+    package "Tablas (11)" {
+        component [usuarios] as UsersTable
+        component [videos] as VideosTable
+        component [asignaciones] as AsignTable
+        component [materias] as MateriasTable
+        component [grados] as GradosTable
+        component [temas] as TemasTable
+        component [campos] as CamposTable
+        component [roles] as RolesTable
+        component [reproducciones] as ReproTable
+        component [estadisticas] as StatsTable
+        component [logs_sistema] as LogsTable
+        component [tokens_refresh] as TokensTable
+    }
+
+    package "Lógica BD" {
+        component [4 Triggers] as Triggers
+        component [5 Vistas] as Views
+        component [3 Procedimientos] as StoredProcs
+        component [2 Eventos] as Events
+    }
+}
+
+' ===== ALMACENAMIENTO =====
+
+package "Almacenamiento de Archivos" {
+    folder "uploads/" {
+        folder "videos/" as VideoFiles {
+            folder "{materia_id}/" {
+                folder "{grado_id}/" as VideoOrg
+            }
+        }
+        folder "thumbnails/" as Thumbnails
+    }
+
+    folder "logs/" {
+        component [php_errors.log] as ErrorLog
+        component [app.log] as AppLog
+    }
+}
+
+' ===== SERVICIOS EXTERNOS =====
+
+cloud "Servicios Externos" {
+    component [getID3 Library\nMetadata Extraction] as GetID3
+    component [FFmpeg\nThumbnail Generation] as FFmpeg
+}
+
+' ===== RELACIONES CLIENTES -> BACKEND =====
+
+FrontendWeb -down-> IndexPHP : "HTTP/HTTPS\nREST API Calls\nJSON"
+FrontendMobile -down-> IndexPHP : "HTTP/HTTPS\nREST API Calls\nJSON"
+
+' ===== FLUJO BACKEND =====
+
+IndexPHP -down-> CORS : "aplica"
+IndexPHP -down-> DBConfig : "inicializa"
+IndexPHP -down-> Router : "enruta"
+
+Router -down-> AuthMW : "aplica"
+Router -down-> RoleMW : "aplica"
+Router -down-> ValidationMW : "aplica"
+
+AuthMW -down-> JWT : "usa"
+RoleMW -down-> RolModel : "consulta"
+
+Router -down-> AuthCtrl
+Router -down-> VideoCtrl
+Router -down-> UserCtrl
+Router -down-> StatsCtrl
+Router -down-> AsignCtrl
+Router -down-> MateriaCtrl
+Router -down-> GradoCtrl
+Router -down-> TemaCtrl
+Router -down-> CampoCtrl
+
+' ===== CONTROLLERS -> MODELS =====
+
+AuthCtrl -down-> UserModel : "usa"
+AuthCtrl -down-> JWT : "usa"
+AuthCtrl -down-> Logger : "registra"
+
+VideoCtrl -down-> VideoModel : "usa"
+VideoCtrl -down-> FileHandler : "usa"
+VideoCtrl -down-> VideoProc : "usa"
+VideoCtrl -down-> AsignModel : "verifica"
+VideoCtrl -down-> Logger : "registra"
+
+UserCtrl -down-> UserModel : "usa"
+UserCtrl -down-> Logger : "registra"
+
+StatsCtrl -down-> StatsModel : "usa"
+StatsCtrl -down-> VideoModel : "usa"
+StatsCtrl -down-> ReproModel : "usa"
+
+AsignCtrl -down-> AsignModel : "usa"
+AsignCtrl -down-> UserModel : "usa"
+
+MateriaCtrl -down-> MateriaModel : "usa"
+GradoCtrl -down-> GradoModel : "usa"
+TemaCtrl -down-> TemaModel : "usa"
+CampoCtrl -down-> CampoModel : "usa"
+
+' ===== MODELS -> DATABASE =====
+
+UserModel -down-> DBConfig : "PDO"
+VideoModel -down-> DBConfig : "PDO"
+MateriaModel -down-> DBConfig : "PDO"
+GradoModel -down-> DBConfig : "PDO"
+CampoModel -down-> DBConfig : "PDO"
+TemaModel -down-> DBConfig : "PDO"
+ReproModel -down-> DBConfig : "PDO"
+StatsModel -down-> DBConfig : "PDO"
+AsignModel -down-> DBConfig : "PDO"
+RolModel -down-> DBConfig : "PDO"
+
+DBConfig -down-> UsersTable
+DBConfig -down-> VideosTable
+DBConfig -down-> AsignTable
+DBConfig -down-> MateriasTable
+DBConfig -down-> GradosTable
+DBConfig -down-> TemasTable
+DBConfig -down-> CamposTable
+DBConfig -down-> RolesTable
+DBConfig -down-> ReproTable
+DBConfig -down-> StatsTable
+DBConfig -down-> LogsTable
+DBConfig -down-> TokensTable
+
+' ===== DATABASE -> LÓGICA =====
+
+UsersTable -down-> Triggers
+VideosTable -down-> Triggers
+ReproTable -down-> Triggers
+
+VideosTable -down-> Views
+MateriasTable -down-> Views
+GradosTable -down-> Views
+AsignTable -down-> Views
+
+StatsModel -down-> StoredProcs
+TokensTable -down-> StoredProcs
+
+Events -down-> StoredProcs : "ejecuta"
+
+' ===== UTILITIES -> EXTERNOS =====
+
+VideoProc -right-> GetID3 : "usa"
+VideoProc -right-> FFmpeg : "usa"
+
+FileHandler -down-> VideoFiles : "escribe"
+FileHandler -down-> Thumbnails : "escribe"
+
+Logger -down-> LogsTable : "escribe"
+Logger -down-> AppLog : "escribe"
+
+' ===== CONFIGURACIÓN =====
+
+JWTConfig -up-> JWT : "configura"
+ENV -up-> DBConfig : "configura"
+
+' ===== NOTAS =====
+
+note top of IndexPHP
+  **Front Controller Pattern**
+  - Manejo global de errores
+  - Timezone: America/La_Paz
+  - Logging de peticiones
+  - Soporte PUT/DELETE via POST _method
+end note
+
+note right of JWT
+  **Implementación Manual JWT**
+  - HS256 (HMAC-SHA256)
+  - Access Token: 1 hora
+  - Refresh Token: 7 días
+  - Sin librerías externas
+end note
+
+note bottom of AsignTable
+  **Tabla Central**
+  Relaciona docentes con
+  combinaciones materia-grado.
+  Constraint único evita duplicados.
+end note
+
+note left of Triggers
+  **4 Triggers:**
+  1. after_usuario_insert
+  2. after_video_insert
+  3. before_video_delete
+  4. after_reproduccion_insert
+end note
+
+note left of Views
+  **5 Vistas:**
+  1. vista_videos_completos
+  2. vista_stats_por_materia
+  3. vista_stats_por_grado
+  4. vista_videos_populares
+  5. vista_docentes_asignaciones
+end note
+
+note bottom of StoredProcs
+  **3 Procedimientos:**
+  1. sp_estadisticas_generales
+  2. sp_limpiar_tokens_expirados
+  3. sp_buscar_videos
+end note
+
+note bottom of Events
+  **2 Eventos Programados:**
+  1. evento_limpiar_tokens (diario)
+  2. evento_estadisticas_diarias (diario)
+end note
+
+note bottom of VideoOrg
+  Estructura organizada:
+  uploads/videos/{materia_id}/{grado_id}/archivo.mp4
+end note
+
+@enduml

@@ -1,0 +1,224 @@
+@startuml Diagrama de Secuencia - Asignación de Docentes
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceParticipant {
+    BackgroundColor #FCE4EC
+    BorderColor #C2185B
+}
+
+actor "Administrador" as Admin
+participant "index.php" as Entry
+participant "Router" as Router
+participant "AuthMiddleware" as AuthMW
+participant "RoleMiddleware" as RoleMW
+participant "DocenteAsignacionController" as AsignCtrl
+participant "DocenteAsignacion\nModel" as AsignModel
+participant "Usuario\nModel" as UserModel
+database "Base de Datos" as DB
+
+== Asignación Múltiple de Materias y Grados ==
+
+Admin -> Entry : POST /api/docentes/{docente_id}/asignaciones\nAuthorization: Bearer {admin_token}\n{\n  asignaciones: [\n    {materia_id: 4, grado_id: 1},\n    {materia_id: 4, grado_id: 2},\n    {materia_id: 4, grado_id: 3}\n  ]\n}
+activate Entry
+note right
+  Asignar al docente la materia
+  "Matemáticas" (id=4) para los
+  grados 1°, 2° y 3° secundaria
+end note
+
+Entry -> Router : enruta petición
+activate Router
+
+Router -> AuthMW : verificar()
+activate AuthMW
+AuthMW -> AuthMW : validarToken(token)
+AuthMW --> Router : usuario autenticado
+deactivate AuthMW
+
+Router -> RoleMW : tieneRol(rol, ['Administrador'])
+activate RoleMW
+
+alt No es Administrador
+    RoleMW --> Admin : 403 Forbidden\n{error: "Requiere rol Administrador"}
+else Es Administrador
+    deactivate RoleMW
+
+    Router -> AsignCtrl : asignarMultiples(docenteId)
+    activate AsignCtrl
+
+    AsignCtrl -> UserModel : obtenerPorId(docenteId)
+    activate UserModel
+    UserModel -> DB : SELECT * FROM usuarios\nWHERE id = ? AND rol_id IN (...docentes)
+    activate DB
+    DB --> UserModel : docente
+    deactivate DB
+    UserModel --> AsignCtrl : docente
+    deactivate UserModel
+
+    alt Docente no existe
+        AsignCtrl --> Admin : 404 Not Found\n{error: "Docente no encontrado"}
+    else Docente existe
+
+        AsignCtrl -> AsignCtrl : validar datos\n(asignaciones es array no vacío)
+
+        AsignCtrl -> AsignModel : asignarMultiples(docenteId, asignaciones, adminId)
+        activate AsignModel
+
+        AsignModel -> DB : BEGIN TRANSACTION
+        activate DB
+        note right
+          Garantiza atomicidad:
+          Todo o nada
+        end note
+
+        AsignModel -> DB : DELETE FROM asignaciones\nWHERE docente_id = ?
+        DB --> AsignModel : eliminadas (ej: 5 filas)
+        note right
+          Elimina todas las asignaciones
+          anteriores del docente
+        end note
+
+        loop para cada asignación
+            AsignModel -> AsignModel : validar materia_id y grado_id
+
+            AsignModel -> DB : SELECT COUNT(*) FROM materias\nWHERE id = ? AND estado = 'activo'
+            DB --> AsignModel : existe materia
+
+            alt Materia no existe
+                AsignModel -> DB : ROLLBACK
+                DB --> AsignModel : revertido
+                AsignModel --> AsignCtrl : error
+                AsignCtrl --> Admin : 400 Bad Request\n{error: "Materia id X no existe"}
+            end
+
+            AsignModel -> DB : SELECT COUNT(*) FROM grados\nWHERE id = ? AND estado = 'activo'
+            DB --> AsignModel : existe grado
+
+            alt Grado no existe
+                AsignModel -> DB : ROLLBACK
+                DB --> AsignModel : revertido
+                AsignModel --> AsignCtrl : error
+                AsignCtrl --> Admin : 400 Bad Request\n{error: "Grado id Y no existe"}
+            end
+
+            AsignModel -> DB : INSERT INTO asignaciones\n(docente_id, materia_id, grado_id,\nestado, fecha_asignacion,\nusuario_asignador_id)\nVALUES (?, ?, ?, 'activo', NOW(), ?)
+            DB --> AsignModel : inserción ok
+
+            note right
+              Constraint UNIQUE evita duplicados:
+              (docente_id, materia_id, grado_id)
+            end note
+        end
+
+        AsignModel -> DB : COMMIT
+        note right
+          Todas las asignaciones
+          se confirman juntas
+        end note
+        DB --> AsignModel : confirmado
+        deactivate DB
+
+        AsignModel --> AsignCtrl : {\n  success: true,\n  asignaciones_creadas: 3\n}
+        deactivate AsignModel
+
+        AsignCtrl --> Admin : 200 OK\n{\n  success: true,\n  message: "Asignaciones actualizadas",\n  data: {\n    docente_id: 5,\n    total_asignaciones: 3\n  }\n}
+    end
+
+    deactivate AsignCtrl
+end
+
+deactivate Router
+deactivate Entry
+
+== Consultar Asignaciones de un Docente ==
+
+Admin -> Entry : GET /api/docentes/{docente_id}/asignaciones\nAuthorization: Bearer {token}
+activate Entry
+
+Entry -> Router : enruta
+activate Router
+
+Router -> AuthMW : verificar()
+activate AuthMW
+AuthMW --> Router : usuario autenticado
+deactivate AuthMW
+
+Router -> AsignCtrl : obtenerAsignaciones(docenteId)
+activate AsignCtrl
+
+AsignCtrl -> AsignModel : obtenerPorDocente(docenteId)
+activate AsignModel
+
+AsignModel -> DB : SELECT a.*, m.nombre as materia,\n       m.sigla as materia_sigla,\n       g.nombre as grado,\n       g.sigla as grado_sigla,\n       c.nombre as campo\nFROM asignaciones a\nJOIN materias m ON a.materia_id = m.id\nJOIN grados g ON a.grado_id = g.id\nJOIN campos c ON m.campo_id = c.id\nWHERE a.docente_id = ?\n  AND a.estado = 'activo'\nORDER BY c.orden, m.nombre, g.nivel
+activate DB
+DB --> AsignModel : asignaciones con info completa
+deactivate DB
+
+AsignModel --> AsignCtrl : asignaciones[]
+deactivate AsignModel
+
+AsignCtrl --> Admin : 200 OK\n{\n  docente_id: 5,\n  total: 3,\n  asignaciones: [\n    {\n      id: 10,\n      materia: "Matemáticas",\n      materia_sigla: "MAT",\n      grado: "1° Secundaria",\n      grado_sigla: "1°S",\n      campo: "Ciencia Tecnología y Producción",\n      fecha_asignacion: "2025-01-15"\n    },\n    {...},\n    {...}\n  ]\n}
+
+deactivate AsignCtrl
+deactivate Router
+deactivate Entry
+
+== Vista Consolidada de Todos los Docentes ==
+
+Admin -> Entry : GET /api/docentes-asignaciones
+activate Entry
+
+Entry -> Router : enruta
+activate Router
+
+Router -> AsignCtrl : obtenerTodos()
+activate AsignCtrl
+
+AsignCtrl -> AsignModel : obtenerTodosConAsignaciones()
+activate AsignModel
+
+AsignModel -> DB : SELECT * FROM vista_docentes_asignaciones
+activate DB
+note right
+  Vista que agrupa asignaciones:
+  - materias (GROUP_CONCAT)
+  - grados (GROUP_CONCAT)
+  - total de asignaciones
+end note
+
+DB --> AsignModel : docentes con asignaciones
+deactivate DB
+
+AsignModel --> AsignCtrl : docentes[]
+deactivate AsignModel
+
+AsignCtrl --> Admin : 200 OK\n{\n  total: 15,\n  docentes: [\n    {\n      id: 5,\n      nombre_completo: "Juan Pérez García",\n      email: "juan.perez@ejemplo.com",\n      materias: "Matemáticas, Física",\n      grados: "1°S, 2°S, 3°S",\n      total_asignaciones: 6,\n      estado: "activo"\n    },\n    {...}\n  ]\n}
+
+deactivate AsignCtrl
+deactivate Router
+deactivate Entry
+
+== Verificación de Permisos al Subir Video ==
+
+note over AsignModel, DB
+  **Uso en VideoController:**
+
+  Cuando un docente intenta subir un video,
+  el sistema verifica automáticamente:
+
+  1. tieneMateria(docente_id, materia_id)
+     → SELECT COUNT(*) FROM asignaciones
+       WHERE docente_id = ? AND materia_id = ?
+
+  2. tieneGrado(docente_id, grado_id)
+     → SELECT COUNT(*) FROM asignaciones
+       WHERE docente_id = ? AND grado_id = ?
+
+  Si ambas retornan > 0:
+    → Docente puede subir video
+
+  Si alguna retorna 0:
+    → 403 Forbidden
+end note
+
+@enduml

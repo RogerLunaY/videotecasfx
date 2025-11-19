@@ -1,0 +1,210 @@
+@startuml Diagrama de Secuencia - Subida de Video (Docente)
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceParticipant {
+    BackgroundColor #E8F5E9
+    BorderColor #4CAF50
+}
+
+actor "Docente" as Docente
+participant "index.php" as Entry
+participant "Router" as Router
+participant "AuthMiddleware" as AuthMW
+participant "RoleMiddleware" as RoleMW
+participant "VideoController" as VideoCtrl
+participant "DocenteAsignacion\nModel" as AsignModel
+participant "FileHandler" as FileHandler
+participant "VideoProcessor" as VideoProc
+participant "Video\nModel" as VideoModel
+participant "Logger" as Logger
+database "Base de Datos" as DB
+collections "Sistema de Archivos" as FS
+
+== Subida de Video ==
+
+Docente -> Entry : POST /api/videos\nAuthorization: Bearer {token}\nFormData:\n- titulo: "Triángulos"\n- descripcion: "..."\n- materia_id: 4\n- grado_id: 1\n- tema_id: 15\n- video: archivo.mp4\n- thumbnail: (opcional)
+activate Entry
+
+Entry -> Router : enruta petición
+activate Router
+
+Router -> AuthMW : verificar()
+activate AuthMW
+
+AuthMW -> AuthMW : extraer token del header
+AuthMW -> AuthMW : validarToken(token)
+
+alt Token Inválido
+    AuthMW --> Docente : 401 Unauthorized\n{error: "Token inválido"}
+else Token Válido
+    AuthMW -> AuthMW : almacenar usuario autenticado\n{id, email, rol, nombre}
+    deactivate AuthMW
+
+    Router -> RoleMW : tieneRol(rol, ['Administrador', 'Docente'])
+    activate RoleMW
+
+    alt No tiene rol
+        RoleMW --> Docente : 403 Forbidden
+    else Tiene rol
+        deactivate RoleMW
+
+        Router -> VideoCtrl : store()
+        activate VideoCtrl
+
+        VideoCtrl -> VideoCtrl : validar datos\n(titulo, materia_id, grado_id requeridos)
+
+        alt Docente (no Admin)
+            VideoCtrl -> AsignModel : tieneMateria(docente_id, materia_id)
+            activate AsignModel
+            AsignModel -> DB : SELECT COUNT(*)\nFROM asignaciones\nWHERE docente_id = ?\nAND materia_id = ?\nAND estado = 'activo'
+            activate DB
+            DB --> AsignModel : count
+            deactivate DB
+            AsignModel --> VideoCtrl : tiene: bool
+            deactivate AsignModel
+
+            alt No tiene materia asignada
+                VideoCtrl --> Docente : 403 Forbidden\n{error: "No tienes permiso para esta materia"}
+            end
+
+            VideoCtrl -> AsignModel : tieneGrado(docente_id, grado_id)
+            activate AsignModel
+            AsignModel -> DB : SELECT COUNT(*)\nFROM asignaciones\nWHERE docente_id = ?\nAND grado_id = ?
+            activate DB
+            DB --> AsignModel : count
+            deactivate DB
+            AsignModel --> VideoCtrl : tiene: bool
+            deactivate AsignModel
+
+            alt No tiene grado asignado
+                VideoCtrl --> Docente : 403 Forbidden\n{error: "No tienes permiso para este grado"}
+            end
+        end
+
+        VideoCtrl -> VideoCtrl : validar archivo de video\n($_FILES['video'])
+
+        alt Archivo no presente o inválido
+            VideoCtrl --> Docente : 400 Bad Request\n{error: "Archivo de video requerido"}
+        else Archivo válido
+
+            VideoCtrl -> FileHandler : subirVideo(archivo, materia_id, grado_id)
+            activate FileHandler
+
+            FileHandler -> FileHandler : validar MIME type\n(video/mp4, video/x-msvideo, ...)
+            FileHandler -> FileHandler : validar tamaño\n(< 500 MB)
+            FileHandler -> FileHandler : validar extensión\n(.mp4, .avi, .mov, .mkv)
+
+            alt Validación falla
+                FileHandler --> VideoCtrl : false + error
+                VideoCtrl --> Docente : 400 Bad Request\n{error: "Archivo inválido"}
+            else Validación exitosa
+
+                FileHandler -> FileHandler : generar nombre único\ntime()_random()_sanitized.ext
+
+                FileHandler -> FS : crear directorio\nuploads/videos/{materia_id}/{grado_id}/
+                activate FS
+                FS --> FileHandler : ok
+                deactivate FS
+
+                FileHandler -> FS : move_uploaded_file()\na uploads/videos/{materia}/{grado}/archivo.mp4
+                activate FS
+                FS --> FileHandler : archivo movido
+                deactivate FS
+
+                FileHandler --> VideoCtrl : {\n  path: "videos/4/1/archivo.mp4",\n  filename: "archivo.mp4"\n}
+                deactivate FileHandler
+
+                VideoCtrl -> VideoProc : extraerMetadatos(rutaCompleta)
+                activate VideoProc
+                VideoProc -> VideoProc : getID3::analyze(archivo)
+                VideoProc --> VideoCtrl : {\n  duracion: 320,\n  resolucion: "1920x1080",\n  codec: "h264",\n  tamanio: 45678900\n}
+                deactivate VideoProc
+
+                alt Hay thumbnail subido
+                    VideoCtrl -> FileHandler : subirThumbnail(thumbnail, nombreVideo)
+                    activate FileHandler
+                    FileHandler -> FS : move a uploads/thumbnails/
+                    activate FS
+                    FS --> FileHandler : ok
+                    deactivate FS
+                    FileHandler --> VideoCtrl : thumbnail_path
+                    deactivate FileHandler
+                else No hay thumbnail
+                    VideoCtrl -> VideoProc : generarThumbnail(videoPath, outputPath, 5)
+                    activate VideoProc
+
+                    VideoProc -> VideoProc : estaFFmpegDisponible()
+
+                    alt FFmpeg disponible
+                        VideoProc -> FS : ejecutar FFmpeg\nffmpeg -i video.mp4 -ss 5 -vframes 1 thumb.jpg
+                        activate FS
+                        FS --> VideoProc : thumbnail generado
+                        deactivate FS
+                        VideoProc --> VideoCtrl : thumbnail_path
+                    else FFmpeg no disponible
+                        VideoProc --> VideoCtrl : null
+                    end
+                    deactivate VideoProc
+                end
+
+                VideoCtrl -> VideoModel : crear(datosVideo)
+                activate VideoModel
+
+                VideoModel -> DB : INSERT INTO videos\n(titulo, descripcion, archivo_path,\narchivo_nombre, thumbnail_path,\nduracion, tamanio, formato,\nresolucion, codec, tema_id,\nmateria_id, grado_id, docente_id,\nestado, fecha_subida)\nVALUES (?, ?, ...)
+                activate DB
+
+                DB -> DB : TRIGGER: after_video_insert
+                note right
+                  El trigger registra automáticamente
+                  la creación del video en logs_sistema
+                end note
+
+                DB --> VideoModel : id del video insertado
+                deactivate DB
+
+                VideoModel -> DB : SELECT v.*, u.nombre, m.nombre, g.nombre\nFROM videos v\nJOIN usuarios u, materias m, grados g\nWHERE v.id = ?
+                activate DB
+                DB --> VideoModel : video completo
+                deactivate DB
+
+                VideoModel --> VideoCtrl : video creado
+                deactivate VideoModel
+
+                VideoCtrl -> Logger : video('subido', videoId, titulo, docenteId)
+                activate Logger
+                Logger -> DB : INSERT INTO logs_sistema\n(nivel: 'info', accion: 'video_subido', ...)
+                activate DB
+                DB --> Logger : ok
+                deactivate DB
+                deactivate Logger
+
+                VideoCtrl --> Docente : 201 Created\n{\n  success: true,\n  video: {\n    id, titulo, descripcion,\n    archivo_path, thumbnail_path,\n    duracion, formato, resolucion,\n    materia, grado, docente,\n    fecha_subida\n  }\n}
+            end
+        end
+
+        deactivate VideoCtrl
+    end
+end
+
+deactivate Router
+deactivate Entry
+
+== Manejo de Errores ==
+
+note over VideoCtrl, FS
+  Si ocurre un error después de subir el archivo
+  pero antes de crear el registro en BD,
+  VideoController elimina los archivos subidos:
+
+  try {
+    // subir archivo
+    // procesar
+    // crear en BD
+  } catch (Exception $e) {
+    FileHandler::eliminarVideo(archivo_path);
+    FileHandler::eliminarThumbnail(thumbnail_path);
+    return error 500;
+  }
+end note
+
+@enduml

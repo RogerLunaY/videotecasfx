@@ -1,0 +1,177 @@
+@startuml Diagrama de Secuencia - Streaming de Video
+!theme plain
+skinparam backgroundColor #FEFEFE
+skinparam sequenceParticipant {
+    BackgroundColor #FFF3E0
+    BorderColor #FF6F00
+}
+
+actor "Cliente\n(Video Player)" as Cliente
+participant "index.php" as Entry
+participant "Router" as Router
+participant "VideoController" as VideoCtrl
+participant "Video\nModel" as VideoModel
+participant "Reproduccion\nModel" as ReproModel
+database "Base de Datos" as DB
+collections "Sistema de Archivos" as FS
+
+== Streaming de Video con Range Requests ==
+
+Cliente -> Entry : GET /api/videos/{id}/stream\nRange: bytes=0-1048575
+activate Entry
+note right
+  Cliente solicita los primeros
+  1 MB del video (bytes 0-1048575)
+end note
+
+Entry -> Router : enruta petición
+activate Router
+
+Router -> VideoCtrl : stream(videoId)
+activate VideoCtrl
+
+VideoCtrl -> VideoModel : obtenerPorId(videoId)
+activate VideoModel
+VideoModel -> DB : SELECT v.*, u.nombre as docente_nombre\nFROM videos v\nJOIN usuarios u ON v.docente_id = u.id\nWHERE v.id = ?
+activate DB
+DB --> VideoModel : video
+deactivate DB
+VideoModel --> VideoCtrl : video
+deactivate VideoModel
+
+alt Video no encontrado
+    VideoCtrl --> Cliente : 404 Not Found\n{error: "Video no encontrado"}
+else Video inactivo
+    VideoCtrl --> Cliente : 403 Forbidden\n{error: "Video no disponible"}
+else Video encontrado y activo
+
+    VideoCtrl -> FS : file_exists(rutaCompleta)
+    activate FS
+    FS --> VideoCtrl : true/false
+    deactivate FS
+
+    alt Archivo no existe
+        VideoCtrl --> Cliente : 404 Not Found\n{error: "Archivo de video no encontrado"}
+    else Archivo existe
+
+        VideoCtrl -> ReproModel : crear(videoId, usuarioId, ip, userAgent)
+        activate ReproModel
+        ReproModel -> DB : INSERT INTO reproducciones\n(video_id, usuario_id, ip_address,\nuser_agent, fecha_inicio)\nVALUES (?, ?, ?, ?, NOW())
+        activate DB
+
+        DB -> DB : TRIGGER: after_reproduccion_insert
+        note right
+          Incrementa automáticamente el
+          contador de visualizaciones
+          en la tabla videos
+        end note
+
+        DB --> ReproModel : reproduccion_id
+        deactivate DB
+        ReproModel --> VideoCtrl : reproduccion_id
+        deactivate ReproModel
+
+        VideoCtrl -> FS : filesize(rutaCompleta)
+        activate FS
+        FS --> VideoCtrl : tamaño total (ej: 50 MB)
+        deactivate FS
+
+        VideoCtrl -> VideoCtrl : leer header HTTP_RANGE
+
+        alt Tiene Range Request
+            VideoCtrl -> VideoCtrl : parse Range header\n"bytes=0-1048575"
+            VideoCtrl -> VideoCtrl : calcular:\n- inicio: 0\n- fin: min(1048575, tamaño-1)\n- longitud: fin - inicio + 1
+
+            VideoCtrl -> FS : fopen(rutaCompleta, 'rb')
+            activate FS
+            FS --> VideoCtrl : file handle
+
+            VideoCtrl -> FS : fseek(handle, inicio)
+            FS --> VideoCtrl : ok
+
+            VideoCtrl --> Cliente : HTTP/1.1 206 Partial Content\nContent-Type: video/mp4\nContent-Length: 1048576\nContent-Range: bytes 0-1048575/52428800\nAccept-Ranges: bytes\n\n[chunk de datos binarios]
+            note right
+              Streaming por chunks de 8 KB
+              hasta completar el rango
+            end note
+
+            loop mientras quedan datos en el rango
+                VideoCtrl -> FS : fread(handle, 8192)
+                FS --> VideoCtrl : chunk de 8 KB
+                VideoCtrl --> Cliente : [datos binarios]
+            end
+
+            VideoCtrl -> FS : fclose(handle)
+            FS --> VideoCtrl : ok
+            deactivate FS
+
+        else Sin Range Request (descarga completa)
+            VideoCtrl -> FS : readfile(rutaCompleta)
+            activate FS
+            FS --> VideoCtrl : archivo completo
+            deactivate FS
+
+            VideoCtrl --> Cliente : HTTP/1.1 200 OK\nContent-Type: video/mp4\nContent-Length: 52428800\nAccept-Ranges: bytes\nContent-Disposition: inline; filename="video.mp4"\n\n[archivo completo]
+        end
+
+    end
+end
+
+deactivate VideoCtrl
+deactivate Router
+deactivate Entry
+
+== Actualización de Progreso ==
+
+Cliente -> Entry : PUT /api/videos/{id}/progreso\nAuthorization: Bearer {token}\n{\n  reproduccion_id: 123,\n  tiempo_reproducido: 180,\n  porcentaje_visto: 56,\n  completado: false\n}
+activate Entry
+
+Entry -> Router : enruta
+activate Router
+
+Router -> VideoCtrl : actualizarProgreso(videoId)
+activate VideoCtrl
+
+VideoCtrl -> ReproModel : actualizar(reproduccionId, tiempo, porcentaje, completado)
+activate ReproModel
+
+ReproModel -> DB : UPDATE reproducciones\nSET tiempo_reproducido = ?,\n    porcentaje_visto = ?,\n    completado = ?,\n    fecha_fin = NOW()\nWHERE id = ?
+activate DB
+DB --> ReproModel : ok
+deactivate DB
+
+ReproModel --> VideoCtrl : actualizado
+deactivate ReproModel
+
+VideoCtrl --> Cliente : 200 OK\n{success: true}
+
+deactivate VideoCtrl
+deactivate Router
+deactivate Entry
+
+== Flujo del Video Player ==
+
+note over Cliente, FS
+  **Flujo típico de reproducción adaptativa:**
+
+  1. Player solicita primeros bytes para iniciar reproducción:
+     GET /stream Range: bytes=0-1048575
+
+  2. Servidor responde con 206 Partial Content
+
+  3. Player continúa solicitando chunks según necesidad:
+     GET /stream Range: bytes=1048576-2097151
+     GET /stream Range: bytes=2097152-3145727
+     ...
+
+  4. Player puede saltar a diferentes posiciones:
+     GET /stream Range: bytes=10485760-11534335
+     (salta al minuto 2 si bitrate conocido)
+
+  5. Player actualiza progreso periódicamente
+     (cada 30 segundos o al pausar)
+
+  6. Al finalizar o cerrar, actualiza con completado=true
+end note
+
+@enduml
