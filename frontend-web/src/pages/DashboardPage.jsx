@@ -140,11 +140,16 @@ const DashboardPage = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-salesiano-azul-700 mb-2">
-              Mis Videos
-            </h1>
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-3xl font-bold text-salesiano-azul-700">
+                Mis Videos
+              </h1>
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold">
+                {user?.rol}
+              </span>
+            </div>
             <p className="text-gray-600">
-              Bienvenido, {user?.nombre} • {user?.rol}
+              Bienvenido, {user?.nombre}
             </p>
           </div>
 

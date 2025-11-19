@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { getMaterias } from '../services/materiaService';
 import { getGradoById } from '../services/gradoService';
+import { getCampos } from '../services/campoService';
 
 // Iconos SVG representativos para cada materia
 const MateriaIcon = ({ nombre }) => {
@@ -126,6 +127,7 @@ const MateriaIcon = ({ nombre }) => {
 
 const MateriasPage = () => {
   const [materias, setMaterias] = useState([]);
+  const [campos, setCampos] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -144,8 +146,13 @@ const MateriasPage = () => {
   const loadMaterias = async () => {
     try {
       setLoading(true);
-      const data = await getMaterias();
-      setMaterias(data || []);
+      // Cargar materias y campos en paralelo
+      const [materiasData, camposData] = await Promise.all([
+        getMaterias(),
+        getCampos()
+      ]);
+      setMaterias(materiasData || []);
+      setCampos(camposData || []);
     } catch (error) {
       console.error('Error loading materias:', error);
     } finally {
@@ -252,53 +259,92 @@ const MateriasPage = () => {
         </div>
       </div>
 
-      {/* Grid de Materias */}
+      {/* Grid de Materias agrupadas por Campos */}
       <div className="container mx-auto px-4 py-12">
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-salesiano-azul-600"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            {materias.map((materia, index) => {
-              const colors = materiaColors[index % materiaColors.length];
+          <div className="space-y-10 max-w-7xl mx-auto">
+            {campos.map((campo) => {
+              const materiasCampo = materias.filter(m => m.campo_id === campo.id);
+              if (materiasCampo.length === 0) return null;
 
               return (
-                <button
-                  key={materia.id}
-                  onClick={() => handleMateriaClick(materia.id)}
-                  className={`group relative overflow-hidden bg-gradient-to-br ${colors.from} ${colors.to} ${colors.hover} rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 p-6 text-white`}
-                >
-                  <div className="text-center">
-                    {/* Icono */}
-                    <div className="mb-4 flex justify-center">
-                      <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
-                        <MateriaIcon nombre={materia.nombre} />
-                      </div>
-                    </div>
-
-                    {/* Nombre de la materia */}
-                    <h3 className="text-xl font-bold mb-2">
-                      {materia.nombre}
-                    </h3>
-
-                    {/* Descripción */}
-                    {materia.descripcion && (
-                      <p className="text-sm text-white/80 mb-4">
-                        {materia.descripcion}
+                <div key={campo.id} className="space-y-4">
+                  {/* Título del Campo */}
+                  <div className="border-l-4 border-salesiano-azul-500 pl-4">
+                    <h2 className="text-2xl font-bold text-gray-800">
+                      {campo.nombre}
+                    </h2>
+                    {campo.descripcion && (
+                      <p className="text-sm text-gray-600 mt-1">
+                        {campo.descripcion}
                       </p>
                     )}
-
-                    {/* Icono de flecha */}
-                    <div className="flex justify-center mt-4">
-                      <div className="w-10 h-10 bg-white/20 group-hover:bg-white rounded-full flex items-center justify-center transition-all duration-300">
-                        <svg className={`w-5 h-5 group-hover:${colors.bg.replace('bg-', 'text-')}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                        </svg>
-                      </div>
-                    </div>
                   </div>
-                </button>
+
+                  {/* Grid de Materias del Campo */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {materiasCampo.map((materia, index) => {
+                      const colors = materiaColors[index % materiaColors.length];
+
+                      return (
+                        <button
+                          key={materia.id}
+                          onClick={() => handleMateriaClick(materia.id)}
+                          className={`group relative overflow-hidden bg-gradient-to-br ${colors.from} ${colors.to} ${colors.hover} rounded-2xl shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300 p-6 text-white`}
+                        >
+                          <div className="text-center">
+                            {/* Icono */}
+                            <div className="mb-4 flex justify-center">
+                              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center group-hover:bg-white/30 transition-all duration-300">
+                                <MateriaIcon nombre={materia.nombre} />
+                              </div>
+                            </div>
+
+                            {/* Nombre de la materia */}
+                            <h3 className="text-xl font-bold mb-2">
+                              {materia.nombre}
+                            </h3>
+
+                            {/* Helpbox para Descripción */}
+                            {materia.descripcion && (
+                              <div className="flex justify-center items-center mt-2">
+                                <div className="group/tooltip relative inline-flex">
+                                  <div className="flex items-center gap-1 text-xs text-white/90 cursor-help">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span>Info</span>
+                                  </div>
+                                  {/* Tooltip */}
+                                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 w-48 text-center z-10 pointer-events-none">
+                                    {materia.descripcion}
+                                    {/* Flecha */}
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                                      <div className="border-4 border-transparent border-t-gray-900"></div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Icono de flecha */}
+                            <div className="flex justify-center mt-4">
+                              <div className="w-10 h-10 bg-white/20 group-hover:bg-white rounded-full flex items-center justify-center transition-all duration-300">
+                                <svg className={`w-5 h-5 group-hover:${colors.bg.replace('bg-', 'text-')}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                                </svg>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               );
             })}
           </div>

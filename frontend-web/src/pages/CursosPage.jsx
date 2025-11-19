@@ -135,11 +135,26 @@ const CursosPage = () => {
                       {grado.nombre}
                     </h3>
 
-                    {/* Descripción (si existe) */}
+                    {/* Helpbox para Descripción */}
                     {grado.descripcion && (
-                      <p className="text-sm text-gray-600 group-hover:text-white/90 transition-colors duration-300">
-                        {grado.descripcion}
-                      </p>
+                      <div className="flex justify-center items-center mt-2">
+                        <div className="group/tooltip relative inline-flex">
+                          <div className="flex items-center gap-1 text-xs text-gray-600 group-hover:text-white/90 cursor-help transition-colors duration-300">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>Info</span>
+                          </div>
+                          {/* Tooltip */}
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 invisible group-hover/tooltip:opacity-100 group-hover/tooltip:visible transition-all duration-200 w-48 text-center z-10 pointer-events-none">
+                            {grado.descripcion}
+                            {/* Flecha */}
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
+                              <div className="border-4 border-transparent border-t-gray-900"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     )}
 
                     {/* Icono de flecha */}
