@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import resourceService from '../services/resourceService';
 
 export const useResources = () => {
+  const [campos, setCampos] = useState([]);
   const [materias, setMaterias] = useState([]);
   const [grados, setGrados] = useState([]);
   const [temas, setTemas] = useState([]);
@@ -23,13 +24,15 @@ export const useResources = () => {
       setLoading(true);
       setError(null);
 
-      const [materiasData, gradosData, temasData, rolesData] = await Promise.all([
+      const [camposData, materiasData, gradosData, temasData, rolesData] = await Promise.all([
+        resourceService.getCampos(),
         resourceService.getMaterias(),
         resourceService.getGrados(),
         resourceService.getTemas(),
         resourceService.getRoles().catch(() => []), // Los roles requieren auth
       ]);
 
+      setCampos(camposData);
       setMaterias(materiasData);
       setGrados(gradosData);
       setTemas(temasData);
@@ -55,6 +58,7 @@ export const useResources = () => {
   };
 
   return {
+    campos,
     materias,
     grados,
     temas,

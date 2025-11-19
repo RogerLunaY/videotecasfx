@@ -11,6 +11,7 @@ import {
 } from '../../services/docenteAsignacionService';
 import { getMaterias } from '../../services/materiaService';
 import { getGrados } from '../../services/gradoService';
+import { getCampos } from '../../services/campoService';
 
 const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
   const [loading, setLoading] = useState(true);
@@ -22,6 +23,7 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
   const MAX_GRADOS = 6;
 
   // Listas disponibles
+  const [camposDisponibles, setCamposDisponibles] = useState([]);
   const [materiasDisponibles, setMateriasDisponibles] = useState([]);
   const [gradosDisponibles, setGradosDisponibles] = useState([]);
 
@@ -40,13 +42,15 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
       setLoading(true);
       setError(null);
 
-      // Cargar en paralelo: asignaciones actuales, materias y grados disponibles
-      const [asignacionesData, materiasData, gradosData] = await Promise.all([
+      // Cargar en paralelo: asignaciones actuales, campos, materias y grados disponibles
+      const [asignacionesData, camposData, materiasData, gradosData] = await Promise.all([
         getDocenteAsignaciones(docente.id),
+        getCampos(),
         getMaterias(),
         getGrados()
       ]);
 
+      setCamposDisponibles(camposData || []);
       setMateriasDisponibles(materiasData || []);
       setGradosDisponibles(gradosData || []);
 
@@ -197,33 +201,47 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
+                <div className="space-y-4 max-h-96 overflow-y-auto p-2">
                   {materiasDisponibles.length === 0 ? (
                     <p className="text-gray-500 text-sm text-center py-4">No hay materias disponibles</p>
                   ) : (
-                    materiasDisponibles.map((materia) => (
-                      <button
-                        key={materia.id}
-                        type="button"
-                        onClick={() => handleMateriaToggle(materia.id)}
-                        className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
-                          materiasSeleccionadas.includes(materia.id)
-                            ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
-                            : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold flex-1">
-                            {materia.nombre}
-                          </p>
-                          {materiasSeleccionadas.includes(materia.id) && (
-                            <svg className="w-5 h-5 text-primary-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          )}
+                    camposDisponibles.map((campo) => {
+                      const materiasCampo = materiasDisponibles.filter(m => m.campo_id === campo.id);
+                      if (materiasCampo.length === 0) return null;
+
+                      return (
+                        <div key={campo.id} className="border border-gray-200 rounded-lg p-3">
+                          <h5 className="text-xs font-semibold text-gray-600 mb-2 text-center">
+                            {campo.nombre}
+                          </h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                            {materiasCampo.map((materia) => (
+                              <button
+                                key={materia.id}
+                                type="button"
+                                onClick={() => handleMateriaToggle(materia.id)}
+                                className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-center ${
+                                  materiasSeleccionadas.includes(materia.id)
+                                    ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
+                                    : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
+                                }`}
+                              >
+                                <div className="flex flex-col items-center">
+                                  <p className="text-sm font-semibold">
+                                    {materia.nombre}
+                                  </p>
+                                  {materiasSeleccionadas.includes(materia.id) && (
+                                    <svg className="w-4 h-4 text-primary-600 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                    </svg>
+                                  )}
+                                </div>
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </button>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </div>
@@ -254,18 +272,18 @@ const AsignarDocenteModal = ({ show, onClose, docente, onSuccess }) => {
                         key={grado.id}
                         type="button"
                         onClick={() => handleGradoToggle(grado.id)}
-                        className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
+                        className={`p-3 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-center ${
                           gradosSeleccionados.includes(grado.id)
                             ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-lg'
                             : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <p className="text-sm font-semibold flex-1">
+                        <div className="flex flex-col items-center">
+                          <p className="text-sm font-semibold">
                             {grado.nombre}
                           </p>
                           {gradosSeleccionados.includes(grado.id) && (
-                            <svg className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-4 h-4 text-blue-600 mt-1" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
                           )}

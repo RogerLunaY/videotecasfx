@@ -15,7 +15,7 @@ const EditUserPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
-  const { roles, materias, grados, loading: resourcesLoading } = useResources();
+  const { campos, roles, materias, grados, loading: resourcesLoading } = useResources();
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -407,7 +407,7 @@ const EditUserPage = () => {
               {/* COLUMNA DERECHA: ASIGNACIONES (SOLO DOCENTE) */}
               {isDocente() && (
                 <div className="space-y-6">
-                  {/* Materias */}
+                  {/* Materias agrupadas por Campos */}
                   <div className="bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">
@@ -418,21 +418,36 @@ const EditUserPage = () => {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {materias.map(materia => (
-                        <button
-                          key={materia.id}
-                          type="button"
-                          onClick={() => handleMateriaToggle(materia.id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                            materiasSeleccionadas.includes(materia.id)
-                              ? 'bg-blue-600 text-white shadow-md'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {materia.nombre}
-                        </button>
-                      ))}
+                    {/* Agrupar materias por campos */}
+                    <div className="space-y-4">
+                      {campos.map(campo => {
+                        const materiasCampo = materias.filter(m => m.campo_id === campo.id);
+                        if (materiasCampo.length === 0) return null;
+
+                        return (
+                          <div key={campo.id} className="border border-gray-200 rounded-lg p-4">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+                              {campo.nombre}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {materiasCampo.map(materia => (
+                                <button
+                                  key={materia.id}
+                                  type="button"
+                                  onClick={() => handleMateriaToggle(materia.id)}
+                                  className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                                    materiasSeleccionadas.includes(materia.id)
+                                      ? 'bg-blue-600 text-white shadow-md'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                >
+                                  {materia.nombre}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
                     {errors.materias && (
