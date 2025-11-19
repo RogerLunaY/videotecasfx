@@ -249,8 +249,6 @@ class UsuarioController
         $this->usuarioModel->ci = $data['ci'] ?? $usuarioExistente['ci'];
         $this->usuarioModel->email = $data['email'] ?? $usuarioExistente['email'];
         $this->usuarioModel->rol_id = $data['rol_id'] ?? $usuarioExistente['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? $usuarioExistente['materia_id'];
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? $usuarioExistente['grado_id'];
         $this->usuarioModel->telefono = $data['telefono'] ?? $usuarioExistente['telefono'];
         $this->usuarioModel->estado = $data['estado'] ?? $usuarioExistente['estado'];
 

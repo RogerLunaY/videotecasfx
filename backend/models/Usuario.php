@@ -313,8 +313,6 @@ class Usuario
                     ci = :ci,
                     email = :email,
                     rol_id = :rol_id,
-                    grado_id = :grado_id,
-                    materia_id = :materia_id,
                     telefono = :telefono,
                     estado = :estado
                 WHERE id = :id";
@@ -329,8 +327,6 @@ class Usuario
             $stmt->bindParam(':ci', $this->ci);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
