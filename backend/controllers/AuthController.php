@@ -171,9 +171,7 @@ class AuthController
             'ci' => 'required|alphanumeric|min:5|max:20',
             'email' => 'required|email|max:150',
             'password' => 'required|min:8|max:100',
-            'rol_id' => 'required|integer',
-            'materia_id' => 'integer',
-            'grado_id' => 'integer'
+            'rol_id' => 'required|integer'
         ];
 
         if (!$this->validator->validar($data, $reglas)) {
@@ -201,8 +199,6 @@ class AuthController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = 'activo';
 
@@ -212,8 +208,12 @@ class AuthController
             $this->logger->info('Registro', "Nuevo usuario registrado: {$data['email']}", $usuarioId, ['email' => $data['email'], 'rol_id' => $data['rol_id']]);
 
             $this->enviarRespuesta(201, true, [
-                'id' => $usuarioId,
-                'email' => $data['email']
+                'usuario' => [
+                    'id' => $usuarioId,
+                    'email' => $data['email'],
+                    'nombre' => $data['nombre'],
+                    'apellido_paterno' => $data['apellido_paterno']
+                ]
             ], 'Usuario registrado exitosamente');
         } else {
             $this->logger->error('Registro', "Error al registrar usuario: {$data['email']}", null, ['email' => $data['email']]);

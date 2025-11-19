@@ -63,10 +63,10 @@ class Usuario
     {
         $query = "INSERT INTO {$this->table}
                 (nombre, apellido_paterno, apellido_materno, ci, email, password_hash,
-                 rol_id, grado_id, materia_id, telefono, estado)
+                 rol_id, telefono, estado)
                 VALUES
                 (:nombre, :apellido_paterno, :apellido_materno, :ci, :email, :password_hash,
-                 :rol_id, :grado_id, :materia_id, :telefono, :estado)";
+                 :rol_id, :telefono, :estado)";
 
         try {
             $stmt = $this->conn->prepare($query);
@@ -82,8 +82,6 @@ class Usuario
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password_hash', $hashed_password);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
