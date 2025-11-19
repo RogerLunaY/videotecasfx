@@ -78,7 +78,7 @@ class RoleMiddleware
      */
     public static function esAdministrador(string $rol): bool
     {
-        return $rol === 'Administrador';
+        return strcasecmp($rol, 'Administrador') === 0;
     }
 
     /**
@@ -89,7 +89,7 @@ class RoleMiddleware
      */
     public static function esDocente(string $rol): bool
     {
-        return $rol === 'Docente';
+        return strcasecmp($rol, 'Docente') === 0;
     }
 
     /**
