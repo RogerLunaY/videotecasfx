@@ -117,7 +117,9 @@ class UsuarioController
      * Crea un nuevo usuario
      *
      * POST /api/usuarios
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, telefono, estado }
+     *
+     * Nota: Para asignar materias/grados a docentes, usar POST /api/docentes/{id}/asignaciones
      *
      * @return void
      */
@@ -163,8 +165,6 @@ class UsuarioController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = $data['estado'] ?? 'activo';
 
@@ -185,7 +185,9 @@ class UsuarioController
      * Actualiza un usuario existente
      *
      * PUT /api/usuarios/{id}
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, materia_id, grado_id, estado }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, telefono, estado }
+     *
+     * Nota: Para actualizar materias/grados de docentes, usar PUT /api/docentes/{id}/asignaciones
      *
      * @param int $id ID del usuario
      * @return void

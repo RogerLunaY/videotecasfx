@@ -34,8 +34,6 @@ class Usuario
     public ?string $password = null;
     public ?string $password_hash = null;
     public ?int $rol_id = null;
-    public ?int $grado_id = null;
-    public ?int $materia_id = null;
     public ?string $telefono = null;
     public ?string $foto_perfil = null;
     public ?string $estado = 'activo';

@@ -139,9 +139,7 @@ class AuthController
                 'apellido_paterno' => $usuario['apellido_paterno'],
                 'apellido_materno' => $usuario['apellido_materno'],
                 'email' => $usuario['email'],
-                'rol' => $usuario['rol_nombre'],
-                'materia_id' => $usuario['materia_id'],
-                'grado_id' => $usuario['grado_id']
+                'rol' => $usuario['rol_nombre']
             ],
             'tokens' => [
                 'access_token' => $accessToken,
@@ -156,7 +154,9 @@ class AuthController
      * Registro de nuevo usuario (solo administradores)
      *
      * POST /api/auth/register
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, telefono }
+     *
+     * Nota: Para asignar materias/grados a docentes, usar POST /api/docentes/{id}/asignaciones
      *
      * @return void
      */
