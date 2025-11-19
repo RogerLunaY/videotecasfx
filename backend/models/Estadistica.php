@@ -110,9 +110,11 @@ class Estadistica
             $stmt3 = $this->conn->query("SELECT COUNT(*) as count FROM reproducciones");
             $reproducciones = $stmt3->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Total de visualizaciones
-            $stmt4 = $this->conn->query("SELECT SUM(visualizaciones) as total FROM videos");
-            $visualizaciones = $stmt4->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            // Total de visualizaciones y espacio usado
+            $stmt4 = $this->conn->query("SELECT SUM(visualizaciones) as total_vistas, SUM(tamano_archivo) as total_espacio FROM videos");
+            $videosData = $stmt4->fetch(PDO::FETCH_ASSOC);
+            $visualizaciones = $videosData['total_vistas'] ?? 0;
+            $espacioUsado = $videosData['total_espacio'] ?? 0;
 
             // Total de materias
             $stmt5 = $this->conn->query("SELECT COUNT(*) as count FROM materias WHERE estado = 'activo'");
@@ -122,13 +124,25 @@ class Estadistica
             $stmt6 = $this->conn->query("SELECT COUNT(*) as count FROM grados WHERE estado = 'activo'");
             $grados = $stmt6->fetch(PDO::FETCH_ASSOC)['count'];
 
+            // Total de docentes activos
+            $stmt7 = $this->conn->query("
+                SELECT COUNT(DISTINCT u.id) as count
+                FROM usuarios u
+                INNER JOIN roles r ON u.rol_id = r.id
+                WHERE u.estado = 'activo' AND LOWER(r.nombre) = 'docente'
+            ");
+            $docentes = $stmt7->fetch(PDO::FETCH_ASSOC)['count'];
+
             return [
                 'total_usuarios_activos' => (int)$usuarios,
+                'total_videos' => (int)$videos,
                 'total_videos_activos' => (int)$videos,
                 'total_reproducciones' => (int)$reproducciones,
                 'total_visualizaciones' => (int)$visualizaciones,
                 'total_materias' => (int)$materias,
-                'total_grados' => (int)$grados
+                'total_grados' => (int)$grados,
+                'total_docentes' => (int)$docentes,
+                'espacio_usado' => (int)$espacioUsado
             ];
         } catch (PDOException $e) {
             error_log("[Estadistica::obtenerGeneralesFallback] Error: " . $e->getMessage());
@@ -383,14 +397,16 @@ class Estadistica
     public function obtenerPorDocente(int $docenteId): array
     {
         try {
-            // Total de videos del docente
-            $query1 = "SELECT COUNT(*) as total
+            // Total de videos del docente y espacio usado
+            $query1 = "SELECT COUNT(*) as total, SUM(tamano_archivo) as espacio
                     FROM videos
                     WHERE docente_id = :docente_id AND estado = 'activo'";
             $stmt1 = $this->conn->prepare($query1);
             $stmt1->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
             $stmt1->execute();
-            $totalVideos = $stmt1->fetch(PDO::FETCH_ASSOC)['total'];
+            $videosData = $stmt1->fetch(PDO::FETCH_ASSOC);
+            $totalVideos = $videosData['total'];
+            $espacioUsado = $videosData['espacio'] ?? 0;
 
             // Total de visualizaciones
             $query2 = "SELECT SUM(visualizaciones) as total
@@ -416,6 +432,7 @@ class Estadistica
             return [
                 'total_videos' => (int)$totalVideos,
                 'total_visualizaciones' => (int)$totalVisualizaciones,
+                'espacio_usado' => (int)$espacioUsado,
                 'promedio_visualizaciones' => $totalVideos > 0 ? round($totalVisualizaciones / $totalVideos, 2) : 0,
                 'videos_populares' => $videosPopulares
             ];

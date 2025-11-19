@@ -18,6 +18,7 @@ import { formatFileSize } from '../utils/helpers';
 const DashboardPage = () => {
   const { user, isAdmin, isDocente } = useAuth();
   const [stats, setStats] = useState(null);
+  const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
 
   // Estados para videos de docente
@@ -51,7 +52,10 @@ const DashboardPage = () => {
     try {
       setLoading(true);
       const response = await getDashboard();
-      setStats(response.data);
+      // Extraer las estadísticas generales para fácil acceso
+      const dashboardData = response.data || response;
+      setDashboard(dashboardData);
+      setStats(dashboardData.generales || dashboardData);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -419,30 +423,17 @@ const DashboardPage = () => {
         {/* Acciones Rápidas */}
         <div className="mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Acciones Rápidas</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link
-              to="/upload"
+              to="/videos"
               className="bg-gradient-to-r from-salesiano-azul-500 to-salesiano-azul-600 text-white rounded-xl p-6 hover:from-salesiano-azul-600 hover:to-salesiano-azul-700 transition shadow-lg hover:shadow-xl flex items-center"
             >
               <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <div>
-                <h3 className="font-semibold text-lg">Subir Video</h3>
-                <p className="text-sm text-blue-100">Comparte contenido</p>
-              </div>
-            </Link>
-
-            <Link
-              to="/videos"
-              className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-salesiano-azul-400 transition shadow-md hover:shadow-lg flex items-center"
-            >
-              <svg className="w-8 h-8 mr-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
               <div>
-                <h3 className="font-semibold text-lg text-gray-900">Todos los Videos</h3>
-                <p className="text-sm text-gray-600">Ver catálogo completo</p>
+                <h3 className="font-semibold text-lg">Todos los Videos</h3>
+                <p className="text-sm text-blue-100">Ver, editar y eliminar</p>
               </div>
             </Link>
 
@@ -515,7 +506,7 @@ const DashboardPage = () => {
         </div>
 
         {/* Videos Populares */}
-        {stats?.videos_populares && stats.videos_populares.length > 0 && (
+        {dashboard?.videos_populares && dashboard.videos_populares.length > 0 && (
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-semibold text-gray-900">Videos Más Populares</h2>
@@ -539,7 +530,7 @@ const DashboardPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {stats.videos_populares.slice(0, 5).map((video) => (
+                  {dashboard.videos_populares.slice(0, 5).map((video) => (
                     <tr key={video.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4">
                         <Link to={`/videos/${video.id}`} className="text-sm font-medium text-gray-900 hover:text-salesiano-azul-600">
@@ -547,7 +538,7 @@ const DashboardPage = () => {
                         </Link>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="text-sm text-gray-600">{video.materia_nombre}</span>
+                        <span className="text-sm text-gray-600">{video.materia || video.materia_nombre}</span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-salesiano-amarillo-100 text-salesiano-azul-900">
@@ -563,12 +554,12 @@ const DashboardPage = () => {
         )}
 
         {/* Actividad Reciente */}
-        {stats?.actividad_reciente && stats.actividad_reciente.length > 0 && (
+        {dashboard?.actividad_reciente && dashboard.actividad_reciente.length > 0 && (
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Actividad Reciente</h2>
             <div className="bg-white rounded-xl shadow-md p-6">
               <div className="space-y-4">
-                {stats.actividad_reciente.slice(0, 10).map((actividad, index) => (
+                {dashboard.actividad_reciente.slice(0, 10).map((actividad, index) => (
                   <div key={index} className="flex items-start space-x-3 pb-4 border-b border-gray-100 last:border-0">
                     <div className="flex-shrink-0">
                       <div className="w-2 h-2 bg-salesiano-azul-500 rounded-full mt-2"></div>
