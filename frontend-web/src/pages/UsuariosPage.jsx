@@ -10,11 +10,15 @@ import LoadingSpinner from '../components/Common/LoadingSpinner';
 import AsignarDocenteModal from '../components/Common/AsignarDocenteModal';
 import { useAuth } from '../context/AuthContext';
 import { getUsers, deleteUser } from '../services/userService';
+import { getMaterias } from '../services/materiaService';
+import { getGrados } from '../services/gradoService';
 import { formatDate, debounce } from '../utils/helpers';
 
 const UsuariosPage = () => {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState([]);
+  const [materias, setMaterias] = useState([]);
+  const [grados, setGrados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({
     page: 1,
@@ -25,6 +29,8 @@ const UsuariosPage = () => {
   const [filters, setFilters] = useState({
     rol_id: '',
     estado: '',
+    materia_id: '',
+    grado_id: '',
     busqueda: ''
   });
   const [searchInput, setSearchInput] = useState('');
@@ -38,6 +44,8 @@ const UsuariosPage = () => {
 
   useEffect(() => {
     loadUsers();
+    loadMaterias();
+    loadGrados();
   }, [pagination.page, filters]);
 
   // Búsqueda en tiempo real con debounce
@@ -49,6 +57,38 @@ const UsuariosPage = () => {
 
     debouncedSearch();
   }, [searchInput]);
+
+  const loadMaterias = async () => {
+    try {
+      const data = await getMaterias();
+      setMaterias(data || []);
+    } catch (error) {
+      console.error('Error loading materias:', error);
+    }
+  };
+
+  const loadGrados = async () => {
+    try {
+      const data = await getGrados();
+      setGrados(data || []);
+    } catch (error) {
+      console.error('Error loading grados:', error);
+    }
+  };
+
+  // Helper para obtener siglas de materia (primeras letras de cada palabra)
+  const getSiglas = (nombre) => {
+    return nombre
+      .split(' ')
+      .map(word => word.charAt(0))
+      .join('')
+      .toUpperCase();
+  };
+
+  // Helper para obtener primera palabra
+  const getFirstWord = (nombre) => {
+    return nombre.split(' ')[0];
+  };
 
   const loadUsers = async () => {
     try {
@@ -101,8 +141,18 @@ const UsuariosPage = () => {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
+  const handleMateriaFilter = (materiaId) => {
+    setFilters(prev => ({ ...prev, materia_id: prev.materia_id === materiaId ? '' : materiaId }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleGradoFilter = (gradoId) => {
+    setFilters(prev => ({ ...prev, grado_id: prev.grado_id === gradoId ? '' : gradoId }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
   const clearFilters = () => {
-    setFilters({ rol_id: '', estado: '', busqueda: '' });
+    setFilters({ rol_id: '', estado: '', materia_id: '', grado_id: '', busqueda: '' });
     setSearchInput('');
     setPagination(prev => ({ ...prev, page: 1 }));
   };
@@ -127,17 +177,19 @@ const UsuariosPage = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
+        {/* Header - Primera Fila */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
-            <p className="text-gray-600 mt-2">
-              {pagination.total > 0 && `${pagination.total} usuario${pagination.total !== 1 ? 's' : ''} registrado${pagination.total !== 1 ? 's' : ''}`}
-            </p>
+            {pagination.total > 0 && (
+              <span className="px-3 py-1 bg-primary-100 text-primary-800 rounded-full text-sm font-semibold">
+                {pagination.total} usuario{pagination.total !== 1 ? 's' : ''}
+              </span>
+            )}
           </div>
           <Link
             to="/register"
-            className="btn-primary flex items-center gap-2 transition-all duration-200 hover:scale-105"
+            className="btn-primary flex items-center gap-2"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -146,8 +198,8 @@ const UsuariosPage = () => {
           </Link>
         </div>
 
-        {/* Búsqueda */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300">
+        {/* Búsqueda - Segunda Fila */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
           <div className="relative">
             <svg
               className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
@@ -162,98 +214,148 @@ const UsuariosPage = () => {
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Buscar por nombre, email, CI..."
-              className="input-field pl-10 w-full transition-all duration-200 focus:ring-2 focus:ring-primary-500"
+              className="input-field pl-10 w-full"
             />
           </div>
         </div>
 
-        {/* Filtros con Botones */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6 transition-all duration-300">
-          <div className="space-y-4">
+        {/* Filtros en Grid de 2 Columnas */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          {/* Columna 1: Filtros por Rol y Estado */}
+          <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
             {/* Filtro de Rol */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Filtrar por Rol
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Rol:
               </label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleRolFilter('1')}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
                     filters.rol_id === '1'
-                      ? 'bg-purple-600 text-white shadow-lg'
-                      : 'bg-purple-50 text-purple-700 hover:bg-purple-100'
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-purple-100 text-purple-700 hover:bg-purple-200'
                   }`}
                 >
-                  Administradores
+                  Admin
                 </button>
                 <button
                   onClick={() => handleRolFilter('2')}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
                     filters.rol_id === '2'
-                      ? 'bg-blue-600 text-white shadow-lg'
-                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                   }`}
                 >
-                  Docentes
+                  Docente
                 </button>
               </div>
             </div>
 
             {/* Filtro de Estado */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Filtrar por Estado
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Estado:
               </label>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => handleEstadoFilter('activo')}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
                     filters.estado === 'activo'
-                      ? 'bg-green-600 text-white shadow-lg'
-                      : 'bg-green-50 text-green-700 hover:bg-green-100'
+                      ? 'bg-green-600 text-white'
+                      : 'bg-green-100 text-green-700 hover:bg-green-200'
                   }`}
                 >
-                  Activos
+                  Activo
                 </button>
                 <button
                   onClick={() => handleEstadoFilter('inactivo')}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
                     filters.estado === 'inactivo'
-                      ? 'bg-red-600 text-white shadow-lg'
-                      : 'bg-red-50 text-red-700 hover:bg-red-100'
+                      ? 'bg-red-600 text-white'
+                      : 'bg-red-100 text-red-700 hover:bg-red-200'
                   }`}
                 >
-                  Inactivos
+                  Inactivo
                 </button>
                 <button
                   onClick={() => handleEstadoFilter('bloqueado')}
-                  className={`px-6 py-2.5 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
                     filters.estado === 'bloqueado'
-                      ? 'bg-gray-600 text-white shadow-lg'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      ? 'bg-gray-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
-                  Bloqueados
+                  Bloqueado
                 </button>
               </div>
             </div>
+          </div>
 
-            {/* Botón Limpiar Filtros */}
-            {(filters.rol_id || filters.estado || filters.busqueda) && (
-              <div className="pt-2 animate-fade-in">
-                <button
-                  onClick={clearFilters}
-                  className="btn-secondary flex items-center gap-2 transition-all duration-200 hover:scale-105"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  Limpiar Filtros
-                </button>
+          {/* Columna 2: Filtros por Materia y Curso */}
+          <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+            {/* Filtro de Materia */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Materia:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {materias.map((materia) => (
+                  <button
+                    key={materia.id}
+                    onClick={() => handleMateriaFilter(materia.id.toString())}
+                    className={`px-2.5 py-1 text-xs rounded-full font-bold transition ${
+                      filters.materia_id === materia.id.toString()
+                        ? 'bg-primary-600 text-white'
+                        : 'bg-primary-100 text-primary-700 hover:bg-primary-200'
+                    }`}
+                    title={materia.nombre}
+                  >
+                    {getSiglas(materia.nombre)}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
+
+            {/* Filtro de Curso */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Filtrar por Curso:
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {grados.map((grado) => (
+                  <button
+                    key={grado.id}
+                    onClick={() => handleGradoFilter(grado.id.toString())}
+                    className={`px-3 py-1 text-sm rounded-full font-semibold transition ${
+                      filters.grado_id === grado.id.toString()
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                    }`}
+                    title={grado.nombre}
+                  >
+                    {getFirstWord(grado.nombre)}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Botón Limpiar Filtros */}
+        {(filters.rol_id || filters.estado || filters.materia_id || filters.grado_id || filters.busqueda) && (
+          <div className="mb-6">
+            <button
+              onClick={clearFilters}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+              Limpiar Filtros
+            </button>
+          </div>
+        )}
 
         {/* Grid de Cards */}
         {loading ? (
