@@ -266,9 +266,9 @@ const EditUserPage = () => {
           )}
 
           <form onSubmit={handleSubmit}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className={`grid gap-6 ${isDocente() ? 'grid-cols-1 lg:grid-cols-3' : 'grid-cols-1 lg:grid-cols-2'}`}>
               {/* COLUMNA IZQUIERDA: ROL Y DATOS PERSONALES */}
-              <div className="space-y-6">
+              <div className={`space-y-6 ${isDocente() ? '' : ''}`}>
                 {/* Selección de Rol (Botones) */}
                 <div className="bg-white rounded-lg shadow-md p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -397,11 +397,11 @@ const EditUserPage = () => {
                 </div>
               </div>
 
-              {/* COLUMNA DERECHA: ASIGNACIONES (SOLO DOCENTE) */}
+              {/* ASIGNACIONES (SOLO DOCENTE) */}
               {isDocente() && (
-                <div className="space-y-6">
-                  {/* Materias */}
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                <>
+                  {/* Materias - 2 columnas */}
+                  <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">
                         Materias ({materiasSeleccionadas.length}/{MAX_MATERIAS})
@@ -411,94 +411,87 @@ const EditUserPage = () => {
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {materias.map(materia => (
-                        <button
-                          key={materia.id}
-                          type="button"
-                          onClick={() => handleMateriaToggle(materia.id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                            materiasSeleccionadas.includes(materia.id)
-                              ? 'bg-blue-600 text-white shadow-md'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {materia.nombre}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto p-2">
+                      {materias.length === 0 ? (
+                        <p className="text-gray-500 text-sm text-center py-4">No hay materias disponibles</p>
+                      ) : (
+                        materias.map(materia => (
+                          <button
+                            key={materia.id}
+                            type="button"
+                            onClick={() => handleMateriaToggle(materia.id)}
+                            className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
+                              materiasSeleccionadas.includes(materia.id)
+                                ? 'border-primary-600 bg-primary-50 text-primary-700 shadow-lg'
+                                : 'border-gray-200 hover:border-primary-300 hover:bg-primary-50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold flex-1">
+                                {materia.nombre}
+                              </p>
+                              {materiasSeleccionadas.includes(materia.id) && (
+                                <svg className="w-5 h-5 text-primary-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
+                        ))
+                      )}
                     </div>
 
                     {errors.materias && (
                       <p className="mt-2 text-sm text-red-600">{errors.materias}</p>
                     )}
-
-                    {materiasSeleccionadas.length > 0 && (
-                      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-                        <p className="text-xs text-blue-700">
-                          <strong>Seleccionadas:</strong> {materias.filter(m => materiasSeleccionadas.includes(m.id)).map(m => m.nombre).join(', ')}
-                        </p>
-                      </div>
-                    )}
                   </div>
 
-                  {/* Grados/Cursos */}
-                  <div className="bg-white rounded-lg shadow-md p-6">
+                  {/* Grados - 1 columna */}
+                  <div className="lg:col-span-1 bg-white rounded-lg shadow-md p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-lg font-semibold text-gray-900">
-                        Grados/Cursos ({gradosSeleccionados.length}/{MAX_GRADOS})
+                        Grados ({gradosSeleccionados.length}/{MAX_GRADOS})
                       </h3>
                       <span className="text-xs text-gray-500">
-                        Máximo {MAX_GRADOS}
+                        Máx {MAX_GRADOS}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
-                      {grados.map(grado => (
-                        <button
-                          key={grado.id}
-                          type="button"
-                          onClick={() => handleGradoToggle(grado.id)}
-                          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                            gradosSeleccionados.includes(grado.id)
-                              ? 'bg-green-600 text-white shadow-md'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                          }`}
-                        >
-                          {getFirstWord(grado.nombre)}
-                        </button>
-                      ))}
+                    <div className="grid grid-cols-1 gap-3 max-h-96 overflow-y-auto p-2">
+                      {grados.length === 0 ? (
+                        <p className="text-gray-500 text-sm text-center py-4">No hay grados disponibles</p>
+                      ) : (
+                        grados.map(grado => (
+                          <button
+                            key={grado.id}
+                            type="button"
+                            onClick={() => handleGradoToggle(grado.id)}
+                            className={`p-4 rounded-lg border-2 font-medium transition-all duration-200 transform hover:scale-105 text-left ${
+                              gradosSeleccionados.includes(grado.id)
+                                ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-lg'
+                                : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <p className="text-sm font-semibold flex-1">
+                                {grado.nombre}
+                              </p>
+                              {gradosSeleccionados.includes(grado.id) && (
+                                <svg className="w-5 h-5 text-blue-600 flex-shrink-0 ml-2" fill="currentColor" viewBox="0 0 20 20">
+                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                </svg>
+                              )}
+                            </div>
+                          </button>
+                        ))
+                      )}
                     </div>
 
                     {errors.grados && (
                       <p className="mt-2 text-sm text-red-600">{errors.grados}</p>
                     )}
-
-                    {gradosSeleccionados.length > 0 && (
-                      <div className="mt-4 p-3 bg-green-50 rounded-lg">
-                        <p className="text-xs text-green-700">
-                          <strong>Seleccionados:</strong> {grados.filter(g => gradosSeleccionados.includes(g.id)).map(g => getFirstWord(g.nombre)).join(', ')}
-                        </p>
-                      </div>
-                    )}
                   </div>
-
-                  {/* Info de Asignaciones */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                    <div className="flex">
-                      <div className="flex-shrink-0">
-                        <svg className="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <div className="ml-3">
-                        <p className="text-sm text-blue-700">
-                          Se actualizarán a <strong>{materiasSeleccionadas.length * gradosSeleccionados.length}</strong> asignaciones
-                          ({materiasSeleccionadas.length} materias × {gradosSeleccionados.length} grados).
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                </>
               )}
             </div>
 
