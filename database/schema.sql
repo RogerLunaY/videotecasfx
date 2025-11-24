@@ -296,8 +296,8 @@ CREATE TABLE IF NOT EXISTS tokens_refresh (
 -- =====================================================
 
 -- Trigger: Incrementar visualizaciones al registrar reproducción
-DROP TRIGGER IF EXISTS after_reproduccion_insert$$
-DELIMITER $$
+DROP TRIGGER IF EXISTS after_reproduccion_insert//
+DELIMITER //
 CREATE TRIGGER after_reproduccion_insert
 AFTER INSERT ON reproducciones
 FOR EACH ROW
@@ -305,12 +305,12 @@ BEGIN
     UPDATE videos
     SET visualizaciones = visualizaciones + 1
     WHERE id = NEW.video_id;
-END$$
+END//
 DELIMITER ;
 
 -- Trigger: Registrar log al crear usuario
-DROP TRIGGER IF EXISTS after_usuario_insert$$
-DELIMITER $$
+DROP TRIGGER IF EXISTS after_usuario_insert//
+DELIMITER //
 CREATE TRIGGER after_usuario_insert
 AFTER INSERT ON usuarios
 FOR EACH ROW
@@ -319,12 +319,12 @@ BEGIN
     VALUES (NEW.id, 'info', 'usuario_creado',
             CONCAT('Usuario creado: ', NEW.nombre, ' ', NEW.apellido_paterno),
             'usuario', NEW.id);
-END$$
+END//
 DELIMITER ;
 
 -- Trigger: Registrar log al crear video
-DROP TRIGGER IF EXISTS after_video_insert$$
-DELIMITER $$
+DROP TRIGGER IF EXISTS after_video_insert//
+DELIMITER //
 CREATE TRIGGER after_video_insert
 AFTER INSERT ON videos
 FOR EACH ROW
@@ -333,12 +333,12 @@ BEGIN
     VALUES (NEW.docente_id, 'info', 'video_subido',
             CONCAT('Video subido: ', NEW.titulo),
             'video', NEW.id);
-END$$
+END//
 DELIMITER ;
 
 -- Trigger: Registrar log al eliminar video
-DROP TRIGGER IF EXISTS before_video_delete$$
-DELIMITER $$
+DROP TRIGGER IF EXISTS before_video_delete//
+DELIMITER //
 CREATE TRIGGER before_video_delete
 BEFORE DELETE ON videos
 FOR EACH ROW
@@ -347,7 +347,7 @@ BEGIN
     VALUES (OLD.docente_id, 'warning', 'video_eliminado',
             CONCAT('Video eliminado: ', OLD.titulo),
             'video', OLD.id);
-END$$
+END//
 DELIMITER ;
 
 -- =====================================================
@@ -474,7 +474,7 @@ GROUP BY u.id;
 -- =====================================================
 
 -- Procedimiento: Obtener estadísticas generales
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_estadisticas_generales()
 BEGIN
     SELECT
@@ -484,22 +484,22 @@ BEGIN
         (SELECT SUM(visualizaciones) FROM videos) AS total_visualizaciones,
         (SELECT COUNT(*) FROM materias WHERE estado = 'activo') AS total_materias,
         (SELECT COUNT(*) FROM grados WHERE estado = 'activo') AS total_grados;
-END$$
+END//
 DELIMITER ;
 
 -- Procedimiento: Limpiar tokens expirados
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_limpiar_tokens_expirados()
 BEGIN
     DELETE FROM tokens_refresh
     WHERE expira_en < NOW() OR revocado = TRUE;
 
     SELECT ROW_COUNT() AS tokens_eliminados;
-END$$
+END//
 DELIMITER ;
 
 -- Procedimiento: Obtener videos por filtros
-DELIMITER $$
+DELIMITER //
 CREATE PROCEDURE sp_buscar_videos(
     IN p_materia_id INT,
     IN p_grado_id INT,
@@ -519,7 +519,7 @@ BEGIN
         AND estado = 'activo'
     ORDER BY fecha_subida DESC
     LIMIT p_limit OFFSET p_offset;
-END$$
+END//
 DELIMITER ;
 
 -- =====================================================
@@ -538,18 +538,18 @@ CREATE INDEX idx_reproduccion_video_fecha ON reproducciones(video_id, fecha_inic
 SET GLOBAL event_scheduler = ON;
 
 -- Evento: Limpiar tokens expirados diariamente
-DELIMITER $$
+DELIMITER //
 CREATE EVENT IF NOT EXISTS evento_limpiar_tokens
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP
 DO
 BEGIN
     CALL sp_limpiar_tokens_expirados();
-END$$
+END//
 DELIMITER ;
 
 -- Evento: Generar estadísticas diarias
-DELIMITER $$
+DELIMITER //
 CREATE EVENT IF NOT EXISTS evento_estadisticas_diarias
 ON SCHEDULE EVERY 1 DAY
 STARTS CURRENT_TIMESTAMP + INTERVAL 1 HOUR
@@ -569,5 +569,5 @@ BEGIN
     LEFT JOIN reproducciones r ON r.video_id = v.id
         AND DATE(r.fecha_inicio) = CURDATE() - INTERVAL 1 DAY
     LEFT JOIN logs_sistema l ON DATE(l.fecha) = CURDATE() - INTERVAL 1 DAY;
-END$$
+END//
 DELIMITER ;
