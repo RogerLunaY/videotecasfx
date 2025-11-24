@@ -176,79 +176,39 @@ INSERT INTO temas (nombre, materia_id, grado_id, orden) VALUES
 -- Password para todos: "Password123!" (hasheado con bcrypt costo 12)
 -- Hash generado: $2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u
 
--- Administradores del sistema
+-- DIRECTOR (Administrador del Sistema)
 INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, telefono, estado) VALUES
-('Vladimir', 'Mamani', 'Quispe', '1234567', 'vladimir.mamani@atsi.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '71234567', 'activo'),
-('Grethel', 'Alvarez', 'Mamani', '2345678', 'grethel.alvarez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '72345678', 'activo');
+('Grethel', 'Alvarez', 'Mamani', '08343081', 'grethel.alvarez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 1, '70000001', 'activo');
 
--- Docentes
-INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, grado_id, materia_id, telefono, estado) VALUES
--- Docentes de Matemática (materia_id: 4)
-('Juan', 'Pérez', 'García', '3456789', 'juan.perez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 1, 4, '73456789', 'activo'),
-('María', 'López', 'Fernández', '4567890', 'maria.lopez@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 4, 4, '74567890', 'activo'),
-
--- Docentes de Lengua Castellana (materia_id: 6)
-('Carlos', 'Mamani', 'Condori', '5678901', 'carlos.mamani@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 2, 6, '75678901', 'activo'),
-('Ana', 'Quispe', 'Flores', '6789012', 'ana.quispe@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 5, 6, '76789012', 'activo'),
-
--- Docentes de Ciencias Naturales
-('Roberto', 'Choque', 'Luna', '7890123', 'roberto.choque@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 3, 1, '77890123', 'activo'),  -- Biología-Geografía (1)
-('Patricia', 'Alanoca', 'Ticona', '8901234', 'patricia.alanoca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 3, 2, '78901234', 'activo'),  -- Física (2)
-('Jorge', 'Apaza', 'Condori', '9012345', 'jorge.apaza@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 4, 3, '79012345', 'activo'),  -- Química (3)
-
--- Docentes de otras materias
-('Luis', 'Huanca', 'Marca', '1023456', 'luis.huanca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 2, 9, '71023456', 'activo'),  -- Ciencias Sociales (9)
-('Sandra', 'Callisaya', 'Nina', '2034567', 'sandra.callisaya@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 1, 8, '72034567', 'activo'),  -- Lengua Extranjera (8)
-('Miguel', 'Ticona', 'Pari', '3045678', 'miguel.ticona@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, 5, 5, '73045678', 'activo');  -- Técnica Tecnológica (5)
+-- DOCENTES (Personal Docente de la U.E. San Francisco Xavier)
+INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, password_hash, rol_id, telefono, estado) VALUES
+('Aldo Fabio', 'Rojas', 'Tomicha', '04655786', 'aldo.rojas@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000002', 'activo'),
+('Lorenzo', 'Lobo', 'Herrera', '04572042', 'lorenzo.lobo@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000003', 'activo'),
+('Lourdes', 'Airuare', 'Vaca', '09659340', 'lourdes.airuare@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000004', 'activo'),
+('David', 'Alcantara', 'Vargas', '09004433', 'david.alcantara@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000005', 'activo'),
+('Rosa', 'Arias', 'Montero', '07755694', 'rosa.arias@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000006', 'activo'),
+('Marielice Yohanny', 'Guzman', 'Rocha', '03874090', 'marielice.guzman@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000007', 'activo'),
+('Julio Cesar', 'Limachi', 'Condori', '08382739', 'julio.limachi@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000008', 'activo'),
+('Roger Omar', 'Luna', 'Yujra', '06734278', 'roger.luna@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000009', 'activo'),
+('Marianela', 'Villca', 'Garcia', '06496697', 'marianela.villca@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000010', 'activo'),
+('Paul Andres', 'Ribera', 'Vaca', '09800027', 'paul.ribera@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000011', 'activo'),
+('Paola', 'Mamani', 'Quecano', '08184659', 'paola.mamani@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000012', 'activo'),
+('Isabel Elda', 'Herrera', 'Sandoval', '01119774', 'isabel.herrera@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000013', 'activo'),
+('Juan Jose', 'Jaimes', 'Perez', '07482320', 'juan.jaimes@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000014', 'activo'),
+('Jesus Willan', 'Cuellar', 'Jimenez', '08224561', 'jesus.cuellar@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000015', 'activo'),
+('Lizeth', 'Atoyay', 'Lastra', '12912973', 'lizeth.atoyay@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000016', 'activo'),
+('Jose Osvaldo', 'Acebo', 'Soliz', '07755700', 'jose.acebo@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000017', 'activo'),
+('Silvia', 'Estrella', 'Martinez', '03519206', 'silvia.estrella@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000018', 'activo'),
+('Tangerson', 'Espinoza', 'Dorado', '09839564', 'tangerson.espinoza@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000019', 'activo'),
+('Leiouen', 'Justiniano', 'Vaca', '07829200', 'leiouen.justiniano@sfx.edu.bo', '$2y$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYL/.HS/C6u', 2, '70000020', 'activo');
 
 -- =====================================================
 -- INSERTAR ASIGNACIONES (Docente + Materia + Grado)
 -- =====================================================
--- NOTA: La tabla asignaciones reemplaza a docente_materias y docente_grados
--- Permite asignar a un docente una combinación específica de materia-grado
--- Ejemplo: Juan Pérez enseña Matemática en 1ro y 2do de secundaria
-
-INSERT INTO asignaciones (docente_id, materia_id, grado_id, estado, usuario_asignador_id) VALUES
--- Juan Pérez (ID: 3) - Matemática
-(3, 4, 1, 'activa', 1),  -- Matemática en 1ro de Secundaria
-(3, 4, 2, 'activa', 1),  -- Matemática en 2do de Secundaria
-
--- María López (ID: 4) - Matemática
-(4, 4, 4, 'activa', 1),  -- Matemática en 4to de Secundaria
-(4, 4, 5, 'activa', 1),  -- Matemática en 5to de Secundaria
-
--- Carlos Mamani (ID: 5) - Lengua Castellana
-(5, 6, 2, 'activa', 1),  -- Lengua Castellana en 2do de Secundaria
-(5, 6, 3, 'activa', 1),  -- Lengua Castellana en 3ro de Secundaria
-
--- Ana Quispe (ID: 6) - Lengua Castellana
-(6, 6, 5, 'activa', 1),  -- Lengua Castellana en 5to de Secundaria
-(6, 6, 6, 'activa', 1),  -- Lengua Castellana en 6to de Secundaria
-
--- Roberto Choque (ID: 7) - Biología-Geografía
-(7, 1, 3, 'activa', 1),  -- Biología-Geografía en 3ro de Secundaria
-(7, 1, 4, 'activa', 1),  -- Biología-Geografía en 4to de Secundaria
-
--- Patricia Alanoca (ID: 8) - Física
-(8, 2, 3, 'activa', 1),  -- Física en 3ro de Secundaria
-(8, 2, 4, 'activa', 1),  -- Física en 4to de Secundaria
-
--- Jorge Apaza (ID: 9) - Química
-(9, 3, 4, 'activa', 1),  -- Química en 4to de Secundaria
-(9, 3, 5, 'activa', 1),  -- Química en 5to de Secundaria
-(9, 3, 6, 'activa', 1),  -- Química en 6to de Secundaria
-
--- Luis Huanca (ID: 10) - Ciencias Sociales
-(10, 9, 2, 'activa', 1),  -- Ciencias Sociales en 2do de Secundaria
-(10, 9, 3, 'activa', 1),  -- Ciencias Sociales en 3ro de Secundaria
-
--- Sandra Callisaya (ID: 11) - Lengua Extranjera
-(11, 8, 1, 'activa', 1),  -- Lengua Extranjera en 1ro de Secundaria
-(11, 8, 2, 'activa', 1),  -- Lengua Extranjera en 2do de Secundaria
-
--- Miguel Ticona (ID: 12) - Técnica Tecnológica
-(12, 5, 5, 'activa', 1),  -- Técnica Tecnológica en 5to de Secundaria
-(12, 5, 6, 'activa', 1);  -- Técnica Tecnológica en 6to de Secundaria
+-- NOTA: Las asignaciones específicas de materia-grado a cada docente
+-- deben configurarse posteriormente desde el panel de administración
+-- o mediante un script de asignación personalizado.
+-- Los IDs de docentes ahora son del 2 al 20 (ID 1 es el Director)
 
 -- =====================================================
 -- INSERTAR VIDEOS DE PRUEBA
@@ -259,46 +219,46 @@ INSERT INTO asignaciones (docente_id, materia_id, grado_id, estado, usuario_asig
 INSERT INTO videos (titulo, descripcion, archivo_path, archivo_nombre, thumbnail_path, duracion, tamanio, formato, resolucion, codec, tema_id, materia_id, grado_id, docente_id, visualizaciones, estado) VALUES
 
 -- Matemática (materia_id: 4) - Grado 1
-('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', 17, 4, 1, 3, 45, 'activo'),
-('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', 17, 4, 1, 3, 38, 'activo'),
-('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', 18, 4, 1, 3, 52, 'activo'),
+('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', 23, 4, 1, 2, 45, 'activo'),
+('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', 23, 4, 1, 2, 38, 'activo'),
+('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', 29, 4, 1, 2, 52, 'activo'),
 
 -- Matemática (materia_id: 4) - Grado 4
-('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 17, 4, 4, 4, 67, 'activo'),
-('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 19, 4, 4, 4, 71, 'activo'),
+('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 23, 4, 4, 3, 67, 'activo'),
+('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 23, 4, 4, 3, 71, 'activo'),
 
 -- Lengua Castellana (materia_id: 6) - Grado 2
-('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', 22, 6, 2, 5, 43, 'activo'),
-('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', 23, 6, 2, 5, 56, 'activo'),
+('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', 37, 6, 2, 4, 43, 'activo'),
+('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', 38, 6, 2, 4, 56, 'activo'),
 
 -- Lengua Castellana (materia_id: 6) - Grado 5
-('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', 23, 6, 5, 6, 39, 'activo'),
-('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', 24, 6, 5, 6, 47, 'activo'),
+('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', 38, 6, 5, 5, 39, 'activo'),
+('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', 38, 6, 5, 5, 47, 'activo'),
 
 -- Biología-Geografía (materia_id: 1) - Grado 3
-('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 1, 1, 3, 7, 84, 'activo'),
-('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 1, 1, 3, 7, 92, 'activo'),
-('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', 2, 1, 3, 7, 78, 'activo'),
+('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 3, 1, 3, 6, 84, 'activo'),
+('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 3, 1, 3, 6, 92, 'activo'),
+('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', 9, 1, 3, 6, 78, 'activo'),
 
 -- Física (materia_id: 2) - Grado 3
-('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 6, 2, 3, 8, 95, 'activo'),
-('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', 6, 2, 3, 8, 81, 'activo'),
+('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 11, 2, 3, 7, 95, 'activo'),
+('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', 11, 2, 3, 7, 81, 'activo'),
 
--- Química (materia_id: 3) - Grado 4
-('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/4to/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 10, 3, 4, 9, 73, 'activo'),
-('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/4to/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 11, 3, 4, 9, 68, 'activo'),
+-- Química (materia_id: 3) - Grado 3
+('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/3ro/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 20, 3, 3, 8, 73, 'activo'),
+('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/3ro/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 21, 3, 3, 8, 68, 'activo'),
 
 -- Ciencias Sociales (materia_id: 9) - Grado 2
-('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', 26, 9, 2, 10, 61, 'activo'),
-('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', 27, 9, 2, 10, 54, 'activo'),
+('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', 48, 9, 2, 9, 61, 'activo'),
+('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', 49, 9, 2, 9, 54, 'activo'),
 
 -- Lengua Extranjera (materia_id: 8) - Grado 1
-('Present Simple Tense', 'Tiempo presente simple en inglés', 'uploads/videos/ingles/1ro/present_simple.mp4', 'present_simple.mp4', 'uploads/thumbnails/present_simple.jpg', 960, 41943040, 'mp4', '720p', 'h264', NULL, 8, 1, 11, 49, 'activo'),
-('Basic Vocabulary', 'Vocabulario básico en inglés', 'uploads/videos/ingles/1ro/vocabulary.mp4', 'vocabulary.mp4', 'uploads/thumbnails/vocabulary.jpg', 840, 37748736, 'mp4', '720p', 'h264', NULL, 8, 1, 11, 42, 'activo'),
+('Present Simple Tense', 'Tiempo presente simple en inglés', 'uploads/videos/ingles/1ro/present_simple.mp4', 'present_simple.mp4', 'uploads/thumbnails/present_simple.jpg', 960, 41943040, 'mp4', '720p', 'h264', 45, 8, 1, 10, 49, 'activo'),
+('Basic Vocabulary', 'Vocabulario básico en inglés', 'uploads/videos/ingles/1ro/vocabulary.mp4', 'vocabulary.mp4', 'uploads/thumbnails/vocabulary.jpg', 840, 37748736, 'mp4', '720p', 'h264', 45, 8, 1, 10, 42, 'activo'),
 
 -- Técnica Tecnológica (materia_id: 5) - Grado 5
-('Introducción a la Programación', 'Conceptos básicos de programación', 'uploads/videos/tecnologia/5to/intro_programacion.mp4', 'intro_programacion.mp4', 'uploads/thumbnails/intro_programacion.jpg', 1680, 71303168, 'mp4', '1080p', 'h264', NULL, 5, 5, 12, 88, 'activo'),
-('Algoritmos y Diagramas de Flujo', 'Lógica algorítmica básica', 'uploads/videos/tecnologia/5to/algoritmos.mp4', 'algoritmos.mp4', 'uploads/thumbnails/algoritmos.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', NULL, 5, 5, 12, 76, 'activo');
+('Introducción a la Programación', 'Conceptos básicos de programación', 'uploads/videos/tecnologia/5to/intro_programacion.mp4', 'intro_programacion.mp4', 'uploads/thumbnails/intro_programacion.jpg', 1680, 71303168, 'mp4', '1080p', 'h264', 32, 5, 5, 11, 88, 'activo'),
+('Algoritmos y Diagramas de Flujo', 'Lógica algorítmica básica', 'uploads/videos/tecnologia/5to/algoritmos.mp4', 'algoritmos.mp4', 'uploads/thumbnails/algoritmos.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 32, 5, 5, 11, 76, 'activo');
 
 -- =====================================================
 -- INSERTAR REPRODUCCIONES DE PRUEBA
@@ -335,7 +295,7 @@ INSERT INTO reproducciones (video_id, usuario_id, ip_address, tiempo_reproducido
 INSERT INTO estadisticas (tipo, categoria, datos_json, fecha_referencia) VALUES
 ('general', 'resumen', JSON_OBJECT(
     'total_videos', 20,
-    'total_docentes', 10,
+    'total_docentes', 19,
     'total_reproducciones', 15,
     'materia_mas_popular', 'Biología',
     'grado_mas_activo', '3ro'
@@ -347,26 +307,38 @@ INSERT INTO estadisticas (tipo, categoria, datos_json, fecha_referencia) VALUES
 
 -- CREDENCIALES DE ACCESO (para desarrollo/testing):
 --
--- ADMINISTRADORES:
--- Email: vladimir.mamani@atsi.edu.bo | Password: Password123!
--- Email: grethel.alvarez@sfx.edu.bo  | Password: Password123!
+-- DIRECTOR (Administrador del Sistema):
+-- Email: grethel.alvarez@sfx.edu.bo | Password: Password123! | CI: 08343081
 --
 -- DOCENTES (todos con password: Password123!):
--- juan.perez@sfx.edu.bo (Matemática - 1ro)
--- maria.lopez@sfx.edu.bo (Matemática - 4to)
--- carlos.mamani@sfx.edu.bo (Comunicación y Lenguajes: Lengua Castellana - 2do)
--- ana.quispe@sfx.edu.bo (Comunicación y Lenguajes: Lengua Castellana - 5to)
--- roberto.choque@sfx.edu.bo (Biología - Geografía - 3ro)
--- patricia.alanoca@sfx.edu.bo (Ciencias Naturales: Física - 3ro)
--- jorge.apaza@sfx.edu.bo (Ciencias Naturales: Química - 4to)
--- luis.huanca@sfx.edu.bo (Ciencias Sociales - 2do)
--- sandra.callisaya@sfx.edu.bo (Lengua Extranjera - 1ro)
--- miguel.ticona@sfx.edu.bo (Técnica Tecnológica General - 5to)
+-- 1.  aldo.rojas@sfx.edu.bo        - CI: 04655786 - Aldo Fabio Rojas Tomicha
+-- 2.  lorenzo.lobo@sfx.edu.bo      - CI: 04572042 - Lorenzo Lobo Herrera
+-- 3.  lourdes.airuare@sfx.edu.bo   - CI: 09659340 - Lourdes Airuare Vaca
+-- 4.  david.alcantara@sfx.edu.bo   - CI: 09004433 - David Alcantara Vargas
+-- 5.  rosa.arias@sfx.edu.bo        - CI: 07755694 - Rosa Arias Montero
+-- 6.  marielice.guzman@sfx.edu.bo  - CI: 03874090 - Marielice Yohanny Guzman Rocha
+-- 7.  julio.limachi@sfx.edu.bo     - CI: 08382739 - Julio Cesar Limachi Condori
+-- 8.  roger.luna@sfx.edu.bo        - CI: 06734278 - Roger Omar Luna Yujra
+-- 9.  marianela.villca@sfx.edu.bo  - CI: 06496697 - Marianela Villca Garcia
+-- 10. paul.ribera@sfx.edu.bo       - CI: 09800027 - Paul Andres Ribera Vaca
+-- 11. paola.mamani@sfx.edu.bo      - CI: 08184659 - Paola Mamani Quecano
+-- 12. isabel.herrera@sfx.edu.bo    - CI: 01119774 - Isabel Elda Herrera Sandoval
+-- 13. juan.jaimes@sfx.edu.bo       - CI: 07482320 - Juan Jose Jaimes Perez
+-- 14. jesus.cuellar@sfx.edu.bo     - CI: 08224561 - Jesus Willan Cuellar Jimenez
+-- 15. lizeth.atoyay@sfx.edu.bo     - CI: 12912973 - Lizeth Atoyay Lastra
+-- 16. jose.acebo@sfx.edu.bo        - CI: 07755700 - Jose Osvaldo Acebo Soliz
+-- 17. silvia.estrella@sfx.edu.bo   - CI: 03519206 - Silvia Estrella Martinez
+-- 18. tangerson.espinoza@sfx.edu.bo - CI: 09839564 - Tangerson Espinoza Dorado
+-- 19. leiouen.justiniano@sfx.edu.bo - CI: 07829200 - Leiouen Justiniano Vaca
+--
+-- NOTA: Las asignaciones de materia-grado para cada docente deben configurarse
+--       desde el panel de administración del sistema.
 
 SELECT '=============================================' AS '';
 SELECT 'Base de datos inicializada correctamente' AS 'ESTADO';
 SELECT '=============================================' AS '';
-SELECT 'Usuarios creados: 12 (2 administradores, 10 docentes)' AS 'INFO';
+SELECT 'DIRECTOR: 1 (Administrador)' AS 'INFO';
+SELECT 'DOCENTES: 19 (Rol Docente)' AS 'INFO';
 SELECT 'Videos de prueba: 20' AS 'INFO';
 SELECT 'Password por defecto: Password123!' AS 'INFO';
 SELECT '=============================================' AS '';
