@@ -205,10 +205,141 @@ INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, pas
 -- =====================================================
 -- INSERTAR ASIGNACIONES (Docente + Materia + Grado)
 -- =====================================================
--- NOTA: Las asignaciones específicas de materia-grado a cada docente
--- deben configurarse posteriormente desde el panel de administración
--- o mediante un script de asignación personalizado.
--- Los IDs de docentes ahora son del 2 al 20 (ID 1 es el Director)
+-- Asignaciones reales de la U.E. San Francisco Xavier
+-- Relación: Docente + Materia + Grado
+-- Todas las asignaciones son realizadas por el Director (usuario_asignador_id: 1)
+
+INSERT INTO asignaciones (docente_id, materia_id, grado_id, estado, usuario_asignador_id) VALUES
+
+-- BIOLOGÍA-GEOGRAFÍA (materia_id: 1)
+-- Isabel Herrera (ID: 13) - Grados 1, 2, 3
+(13, 1, 1, 'activa', 1),
+(13, 1, 2, 'activa', 1),
+(13, 1, 3, 'activa', 1),
+-- Juan Jaimes (ID: 14) - Grados 4, 5, 6
+(14, 1, 4, 'activa', 1),
+(14, 1, 5, 'activa', 1),
+(14, 1, 6, 'activa', 1),
+
+-- FÍSICA (materia_id: 2)
+-- Paul Ribera (ID: 11) - Grados 3, 4, 5, 6
+(11, 2, 3, 'activa', 1),
+(11, 2, 4, 'activa', 1),
+(11, 2, 5, 'activa', 1),
+(11, 2, 6, 'activa', 1),
+
+-- QUÍMICA (materia_id: 3)
+-- Paul Ribera (ID: 11) - Grados 3, 4, 5, 6
+(11, 3, 3, 'activa', 1),
+(11, 3, 4, 'activa', 1),
+(11, 3, 5, 'activa', 1),
+(11, 3, 6, 'activa', 1),
+
+-- MATEMÁTICA (materia_id: 4)
+-- Rosa Arias (ID: 6) - Grados 1, 2, 3
+(6, 4, 1, 'activa', 1),
+(6, 4, 2, 'activa', 1),
+(6, 4, 3, 'activa', 1),
+-- Roger Luna (ID: 9) - Grados 4, 5, 6
+(9, 4, 4, 'activa', 1),
+(9, 4, 5, 'activa', 1),
+(9, 4, 6, 'activa', 1),
+
+-- TÉCNICA TECNOLÓGICA GENERAL (materia_id: 5)
+-- Paola Mamani (ID: 12) - Grados 1, 2
+(12, 5, 1, 'activa', 1),
+(12, 5, 2, 'activa', 1),
+-- Jesus Cuellar (ID: 15) - Grados 3, 4
+(15, 5, 3, 'activa', 1),
+(15, 5, 4, 'activa', 1),
+-- Leiouen Justiniano (ID: 20) - Grado 5
+(20, 5, 5, 'activa', 1),
+-- Aldo Rojas (ID: 2) - Grado 6
+(2, 5, 6, 'activa', 1),
+
+-- LENGUA CASTELLANA (materia_id: 6)
+-- Lorenzo Lobo (ID: 3) - Grados 1, 2, 3
+(3, 6, 1, 'activa', 1),
+(3, 6, 2, 'activa', 1),
+(3, 6, 3, 'activa', 1),
+-- Silvia Estrella (ID: 18) - Grados 4, 5, 6
+(18, 6, 4, 'activa', 1),
+(18, 6, 5, 'activa', 1),
+(18, 6, 6, 'activa', 1),
+
+-- LENGUA ORIGINARIA (materia_id: 7)
+-- Lorenzo Lobo (ID: 3) - Grados 1, 2, 3
+(3, 7, 1, 'activa', 1),
+(3, 7, 2, 'activa', 1),
+(3, 7, 3, 'activa', 1),
+-- Silvia Estrella (ID: 18) - Grados 4, 5, 6
+(18, 7, 4, 'activa', 1),
+(18, 7, 5, 'activa', 1),
+(18, 7, 6, 'activa', 1),
+
+-- LENGUA EXTRANJERA (materia_id: 8)
+-- Julio Limachi (ID: 8) - Todos los grados
+(8, 8, 1, 'activa', 1),
+(8, 8, 2, 'activa', 1),
+(8, 8, 3, 'activa', 1),
+(8, 8, 4, 'activa', 1),
+(8, 8, 5, 'activa', 1),
+(8, 8, 6, 'activa', 1),
+
+-- CIENCIAS SOCIALES (materia_id: 9)
+-- Marianela Villca (ID: 10) - Grados 1, 2, 3, 4
+(10, 9, 1, 'activa', 1),
+(10, 9, 2, 'activa', 1),
+(10, 9, 3, 'activa', 1),
+(10, 9, 4, 'activa', 1),
+-- Lourdes Airuare (ID: 4) - Grados 5, 6
+(4, 9, 5, 'activa', 1),
+(4, 9, 6, 'activa', 1),
+
+-- ARTES PLÁSTICAS Y VISUALES (materia_id: 10)
+-- Jose Acebo (ID: 17) - Todos los grados
+(17, 10, 1, 'activa', 1),
+(17, 10, 2, 'activa', 1),
+(17, 10, 3, 'activa', 1),
+(17, 10, 4, 'activa', 1),
+(17, 10, 5, 'activa', 1),
+(17, 10, 6, 'activa', 1),
+
+-- EDUCACIÓN MUSICAL (materia_id: 11)
+-- Tangerson Espinoza (ID: 19) - Todos los grados
+(19, 11, 1, 'activa', 1),
+(19, 11, 2, 'activa', 1),
+(19, 11, 3, 'activa', 1),
+(19, 11, 4, 'activa', 1),
+(19, 11, 5, 'activa', 1),
+(19, 11, 6, 'activa', 1),
+
+-- EDUCACIÓN FÍSICA Y DEPORTES (materia_id: 12)
+-- David Alcantara (ID: 5) - Todos los grados
+(5, 12, 1, 'activa', 1),
+(5, 12, 2, 'activa', 1),
+(5, 12, 3, 'activa', 1),
+(5, 12, 4, 'activa', 1),
+(5, 12, 5, 'activa', 1),
+(5, 12, 6, 'activa', 1),
+
+-- COSMOVISIONES FILOSOFÍA Y SICOLOGÍA (materia_id: 13)
+-- Lizeth Atoyay (ID: 16) - Todos los grados
+(16, 13, 1, 'activa', 1),
+(16, 13, 2, 'activa', 1),
+(16, 13, 3, 'activa', 1),
+(16, 13, 4, 'activa', 1),
+(16, 13, 5, 'activa', 1),
+(16, 13, 6, 'activa', 1),
+
+-- VALORES ESPIRITUALIDAD Y RELIGIONES (materia_id: 14)
+-- Marielice Guzman (ID: 7) - Todos los grados
+(7, 14, 1, 'activa', 1),
+(7, 14, 2, 'activa', 1),
+(7, 14, 3, 'activa', 1),
+(7, 14, 4, 'activa', 1),
+(7, 14, 5, 'activa', 1),
+(7, 14, 6, 'activa', 1);
 
 -- =====================================================
 -- INSERTAR VIDEOS DE PRUEBA
@@ -218,47 +349,47 @@ INSERT INTO usuarios (nombre, apellido_paterno, apellido_materno, ci, email, pas
 
 INSERT INTO videos (titulo, descripcion, archivo_path, archivo_nombre, thumbnail_path, duracion, tamanio, formato, resolucion, codec, tema_id, materia_id, grado_id, docente_id, visualizaciones, estado) VALUES
 
--- Matemática (materia_id: 4) - Grado 1
-('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', 23, 4, 1, 2, 45, 'activo'),
-('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', 23, 4, 1, 2, 38, 'activo'),
-('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', 29, 4, 1, 2, 52, 'activo'),
+-- Matemática (materia_id: 4) - Grado 1 - Rosa Arias
+('Introducción al Álgebra', 'Conceptos básicos de álgebra para primer año de secundaria', 'uploads/videos/matematica/1ro/intro_algebra.mp4', 'intro_algebra.mp4', 'uploads/thumbnails/intro_algebra.jpg', 1200, 52428800, 'mp4', '720p', 'h264', 23, 4, 1, 6, 45, 'activo'),
+('Suma y Resta de Polinomios', 'Operaciones básicas con expresiones algebraicas', 'uploads/videos/matematica/1ro/suma_polinomios.mp4', 'suma_polinomios.mp4', 'uploads/thumbnails/suma_polinomios.jpg', 900, 41943040, 'mp4', '720p', 'h264', 23, 4, 1, 6, 38, 'activo'),
+('Geometría: Ángulos', 'Clasificación y medición de ángulos', 'uploads/videos/matematica/1ro/angulos.mp4', 'angulos.mp4', 'uploads/thumbnails/angulos.jpg', 1080, 48234496, 'mp4', '720p', 'h264', 29, 4, 1, 6, 52, 'activo'),
 
--- Matemática (materia_id: 4) - Grado 4
-('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 23, 4, 4, 3, 67, 'activo'),
-('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 23, 4, 4, 3, 71, 'activo'),
+-- Matemática (materia_id: 4) - Grado 4 - Roger Luna
+('Ecuaciones Cuadráticas', 'Resolución de ecuaciones de segundo grado', 'uploads/videos/matematica/4to/ecuaciones_cuadraticas.mp4', 'ecuaciones_cuadraticas.mp4', 'uploads/thumbnails/ecuaciones_cuadraticas.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 23, 4, 4, 9, 67, 'activo'),
+('Funciones Trigonométricas', 'Introducción a seno, coseno y tangente', 'uploads/videos/matematica/4to/funciones_trig.mp4', 'funciones_trig.mp4', 'uploads/thumbnails/funciones_trig.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 23, 4, 4, 9, 71, 'activo'),
 
--- Lengua Castellana (materia_id: 6) - Grado 2
-('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', 37, 6, 2, 4, 43, 'activo'),
-('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', 38, 6, 2, 4, 56, 'activo'),
+-- Lengua Castellana (materia_id: 6) - Grado 2 - Lorenzo Lobo
+('El Verbo y sus Tiempos', 'Conjugación verbal en español', 'uploads/videos/lenguaje/2do/verbos.mp4', 'verbos.mp4', 'uploads/thumbnails/verbos.jpg', 1020, 45088768, 'mp4', '720p', 'h264', 37, 6, 2, 3, 43, 'activo'),
+('Literatura: El Cuento', 'Estructura y elementos del cuento literario', 'uploads/videos/lenguaje/2do/el_cuento.mp4', 'el_cuento.mp4', 'uploads/thumbnails/el_cuento.jpg', 1140, 49283072, 'mp4', '720p', 'h264', 38, 6, 2, 3, 56, 'activo'),
 
--- Lengua Castellana (materia_id: 6) - Grado 5
-('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', 38, 6, 5, 5, 39, 'activo'),
-('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', 38, 6, 5, 5, 47, 'activo'),
+-- Lengua Castellana (materia_id: 6) - Grado 5 - Silvia Estrella
+('Análisis Literario', 'Técnicas de análisis de textos literarios', 'uploads/videos/lenguaje/5to/analisis_literario.mp4', 'analisis_literario.mp4', 'uploads/thumbnails/analisis_literario.jpg', 1320, 57671680, 'mp4', '720p', 'h264', 38, 6, 5, 18, 39, 'activo'),
+('Redacción de Ensayos', 'Estructura y técnicas para escribir ensayos', 'uploads/videos/lenguaje/5to/ensayos.mp4', 'ensayos.mp4', 'uploads/thumbnails/ensayos.jpg', 1260, 54525952, 'mp4', '720p', 'h264', 38, 6, 5, 18, 47, 'activo'),
 
--- Biología-Geografía (materia_id: 1) - Grado 3
-('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 3, 1, 3, 6, 84, 'activo'),
-('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 3, 1, 3, 6, 92, 'activo'),
-('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', 9, 1, 3, 6, 78, 'activo'),
+-- Biología-Geografía (materia_id: 1) - Grado 3 - Isabel Herrera
+('La Célula Eucariota', 'Estructura y función de las células eucariotas', 'uploads/videos/biologia/3ro/celula_eucariota.mp4', 'celula_eucariota.mp4', 'uploads/thumbnails/celula_eucariota.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 3, 1, 3, 13, 84, 'activo'),
+('Mitosis y Meiosis', 'Procesos de división celular', 'uploads/videos/biologia/3ro/mitosis_meiosis.mp4', 'mitosis_meiosis.mp4', 'uploads/thumbnails/mitosis_meiosis.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 3, 1, 3, 13, 92, 'activo'),
+('Leyes de Mendel', 'Genética básica y herencia', 'uploads/videos/biologia/3ro/mendel.mp4', 'mendel.mp4', 'uploads/thumbnails/mendel.jpg', 1380, 59768832, 'mp4', '1080p', 'h264', 9, 1, 3, 13, 78, 'activo'),
 
--- Física (materia_id: 2) - Grado 3
-('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 11, 2, 3, 7, 95, 'activo'),
-('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', 11, 2, 3, 7, 81, 'activo'),
+-- Física (materia_id: 2) - Grado 3 - Paul Ribera
+('Leyes de Newton', 'Las tres leyes fundamentales de la mecánica', 'uploads/videos/fisica/3ro/newton.mp4', 'newton.mp4', 'uploads/thumbnails/newton.jpg', 1500, 62914560, 'mp4', '1080p', 'h264', 11, 2, 3, 11, 95, 'activo'),
+('Movimiento Rectilíneo Uniforme', 'Cinemática del movimiento en línea recta', 'uploads/videos/fisica/3ro/mru.mp4', 'mru.mp4', 'uploads/thumbnails/mru.jpg', 1200, 52428800, 'mp4', '1080p', 'h264', 11, 2, 3, 11, 81, 'activo'),
 
--- Química (materia_id: 3) - Grado 3
-('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/3ro/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 20, 3, 3, 8, 73, 'activo'),
-('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/3ro/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 21, 3, 3, 8, 68, 'activo'),
+-- Química (materia_id: 3) - Grado 3 - Paul Ribera
+('La Tabla Periódica', 'Organización de los elementos químicos', 'uploads/videos/quimica/3ro/tabla_periodica.mp4', 'tabla_periodica.mp4', 'uploads/thumbnails/tabla_periodica.jpg', 1350, 58720256, 'mp4', '1080p', 'h264', 20, 3, 3, 11, 73, 'activo'),
+('Enlaces Iónicos y Covalentes', 'Tipos de enlaces químicos', 'uploads/videos/quimica/3ro/enlaces.mp4', 'enlaces.mp4', 'uploads/thumbnails/enlaces.jpg', 1440, 62914560, 'mp4', '1080p', 'h264', 21, 3, 3, 11, 68, 'activo'),
 
--- Ciencias Sociales (materia_id: 9) - Grado 2
-('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', 48, 9, 2, 9, 61, 'activo'),
-('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', 49, 9, 2, 9, 54, 'activo'),
+-- Ciencias Sociales (materia_id: 9) - Grado 2 - Marianela Villca
+('Independencia de Bolivia', 'Historia de la independencia boliviana', 'uploads/videos/sociales/2do/independencia.mp4', 'independencia.mp4', 'uploads/thumbnails/independencia.jpg', 1620, 69206016, 'mp4', '720p', 'h264', 48, 9, 2, 10, 61, 'activo'),
+('Geografía de Bolivia', 'Regiones geográficas de Bolivia', 'uploads/videos/sociales/2do/geografia_bolivia.mp4', 'geografia_bolivia.mp4', 'uploads/thumbnails/geografia_bolivia.jpg', 1380, 59768832, 'mp4', '720p', 'h264', 49, 9, 2, 10, 54, 'activo'),
 
--- Lengua Extranjera (materia_id: 8) - Grado 1
-('Present Simple Tense', 'Tiempo presente simple en inglés', 'uploads/videos/ingles/1ro/present_simple.mp4', 'present_simple.mp4', 'uploads/thumbnails/present_simple.jpg', 960, 41943040, 'mp4', '720p', 'h264', 45, 8, 1, 10, 49, 'activo'),
-('Basic Vocabulary', 'Vocabulario básico en inglés', 'uploads/videos/ingles/1ro/vocabulary.mp4', 'vocabulary.mp4', 'uploads/thumbnails/vocabulary.jpg', 840, 37748736, 'mp4', '720p', 'h264', 45, 8, 1, 10, 42, 'activo'),
+-- Lengua Extranjera (materia_id: 8) - Grado 1 - Julio Limachi
+('Present Simple Tense', 'Tiempo presente simple en inglés', 'uploads/videos/ingles/1ro/present_simple.mp4', 'present_simple.mp4', 'uploads/thumbnails/present_simple.jpg', 960, 41943040, 'mp4', '720p', 'h264', 45, 8, 1, 8, 49, 'activo'),
+('Basic Vocabulary', 'Vocabulario básico en inglés', 'uploads/videos/ingles/1ro/vocabulary.mp4', 'vocabulary.mp4', 'uploads/thumbnails/vocabulary.jpg', 840, 37748736, 'mp4', '720p', 'h264', 45, 8, 1, 8, 42, 'activo'),
 
--- Técnica Tecnológica (materia_id: 5) - Grado 5
-('Introducción a la Programación', 'Conceptos básicos de programación', 'uploads/videos/tecnologia/5to/intro_programacion.mp4', 'intro_programacion.mp4', 'uploads/thumbnails/intro_programacion.jpg', 1680, 71303168, 'mp4', '1080p', 'h264', 32, 5, 5, 11, 88, 'activo'),
-('Algoritmos y Diagramas de Flujo', 'Lógica algorítmica básica', 'uploads/videos/tecnologia/5to/algoritmos.mp4', 'algoritmos.mp4', 'uploads/thumbnails/algoritmos.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 32, 5, 5, 11, 76, 'activo');
+-- Técnica Tecnológica (materia_id: 5) - Grado 5 - Leiouen Justiniano
+('Introducción a la Programación', 'Conceptos básicos de programación', 'uploads/videos/tecnologia/5to/intro_programacion.mp4', 'intro_programacion.mp4', 'uploads/thumbnails/intro_programacion.jpg', 1680, 71303168, 'mp4', '1080p', 'h264', 32, 5, 5, 20, 88, 'activo'),
+('Algoritmos y Diagramas de Flujo', 'Lógica algorítmica básica', 'uploads/videos/tecnologia/5to/algoritmos.mp4', 'algoritmos.mp4', 'uploads/thumbnails/algoritmos.jpg', 1560, 67108864, 'mp4', '1080p', 'h264', 32, 5, 5, 20, 76, 'activo');
 
 -- =====================================================
 -- INSERTAR REPRODUCCIONES DE PRUEBA
@@ -306,39 +437,95 @@ INSERT INTO estadisticas (tipo, categoria, datos_json, fecha_referencia) VALUES
 -- =====================================================
 
 -- CREDENCIALES DE ACCESO (para desarrollo/testing):
+-- Password para todos: Password123!
 --
--- DIRECTOR (Administrador del Sistema):
--- Email: grethel.alvarez@sfx.edu.bo | Password: Password123! | CI: 08343081
+-- ===== DIRECTOR (Administrador del Sistema) =====
+-- Email: grethel.alvarez@sfx.edu.bo | CI: 08343081
 --
--- DOCENTES (todos con password: Password123!):
--- 1.  aldo.rojas@sfx.edu.bo        - CI: 04655786 - Aldo Fabio Rojas Tomicha
--- 2.  lorenzo.lobo@sfx.edu.bo      - CI: 04572042 - Lorenzo Lobo Herrera
--- 3.  lourdes.airuare@sfx.edu.bo   - CI: 09659340 - Lourdes Airuare Vaca
--- 4.  david.alcantara@sfx.edu.bo   - CI: 09004433 - David Alcantara Vargas
--- 5.  rosa.arias@sfx.edu.bo        - CI: 07755694 - Rosa Arias Montero
--- 6.  marielice.guzman@sfx.edu.bo  - CI: 03874090 - Marielice Yohanny Guzman Rocha
--- 7.  julio.limachi@sfx.edu.bo     - CI: 08382739 - Julio Cesar Limachi Condori
--- 8.  roger.luna@sfx.edu.bo        - CI: 06734278 - Roger Omar Luna Yujra
--- 9.  marianela.villca@sfx.edu.bo  - CI: 06496697 - Marianela Villca Garcia
--- 10. paul.ribera@sfx.edu.bo       - CI: 09800027 - Paul Andres Ribera Vaca
--- 11. paola.mamani@sfx.edu.bo      - CI: 08184659 - Paola Mamani Quecano
--- 12. isabel.herrera@sfx.edu.bo    - CI: 01119774 - Isabel Elda Herrera Sandoval
--- 13. juan.jaimes@sfx.edu.bo       - CI: 07482320 - Juan Jose Jaimes Perez
--- 14. jesus.cuellar@sfx.edu.bo     - CI: 08224561 - Jesus Willan Cuellar Jimenez
--- 15. lizeth.atoyay@sfx.edu.bo     - CI: 12912973 - Lizeth Atoyay Lastra
--- 16. jose.acebo@sfx.edu.bo        - CI: 07755700 - Jose Osvaldo Acebo Soliz
--- 17. silvia.estrella@sfx.edu.bo   - CI: 03519206 - Silvia Estrella Martinez
--- 18. tangerson.espinoza@sfx.edu.bo - CI: 09839564 - Tangerson Espinoza Dorado
--- 19. leiouen.justiniano@sfx.edu.bo - CI: 07829200 - Leiouen Justiniano Vaca
+-- ===== DOCENTES CON SUS ASIGNACIONES =====
 --
--- NOTA: Las asignaciones de materia-grado para cada docente deben configurarse
---       desde el panel de administración del sistema.
+-- 1. Aldo Fabio Rojas Tomicha
+--    Email: aldo.rojas@sfx.edu.bo | CI: 04655786
+--    Materias: Técnica Tecnológica (6to)
+--
+-- 2. Lorenzo Lobo Herrera
+--    Email: lorenzo.lobo@sfx.edu.bo | CI: 04572042
+--    Materias: Lengua Castellana + Lengua Originaria (1ro, 2do, 3ro)
+--
+-- 3. Lourdes Airuare Vaca
+--    Email: lourdes.airuare@sfx.edu.bo | CI: 09659340
+--    Materias: Ciencias Sociales (5to, 6to)
+--
+-- 4. David Alcantara Vargas
+--    Email: david.alcantara@sfx.edu.bo | CI: 09004433
+--    Materias: Educación Física y Deportes (TODOS los grados)
+--
+-- 5. Rosa Arias Montero
+--    Email: rosa.arias@sfx.edu.bo | CI: 07755694
+--    Materias: Matemática (1ro, 2do, 3ro)
+--
+-- 6. Marielice Yohanny Guzman Rocha
+--    Email: marielice.guzman@sfx.edu.bo | CI: 03874090
+--    Materias: Valores Espiritualidad y Religiones (TODOS los grados)
+--
+-- 7. Julio Cesar Limachi Condori
+--    Email: julio.limachi@sfx.edu.bo | CI: 08382739
+--    Materias: Lengua Extranjera (TODOS los grados)
+--
+-- 8. Roger Omar Luna Yujra
+--    Email: roger.luna@sfx.edu.bo | CI: 06734278
+--    Materias: Matemática (4to, 5to, 6to)
+--
+-- 9. Marianela Villca Garcia
+--    Email: marianela.villca@sfx.edu.bo | CI: 06496697
+--    Materias: Ciencias Sociales (1ro, 2do, 3ro, 4to)
+--
+-- 10. Paul Andres Ribera Vaca
+--     Email: paul.ribera@sfx.edu.bo | CI: 09800027
+--     Materias: Física + Química (3ro, 4to, 5to, 6to)
+--
+-- 11. Paola Mamani Quecano
+--     Email: paola.mamani@sfx.edu.bo | CI: 08184659
+--     Materias: Técnica Tecnológica (1ro, 2do)
+--
+-- 12. Isabel Elda Herrera Sandoval
+--     Email: isabel.herrera@sfx.edu.bo | CI: 01119774
+--     Materias: Biología-Geografía (1ro, 2do, 3ro)
+--
+-- 13. Juan Jose Jaimes Perez
+--     Email: juan.jaimes@sfx.edu.bo | CI: 07482320
+--     Materias: Biología-Geografía (4to, 5to, 6to)
+--
+-- 14. Jesus Willan Cuellar Jimenez
+--     Email: jesus.cuellar@sfx.edu.bo | CI: 08224561
+--     Materias: Técnica Tecnológica (3ro, 4to)
+--
+-- 15. Lizeth Atoyay Lastra
+--     Email: lizeth.atoyay@sfx.edu.bo | CI: 12912973
+--     Materias: Cosmovisiones Filosofía y Sicología (TODOS los grados)
+--
+-- 16. Jose Osvaldo Acebo Soliz
+--     Email: jose.acebo@sfx.edu.bo | CI: 07755700
+--     Materias: Artes Plásticas y Visuales (TODOS los grados)
+--
+-- 17. Silvia Estrella Martinez
+--     Email: silvia.estrella@sfx.edu.bo | CI: 03519206
+--     Materias: Lengua Castellana + Lengua Originaria (4to, 5to, 6to)
+--
+-- 18. Tangerson Espinoza Dorado
+--     Email: tangerson.espinoza@sfx.edu.bo | CI: 09839564
+--     Materias: Educación Musical (TODOS los grados)
+--
+-- 19. Leiouen Justiniano Vaca
+--     Email: leiouen.justiniano@sfx.edu.bo | CI: 07829200
+--     Materias: Técnica Tecnológica (5to)
 
 SELECT '=============================================' AS '';
 SELECT 'Base de datos inicializada correctamente' AS 'ESTADO';
 SELECT '=============================================' AS '';
 SELECT 'DIRECTOR: 1 (Administrador)' AS 'INFO';
 SELECT 'DOCENTES: 19 (Rol Docente)' AS 'INFO';
+SELECT 'ASIGNACIONES: 78 (Docente-Materia-Grado)' AS 'INFO';
 SELECT 'Videos de prueba: 20' AS 'INFO';
 SELECT 'Password por defecto: Password123!' AS 'INFO';
 SELECT '=============================================' AS '';
