@@ -34,10 +34,21 @@ const VideoUploadForm = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+
+    // Si cambia materia o grado, resetear tema
+    if (name === 'materia_id' || name === 'grado_id') {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value,
+        tema_id: '' // Resetear tema cuando cambia materia o grado
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+
     // Limpiar error del campo
     if (errors[name]) {
       setErrors(prev => ({
@@ -170,7 +181,11 @@ const VideoUploadForm = () => {
     }
   };
 
-  const filteredTemas = temas.filter(tema => tema.materia_id == formData.materia_id);
+  // Filtrar temas por materia Y grado (ambos son requeridos)
+  const filteredTemas = temas.filter(tema =>
+    tema.materia_id == formData.materia_id &&
+    tema.grado_id == formData.grado_id
+  );
 
   if (resourcesLoading) {
     return <LoadingSpinner />;
@@ -273,14 +288,25 @@ const VideoUploadForm = () => {
               value={formData.tema_id}
               onChange={handleChange}
               className={`input-field ${errors.tema_id ? 'border-red-500' : ''}`}
-              disabled={!formData.materia_id}
+              disabled={!formData.materia_id || !formData.grado_id}
             >
-              <option value="">Seleccionar tema</option>
+              <option value="">
+                {!formData.materia_id || !formData.grado_id
+                  ? 'Primero selecciona materia y grado'
+                  : filteredTemas.length === 0
+                  ? 'No hay temas para esta materia y grado'
+                  : 'Seleccionar tema'}
+              </option>
               {filteredTemas.map(tema => (
                 <option key={tema.id} value={tema.id}>{tema.nombre}</option>
               ))}
             </select>
             {errors.tema_id && <p className="mt-1 text-sm text-red-600">{errors.tema_id}</p>}
+            {formData.materia_id && formData.grado_id && filteredTemas.length === 0 && (
+              <p className="mt-1 text-sm text-amber-600">
+                No hay temas disponibles para esta combinación de materia y grado
+              </p>
+            )}
           </div>
         </div>
       </div>
