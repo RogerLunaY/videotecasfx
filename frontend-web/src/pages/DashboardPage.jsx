@@ -13,6 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { getDashboard } from '../services/statsService';
 import { getVideos } from '../services/videoService';
 import { getGrados } from '../services/gradoService';
+import { getDocenteAsignaciones } from '../services/docenteAsignacionService';
 import { formatFileSize } from '../utils/helpers';
 
 const DashboardPage = () => {
@@ -63,8 +64,34 @@ const DashboardPage = () => {
 
   const loadGrados = async () => {
     try {
+      // Cargar todos los grados
       const data = await getGrados();
-      setGrados(data || []);
+      const todosGrados = data || [];
+
+      // Si es docente (no admin), filtrar solo grados asignados
+      if (!isAdmin() && user?.id) {
+        try {
+          const asignacionesData = await getDocenteAsignaciones(user.id);
+          const asignaciones = asignacionesData.asignaciones || [];
+
+          // Obtener IDs únicos de grados asignados
+          const gradosAsignadosIds = [...new Set(asignaciones.map(asig => asig.grado_id))];
+
+          // Filtrar grados
+          const gradosFiltrados = todosGrados.filter(grado =>
+            gradosAsignadosIds.includes(grado.id)
+          );
+
+          setGrados(gradosFiltrados);
+        } catch (error) {
+          console.error('Error loading asignaciones:', error);
+          // Si falla, mostrar todos los grados para no bloquear
+          setGrados(todosGrados);
+        }
+      } else {
+        // Admin ve todos los grados
+        setGrados(todosGrados);
+      }
     } catch (error) {
       console.error('Error loading grados:', error);
     }
