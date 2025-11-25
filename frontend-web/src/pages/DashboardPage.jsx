@@ -41,6 +41,8 @@ const DashboardPage = () => {
     }
   }, []);
 
+  // Cargar videos cuando cambian filtros u ordenamiento (con la página reseteada)
+  // O cuando cambia solo la página (sin resetear)
   useEffect(() => {
     if (isDocente() && !isAdmin()) {
       loadMisVideos();
@@ -112,13 +114,19 @@ const DashboardPage = () => {
   };
 
   const handleFiltroChange = (nuevoFiltro) => {
+    // Batch update: cambiar filtro y página en un solo render
     setFiltroGrado(nuevoFiltro);
-    setPagination(prev => ({ ...prev, page: 1 })); // Resetear a página 1
+    if (pagination.page !== 1) {
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
   };
 
   const handleOrdenamientoChange = (nuevoOrdenamiento) => {
+    // Batch update: cambiar ordenamiento y página en un solo render
     setOrdenamiento(nuevoOrdenamiento);
-    setPagination(prev => ({ ...prev, page: 1 })); // Resetear a página 1
+    if (pagination.page !== 1) {
+      setPagination(prev => ({ ...prev, page: 1 }));
+    }
   };
 
   if (loading) {

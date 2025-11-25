@@ -21,7 +21,14 @@ const UsuariosPage = () => {
     total: 0,
     total_pages: 0
   });
+  // Estado local para inputs (cambia inmediatamente)
   const [filters, setFilters] = useState({
+    rol_id: '',
+    estado: '',
+    busqueda: ''
+  });
+  // Estado para filtros aplicados (se usa en la consulta)
+  const [appliedFilters, setAppliedFilters] = useState({
     rol_id: '',
     estado: '',
     busqueda: ''
@@ -34,9 +41,23 @@ const UsuariosPage = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Debounce para búsqueda de texto
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Aplicar filtro de búsqueda después de 500ms
+      if (filters.busqueda !== appliedFilters.busqueda) {
+        setAppliedFilters(prev => ({ ...prev, busqueda: filters.busqueda }));
+        setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [filters.busqueda]);
+
+  // Cargar usuarios cuando cambian los filtros aplicados o la página
   useEffect(() => {
     loadUsers();
-  }, [pagination.page, filters]);
+  }, [pagination.page, appliedFilters.rol_id, appliedFilters.estado, appliedFilters.busqueda]);
 
   const loadUsers = async () => {
     try {
@@ -44,12 +65,12 @@ const UsuariosPage = () => {
       const params = {
         page: pagination.page,
         per_page: pagination.per_page,
-        ...filters
+        ...appliedFilters  // Usar filtros aplicados, no los del input
       };
 
       // Remover filtros vacíos
       Object.keys(params).forEach(key => {
-        if (!params[key]) delete params[key];
+        if (!params[key] && key !== 'per_page') delete params[key];
       });
 
       const response = await getUsers(params);
@@ -130,7 +151,12 @@ const UsuariosPage = () => {
               <select
                 id="rol_id"
                 value={filters.rol_id}
-                onChange={(e) => setFilters({ ...filters, rol_id: e.target.value })}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setFilters({ ...filters, rol_id: newValue });
+                  setAppliedFilters(prev => ({ ...prev, rol_id: newValue }));
+                  setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
+                }}
                 className="input-field"
               >
                 <option value="">Todos los roles</option>
@@ -146,7 +172,12 @@ const UsuariosPage = () => {
               <select
                 id="estado"
                 value={filters.estado}
-                onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
+                onChange={(e) => {
+                  const newValue = e.target.value;
+                  setFilters({ ...filters, estado: newValue });
+                  setAppliedFilters(prev => ({ ...prev, estado: newValue }));
+                  setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
+                }}
                 className="input-field"
               >
                 <option value="">Todos</option>
@@ -158,7 +189,11 @@ const UsuariosPage = () => {
 
             <div className="flex items-end">
               <button
-                onClick={() => setFilters({ rol_id: '', estado: '', busqueda: '' })}
+                onClick={() => {
+                  setFilters({ rol_id: '', estado: '', busqueda: '' });
+                  setAppliedFilters({ rol_id: '', estado: '', busqueda: '' });
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
                 className="btn-secondary w-full"
               >
                 Limpiar
