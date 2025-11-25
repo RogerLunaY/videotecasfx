@@ -136,10 +136,13 @@ const MateriasPage = () => {
 
   useEffect(() => {
     loadMaterias();
+  }, []); // Solo al montar el componente
+
+  useEffect(() => {
     if (gradoId) {
       loadGrado();
     }
-  }, [gradoId]);
+  }, [gradoId]); // Solo cuando cambia gradoId
 
   const loadMaterias = async () => {
     try {

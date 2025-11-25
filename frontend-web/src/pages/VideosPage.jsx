@@ -2,7 +2,7 @@
  * Página de Catálogo de Videos
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import VideoList from '../components/Videos/VideoList';
@@ -31,23 +31,8 @@ const VideosPage = () => {
     order_dir: 'DESC'
   });
 
-  // Sincronizar filtros desde searchParams (una sola dirección)
-  useEffect(() => {
-    setFilters({
-      busqueda: searchParams.get('busqueda') || '',
-      materia_id: searchParams.get('materia_id') || '',
-      grado_id: searchParams.get('grado_id') || '',
-      order_by: searchParams.get('order_by') || 'fecha_subida',
-      order_dir: searchParams.get('order_dir') || 'DESC'
-    });
-  }, [searchParams]);
-
-  // Cargar videos cuando cambian los searchParams
-  useEffect(() => {
-    loadVideos();
-  }, [searchParams]);
-
-  const loadVideos = async () => {
+  // Memoizar loadVideos para evitar re-creación en cada render
+  const loadVideos = useCallback(async () => {
     try {
       setLoading(true);
       // Leer directamente desde searchParams (fuente única de verdad)
@@ -71,13 +56,29 @@ const VideosPage = () => {
         : await getVideos(params);
 
       setVideos(response.videos || []);
-      setPagination(response.pagination || pagination);
+      setPagination(prev => response.pagination || prev);
     } catch (error) {
       console.error('Error loading videos:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [searchParams]);
+
+  // Sincronizar filtros desde searchParams (una sola dirección)
+  useEffect(() => {
+    setFilters({
+      busqueda: searchParams.get('busqueda') || '',
+      materia_id: searchParams.get('materia_id') || '',
+      grado_id: searchParams.get('grado_id') || '',
+      order_by: searchParams.get('order_by') || 'fecha_subida',
+      order_dir: searchParams.get('order_dir') || 'DESC'
+    });
+  }, [searchParams]);
+
+  // Cargar videos cuando cambian los searchParams
+  useEffect(() => {
+    loadVideos();
+  }, [loadVideos]);
 
   const handleFilterChange = (name, value) => {
     const newFilters = { ...filters, [name]: value };

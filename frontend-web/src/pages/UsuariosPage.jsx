@@ -2,7 +2,7 @@
  * Página de Gestión de Usuarios (Solo Admin)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Layout from '../components/Layout/Layout';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
@@ -41,25 +41,8 @@ const UsuariosPage = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
-  // Debounce para búsqueda de texto
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      // Aplicar filtro de búsqueda después de 500ms
-      if (filters.busqueda !== appliedFilters.busqueda) {
-        setAppliedFilters(prev => ({ ...prev, busqueda: filters.busqueda }));
-        setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [filters.busqueda]);
-
-  // Cargar usuarios cuando cambian los filtros aplicados o la página
-  useEffect(() => {
-    loadUsers();
-  }, [pagination.page, appliedFilters.rol_id, appliedFilters.estado, appliedFilters.busqueda]);
-
-  const loadUsers = async () => {
+  // Memoizar loadUsers para evitar re-creación en cada render
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const params = {
@@ -75,13 +58,31 @@ const UsuariosPage = () => {
 
       const response = await getUsers(params);
       setUsers(response.usuarios || []);
-      setPagination(response.pagination || pagination);
+      setPagination(prev => response.pagination || prev);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.per_page, appliedFilters]);
+
+  // Debounce para búsqueda de texto
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      // Aplicar filtro de búsqueda después de 500ms
+      if (filters.busqueda !== appliedFilters.busqueda) {
+        setAppliedFilters(prev => ({ ...prev, busqueda: filters.busqueda }));
+        setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [filters.busqueda, appliedFilters.busqueda]);
+
+  // Cargar usuarios cuando cambian los filtros aplicados o la página
+  useEffect(() => {
+    loadUsers();
+  }, [loadUsers]);
 
   const handleDelete = async () => {
     if (!deleteModal.user) return;

@@ -20,10 +20,13 @@ const CursosPage = () => {
 
   useEffect(() => {
     loadGrados();
+  }, []); // Solo al montar el componente
+
+  useEffect(() => {
     if (materiaId) {
       loadMateria();
     }
-  }, [materiaId]);
+  }, [materiaId]); // Solo cuando cambia materiaId
 
   const loadGrados = async () => {
     try {

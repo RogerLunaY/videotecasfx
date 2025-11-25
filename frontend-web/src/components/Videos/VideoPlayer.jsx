@@ -8,14 +8,23 @@ import { getStreamUrl } from '../../services/videoService';
 const VideoPlayer = ({ videoId, onTimeUpdate, onEnded }) => {
   const videoRef = useRef(null);
   const streamUrl = getStreamUrl(videoId);
+  // Usar refs para almacenar las últimas callbacks y evitar re-renders
+  const onTimeUpdateRef = useRef(onTimeUpdate);
+  const onEndedRef = useRef(onEnded);
+
+  // Mantener las refs actualizadas
+  useEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+    onEndedRef.current = onEnded;
+  }, [onTimeUpdate, onEnded]);
 
   useEffect(() => {
     const video = videoRef.current;
 
     if (video) {
       const handleTimeUpdate = () => {
-        if (onTimeUpdate) {
-          onTimeUpdate({
+        if (onTimeUpdateRef.current) {
+          onTimeUpdateRef.current({
             currentTime: video.currentTime,
             duration: video.duration,
             percentage: (video.currentTime / video.duration) * 100
@@ -24,8 +33,8 @@ const VideoPlayer = ({ videoId, onTimeUpdate, onEnded }) => {
       };
 
       const handleEnded = () => {
-        if (onEnded) {
-          onEnded();
+        if (onEndedRef.current) {
+          onEndedRef.current();
         }
       };
 
@@ -37,7 +46,7 @@ const VideoPlayer = ({ videoId, onTimeUpdate, onEnded }) => {
         video.removeEventListener('ended', handleEnded);
       };
     }
-  }, [onTimeUpdate, onEnded]);
+  }, []); // Sin dependencias - los listeners se configuran una vez
 
   return (
     <div className="relative w-full bg-black rounded-lg overflow-hidden shadow-xl">
