@@ -2,17 +2,24 @@
  * Componente de Formulario de Subida de Video
  */
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useResources } from '../../hooks/useResources';
 import { uploadVideo } from '../../services/videoService';
+import { getDocenteAsignaciones } from '../../services/docenteAsignacionService';
 import LoadingSpinner from '../Common/LoadingSpinner';
 
 const VideoUploadForm = () => {
   const navigate = useNavigate();
+  const { user, isAdmin } = useAuth();
   const { materias, grados, temas, loading: resourcesLoading } = useResources();
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
+
+  // Estado para asignaciones del docente
+  const [asignaciones, setAsignaciones] = useState([]);
+  const [loadingAsignaciones, setLoadingAsignaciones] = useState(false);
 
   const [formData, setFormData] = useState({
     titulo: '',
@@ -31,6 +38,26 @@ const VideoUploadForm = () => {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Cargar asignaciones del docente si no es admin
+  useEffect(() => {
+    const loadAsignaciones = async () => {
+      if (!isAdmin() && user?.id) {
+        try {
+          setLoadingAsignaciones(true);
+          const data = await getDocenteAsignaciones(user.id);
+          setAsignaciones(data.asignaciones || []);
+        } catch (error) {
+          console.error('Error cargando asignaciones:', error);
+          setAsignaciones([]);
+        } finally {
+          setLoadingAsignaciones(false);
+        }
+      }
+    };
+
+    loadAsignaciones();
+  }, [user?.id, isAdmin]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -88,6 +115,19 @@ const VideoUploadForm = () => {
 
     if (!formData.grado_id) {
       newErrors.grado_id = 'El grado es requerido';
+    }
+
+    // Validar que la combinación materia-grado esté asignada al docente
+    if (formData.materia_id && formData.grado_id && !isAdmin()) {
+      const tieneAsignacion = asignaciones.some(asig =>
+        asig.materia_id == formData.materia_id &&
+        asig.grado_id == formData.grado_id
+      );
+
+      if (!tieneAsignacion) {
+        newErrors.materia_id = 'No tienes asignada esta combinación de materia y grado';
+        newErrors.grado_id = 'No tienes asignada esta combinación de materia y grado';
+      }
     }
 
     if (!formData.tema_id) {
@@ -181,13 +221,51 @@ const VideoUploadForm = () => {
     }
   };
 
+  // Filtrar materias y grados basado en asignaciones del docente
+  // Si es admin, mostrar todas. Si es docente, solo las asignadas.
+  const materiasDisponibles = isAdmin()
+    ? materias
+    : materias.filter(materia =>
+        asignaciones.some(asig => asig.materia_id == materia.id)
+      );
+
+  const gradosDisponibles = isAdmin()
+    ? grados
+    : grados.filter(grado =>
+        asignaciones.some(asig => asig.grado_id == grado.id)
+      );
+
+  // Filtros en cascada: cuando se selecciona materia, filtrar grados disponibles
+  // (y viceversa) basado en asignaciones
+  const gradosFiltradosPorMateria = formData.materia_id
+    ? isAdmin()
+      ? gradosDisponibles
+      : gradosDisponibles.filter(grado =>
+          asignaciones.some(asig =>
+            asig.materia_id == formData.materia_id &&
+            asig.grado_id == grado.id
+          )
+        )
+    : gradosDisponibles;
+
+  const materiasFiltradosPorGrado = formData.grado_id
+    ? isAdmin()
+      ? materiasDisponibles
+      : materiasDisponibles.filter(materia =>
+          asignaciones.some(asig =>
+            asig.grado_id == formData.grado_id &&
+            asig.materia_id == materia.id
+          )
+        )
+    : materiasDisponibles;
+
   // Filtrar temas por materia Y grado (ambos son requeridos)
   const filteredTemas = temas.filter(tema =>
     tema.materia_id == formData.materia_id &&
     tema.grado_id == formData.grado_id
   );
 
-  if (resourcesLoading) {
+  if (resourcesLoading || loadingAsignaciones) {
     return <LoadingSpinner />;
   }
 
@@ -251,12 +329,21 @@ const VideoUploadForm = () => {
               onChange={handleChange}
               className={`input-field ${errors.materia_id ? 'border-red-500' : ''}`}
             >
-              <option value="">Seleccionar materia</option>
-              {materias.map(materia => (
+              <option value="">
+                {materiasFiltradosPorGrado.length === 0
+                  ? 'No hay materias disponibles para este grado'
+                  : 'Seleccionar materia'}
+              </option>
+              {materiasFiltradosPorGrado.map(materia => (
                 <option key={materia.id} value={materia.id}>{materia.nombre}</option>
               ))}
             </select>
             {errors.materia_id && <p className="mt-1 text-sm text-red-600">{errors.materia_id}</p>}
+            {!isAdmin() && materiasDisponibles.length === 0 && (
+              <p className="mt-1 text-sm text-amber-600">
+                No tienes materias asignadas. Contacta al administrador.
+              </p>
+            )}
           </div>
 
           <div>
@@ -270,12 +357,21 @@ const VideoUploadForm = () => {
               onChange={handleChange}
               className={`input-field ${errors.grado_id ? 'border-red-500' : ''}`}
             >
-              <option value="">Seleccionar grado</option>
-              {grados.map(grado => (
+              <option value="">
+                {gradosFiltradosPorMateria.length === 0
+                  ? 'No hay grados disponibles para esta materia'
+                  : 'Seleccionar grado'}
+              </option>
+              {gradosFiltradosPorMateria.map(grado => (
                 <option key={grado.id} value={grado.id}>{grado.nombre}</option>
               ))}
             </select>
             {errors.grado_id && <p className="mt-1 text-sm text-red-600">{errors.grado_id}</p>}
+            {!isAdmin() && gradosDisponibles.length === 0 && (
+              <p className="mt-1 text-sm text-amber-600">
+                No tienes grados asignados. Contacta al administrador.
+              </p>
+            )}
           </div>
 
           <div>
