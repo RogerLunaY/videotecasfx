@@ -22,14 +22,27 @@ const VideosPage = () => {
     total_pages: 0
   });
 
+  // Filtros como estado local solo para inputs controlados
   const [filters, setFilters] = useState({
-    busqueda: searchParams.get('busqueda') || '',
-    materia_id: searchParams.get('materia_id') || '',
-    grado_id: searchParams.get('grado_id') || '',
-    order_by: searchParams.get('order_by') || 'fecha_subida',
-    order_dir: searchParams.get('order_dir') || 'DESC'
+    busqueda: '',
+    materia_id: '',
+    grado_id: '',
+    order_by: 'fecha_subida',
+    order_dir: 'DESC'
   });
 
+  // Sincronizar filtros desde searchParams (una sola dirección)
+  useEffect(() => {
+    setFilters({
+      busqueda: searchParams.get('busqueda') || '',
+      materia_id: searchParams.get('materia_id') || '',
+      grado_id: searchParams.get('grado_id') || '',
+      order_by: searchParams.get('order_by') || 'fecha_subida',
+      order_dir: searchParams.get('order_dir') || 'DESC'
+    });
+  }, [searchParams]);
+
+  // Cargar videos cuando cambian los searchParams
   useEffect(() => {
     loadVideos();
   }, [searchParams]);
@@ -37,19 +50,24 @@ const VideosPage = () => {
   const loadVideos = async () => {
     try {
       setLoading(true);
+      // Leer directamente desde searchParams (fuente única de verdad)
       const params = {
         page: parseInt(searchParams.get('page')) || 1,
         per_page: 12,
-        ...filters
+        busqueda: searchParams.get('busqueda') || '',
+        materia_id: searchParams.get('materia_id') || '',
+        grado_id: searchParams.get('grado_id') || '',
+        order_by: searchParams.get('order_by') || 'fecha_subida',
+        order_dir: searchParams.get('order_dir') || 'DESC'
       };
 
       // Remover filtros vacíos
       Object.keys(params).forEach(key => {
-        if (!params[key]) delete params[key];
+        if (!params[key] && key !== 'per_page') delete params[key];
       });
 
-      const response = filters.busqueda
-        ? await searchVideos(filters.busqueda, params)
+      const response = params.busqueda
+        ? await searchVideos(params.busqueda, params)
         : await getVideos(params);
 
       setVideos(response.videos || []);
