@@ -53,8 +53,10 @@ const DashboardPage = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const response = await getDashboard();
-      setStats(response.data);
+      const dashboard = await getDashboard();
+      // Dashboard retorna estructura con 'generales' para admin y docente
+      // Pero las estadísticas están dentro de 'generales'
+      setStats(dashboard);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -189,7 +191,7 @@ const DashboardPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_videos || 0}</p>
+              <p className="text-4xl font-bold">{stats?.generales?.total_videos || 0}</p>
               <p className="text-sm text-blue-100 mt-1">Videos subidos</p>
             </div>
 
@@ -202,7 +204,7 @@ const DashboardPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_visualizaciones || 0}</p>
+              <p className="text-4xl font-bold">{stats?.generales?.total_visualizaciones || 0}</p>
               <p className="text-sm text-salesiano-azul-800 mt-1">Vistas totales</p>
             </div>
 
@@ -215,7 +217,7 @@ const DashboardPage = () => {
                 </svg>
               </div>
               <p className="text-4xl font-bold text-gray-900">
-                {formatFileSize(stats?.espacio_usado || 0)}
+                {formatFileSize(stats?.generales?.espacio_usado || 0)}
               </p>
               <p className="text-sm text-gray-600 mt-1">De tus videos</p>
             </div>
@@ -508,7 +510,7 @@ const DashboardPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_videos || 0}</p>
+              <p className="text-4xl font-bold">{stats?.generales?.total_videos_activos || stats?.generales?.total_videos || 0}</p>
             </div>
 
             {/* Total Visualizaciones */}
@@ -520,7 +522,7 @@ const DashboardPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold">{stats?.total_visualizaciones || 0}</p>
+              <p className="text-4xl font-bold">{stats?.generales?.total_visualizaciones || 0}</p>
             </div>
 
             {/* Total Docentes */}
@@ -531,7 +533,7 @@ const DashboardPage = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
               </div>
-              <p className="text-4xl font-bold text-gray-900">{stats?.total_docentes || 0}</p>
+              <p className="text-4xl font-bold text-gray-900">{stats?.generales?.total_usuarios_activos || stats?.generales?.total_docentes || 0}</p>
             </div>
 
             {/* Espacio Usado */}
@@ -543,7 +545,7 @@ const DashboardPage = () => {
                 </svg>
               </div>
               <p className="text-4xl font-bold text-gray-900">
-                {formatFileSize(stats?.espacio_usado || 0)}
+                {formatFileSize(stats?.generales?.espacio_usado || 0)}
               </p>
             </div>
           </div>

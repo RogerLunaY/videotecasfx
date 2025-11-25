@@ -483,7 +483,8 @@ BEGIN
         (SELECT COUNT(*) FROM reproducciones) AS total_reproducciones,
         (SELECT SUM(visualizaciones) FROM videos) AS total_visualizaciones,
         (SELECT COUNT(*) FROM materias WHERE estado = 'activo') AS total_materias,
-        (SELECT COUNT(*) FROM grados WHERE estado = 'activo') AS total_grados;
+        (SELECT COUNT(*) FROM grados WHERE estado = 'activo') AS total_grados,
+        (SELECT COALESCE(SUM(tamano_archivo), 0) FROM videos WHERE estado = 'activo') AS espacio_usado;
 END//
 DELIMITER ;
 

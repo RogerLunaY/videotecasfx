@@ -122,13 +122,18 @@ class Estadistica
             $stmt6 = $this->conn->query("SELECT COUNT(*) as count FROM grados WHERE estado = 'activo'");
             $grados = $stmt6->fetch(PDO::FETCH_ASSOC)['count'];
 
+            // Espacio usado
+            $stmt7 = $this->conn->query("SELECT COALESCE(SUM(tamano_archivo), 0) as total FROM videos WHERE estado = 'activo'");
+            $espacioUsado = $stmt7->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
             return [
                 'total_usuarios_activos' => (int)$usuarios,
                 'total_videos_activos' => (int)$videos,
                 'total_reproducciones' => (int)$reproducciones,
                 'total_visualizaciones' => (int)$visualizaciones,
                 'total_materias' => (int)$materias,
-                'total_grados' => (int)$grados
+                'total_grados' => (int)$grados,
+                'espacio_usado' => (int)$espacioUsado
             ];
         } catch (PDOException $e) {
             error_log("[Estadistica::obtenerGeneralesFallback] Error: " . $e->getMessage());
@@ -401,6 +406,15 @@ class Estadistica
             $stmt2->execute();
             $totalVisualizaciones = $stmt2->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
+            // Espacio usado por los videos del docente
+            $query2b = "SELECT COALESCE(SUM(tamano_archivo), 0) as total
+                    FROM videos
+                    WHERE docente_id = :docente_id AND estado = 'activo'";
+            $stmt2b = $this->conn->prepare($query2b);
+            $stmt2b->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
+            $stmt2b->execute();
+            $espacioUsado = $stmt2b->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
             // Videos del docente más vistos
             $query3 = "SELECT
                         id, titulo, visualizaciones, fecha_subida
@@ -417,6 +431,7 @@ class Estadistica
                 'total_videos' => (int)$totalVideos,
                 'total_visualizaciones' => (int)$totalVisualizaciones,
                 'promedio_visualizaciones' => $totalVideos > 0 ? round($totalVisualizaciones / $totalVideos, 2) : 0,
+                'espacio_usado' => (int)$espacioUsado,
                 'videos_populares' => $videosPopulares
             ];
         } catch (PDOException $e) {
