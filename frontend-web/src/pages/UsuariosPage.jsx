@@ -1,9 +1,15 @@
 /**
  * Página de Gestión de Usuarios (Solo Admin)
+ * Con filtros avanzados, búsqueda en tiempo real, vistas múltiples y acciones por lote
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, Navigate } from 'react-router-dom';
+import {
+  User, Shield, Search, Filter, LayoutGrid, LayoutList,
+  Download, Trash2, ChevronUp, ChevronDown, Plus, X,
+  Mail, Phone, Calendar, CheckSquare, Square
+} from 'lucide-react';
 import Layout from '../components/Layout/Layout';
 import LoadingSpinner from '../components/Common/LoadingSpinner';
 import AsignarDocenteModal from '../components/Common/AsignarDocenteModal';
@@ -13,20 +19,39 @@ import { formatDate } from '../utils/helpers';
 
 const UsuariosPage = () => {
   const { isAdmin } = useAuth();
+
+  // Cargar filtros y vista desde localStorage
+  const loadFromStorage = (key, defaultValue) => {
+    try {
+      const stored = localStorage.getItem(`usuarios_${key}`);
+      return stored ? JSON.parse(stored) : defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  };
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [viewMode, setViewMode] = useState(loadFromStorage('viewMode', 'list')); // 'list' o 'cards'
+  const [selectedUsers, setSelectedUsers] = useState([]);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+
   const [pagination, setPagination] = useState({
     page: 1,
     per_page: 20,
     total: 0,
     total_pages: 0
   });
-  const [filters, setFilters] = useState({
+
+  const [filters, setFilters] = useState(loadFromStorage('filters', {
     rol_id: '',
     estado: '',
-    busqueda: ''
-  });
+  }));
+
   const [deleteModal, setDeleteModal] = useState({ show: false, user: null });
+  const [batchDeleteModal, setBatchDeleteModal] = useState({ show: false });
   const [asignarModal, setAsignarModal] = useState({ show: false, docente: null });
 
   // Solo admins pueden acceder
@@ -34,9 +59,29 @@ const UsuariosPage = () => {
     return <Navigate to="/dashboard" replace />;
   }
 
+  // Debounce para búsqueda en tiempo real
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Guardar filtros en localStorage
+  useEffect(() => {
+    localStorage.setItem('usuarios_filters', JSON.stringify(filters));
+  }, [filters]);
+
+  // Guardar modo de vista en localStorage
+  useEffect(() => {
+    localStorage.setItem('usuarios_viewMode', JSON.stringify(viewMode));
+  }, [viewMode]);
+
+  // Cargar usuarios cuando cambian filtros o página
   useEffect(() => {
     loadUsers();
-  }, [pagination.page, filters]);
+  }, [pagination.page, filters, debouncedSearch]);
 
   const loadUsers = async () => {
     try {
@@ -44,6 +89,7 @@ const UsuariosPage = () => {
       const params = {
         page: pagination.page,
         per_page: pagination.per_page,
+        busqueda: debouncedSearch,
         ...filters
       };
 
@@ -55,6 +101,7 @@ const UsuariosPage = () => {
       const response = await getUsers(params);
       setUsers(response.usuarios || []);
       setPagination(response.pagination || pagination);
+      setSelectedUsers([]); // Limpiar selección al recargar
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -75,9 +122,103 @@ const UsuariosPage = () => {
     }
   };
 
+  const handleBatchDelete = async () => {
+    if (selectedUsers.length === 0) return;
+
+    try {
+      await Promise.all(selectedUsers.map(userId => deleteUser(userId)));
+      setBatchDeleteModal({ show: false });
+      setSelectedUsers([]);
+      loadUsers();
+    } catch (error) {
+      console.error('Error deleting users:', error);
+      alert('Error al eliminar usuarios');
+    }
+  };
+
+  const handleSelectUser = (userId) => {
+    setSelectedUsers(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedUsers.length === users.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(users.map(u => u.id));
+    }
+  };
+
+  const handleSort = (key) => {
+    setSortConfig(prev => ({
+      key,
+      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const handleExportCSV = () => {
+    const headers = ['Nombre', 'CI', 'Email', 'Rol', 'Estado', 'Teléfono', 'Fecha Registro'];
+    const rows = users.map(user => [
+      `${user.nombre} ${user.apellido_paterno} ${user.apellido_materno || ''}`.trim(),
+      user.ci,
+      user.email,
+      user.rol,
+      user.estado,
+      user.telefono || '',
+      formatDate(user.fecha_registro)
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `usuarios_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
   const handlePageChange = (newPage) => {
     setPagination(prev => ({ ...prev, page: newPage }));
   };
+
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({ ...prev, [key]: value }));
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset a página 1
+  };
+
+  const clearFilters = () => {
+    setFilters({ rol_id: '', estado: '' });
+    setSearchTerm('');
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  // Ordenar usuarios según configuración
+  const sortedUsers = useMemo(() => {
+    if (!sortConfig.key) return users;
+
+    const sorted = [...users].sort((a, b) => {
+      let aValue = a[sortConfig.key];
+      let bValue = b[sortConfig.key];
+
+      // Manejar campos especiales
+      if (sortConfig.key === 'nombre_completo') {
+        aValue = `${a.nombre} ${a.apellido_paterno}`;
+        bValue = `${b.nombre} ${b.apellido_paterno}`;
+      }
+
+      if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+
+    return sorted;
+  }, [users, sortConfig]);
 
   const getRoleBadgeColor = (rol) => {
     switch (rol) {
@@ -96,100 +237,283 @@ const UsuariosPage = () => {
       : 'bg-red-100 text-red-800';
   };
 
+  const getRoleIcon = (rol) => {
+    return rol === 'Administrador' ? Shield : User;
+  };
+
+  const SortIcon = ({ column }) => {
+    if (sortConfig.key !== column) return null;
+    return sortConfig.direction === 'asc'
+      ? <ChevronUp className="w-4 h-4 inline ml-1" />
+      : <ChevronDown className="w-4 h-4 inline ml-1" />;
+  };
+
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
-          <Link to="/register" className="btn-primary">
-            Nuevo Usuario
-          </Link>
-        </div>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Gestión de Usuarios</h1>
+            <p className="text-sm text-gray-600 mt-1">
+              {pagination.total} usuario{pagination.total !== 1 ? 's' : ''} total{pagination.total !== 1 ? 'es' : ''}
+            </p>
+          </div>
 
-        {/* Filtros */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div>
-              <label htmlFor="busqueda" className="block text-sm font-medium text-gray-700 mb-1">
-                Buscar
-              </label>
-              <input
-                type="text"
-                id="busqueda"
-                value={filters.busqueda}
-                onChange={(e) => setFilters({ ...filters, busqueda: e.target.value })}
-                placeholder="Nombre, email..."
-                className="input-field"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="rol_id" className="block text-sm font-medium text-gray-700 mb-1">
-                Rol
-              </label>
-              <select
-                id="rol_id"
-                value={filters.rol_id}
-                onChange={(e) => setFilters({ ...filters, rol_id: e.target.value })}
-                className="input-field"
-              >
-                <option value="">Todos los roles</option>
-                <option value="1">Administrador</option>
-                <option value="2">Docente</option>
-              </select>
-            </div>
-
-            <div>
-              <label htmlFor="estado" className="block text-sm font-medium text-gray-700 mb-1">
-                Estado
-              </label>
-              <select
-                id="estado"
-                value={filters.estado}
-                onChange={(e) => setFilters({ ...filters, estado: e.target.value })}
-                className="input-field"
-              >
-                <option value="">Todos</option>
-                <option value="activo">Activos</option>
-                <option value="inactivo">Inactivos</option>
-                <option value="bloqueado">Bloqueados</option>
-              </select>
-            </div>
-
-            <div className="flex items-end">
-              <button
-                onClick={() => setFilters({ rol_id: '', estado: '', busqueda: '' })}
-                className="btn-secondary w-full"
-              >
-                Limpiar
-              </button>
-            </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportCSV}
+              className="btn-secondary flex items-center gap-2"
+              disabled={users.length === 0}
+            >
+              <Download className="w-4 h-4" />
+              Exportar CSV
+            </button>
+            <Link to="/register" className="btn-primary flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Nuevo Usuario
+            </Link>
           </div>
         </div>
 
-        {/* Tabla de Usuarios */}
+        {/* Barra de búsqueda y controles */}
+        <div className="bg-white rounded-lg shadow-md p-4 mb-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+            {/* Búsqueda */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar por nombre, email, CI..."
+                className="input-field pl-10 w-full"
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            {/* Toggle de vista */}
+            <div className="flex items-center gap-2 border border-gray-300 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                title="Vista de lista"
+              >
+                <LayoutList className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`p-2 rounded ${viewMode === 'cards' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                title="Vista de tarjetas"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Filtros en botones */}
+          <div className="mt-4 space-y-3">
+            {/* Filtro de Rol */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
+                <Filter className="w-3 h-3" />
+                Filtrar por Rol
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleFilterChange('rol_id', '')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                    filters.rol_id === ''
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-primary-300'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => handleFilterChange('rol_id', '1')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all flex items-center gap-2 ${
+                    filters.rol_id === '1'
+                      ? 'border-purple-500 bg-purple-50 text-purple-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-purple-300'
+                  }`}
+                >
+                  <Shield className="w-4 h-4" />
+                  Administradores
+                </button>
+                <button
+                  onClick={() => handleFilterChange('rol_id', '2')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all flex items-center gap-2 ${
+                    filters.rol_id === '2'
+                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-blue-300'
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  Docentes
+                </button>
+              </div>
+            </div>
+
+            {/* Filtro de Estado */}
+            <div>
+              <label className="block text-xs font-medium text-gray-700 mb-2 flex items-center gap-1">
+                <Filter className="w-3 h-3" />
+                Filtrar por Estado
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleFilterChange('estado', '')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                    filters.estado === ''
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-primary-300'
+                  }`}
+                >
+                  Todos
+                </button>
+                <button
+                  onClick={() => handleFilterChange('estado', 'activo')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                    filters.estado === 'activo'
+                      ? 'border-green-500 bg-green-50 text-green-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-green-300'
+                  }`}
+                >
+                  Activos
+                </button>
+                <button
+                  onClick={() => handleFilterChange('estado', 'inactivo')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                    filters.estado === 'inactivo'
+                      ? 'border-red-500 bg-red-50 text-red-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-red-300'
+                  }`}
+                >
+                  Inactivos
+                </button>
+                <button
+                  onClick={() => handleFilterChange('estado', 'bloqueado')}
+                  className={`px-4 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                    filters.estado === 'bloqueado'
+                      ? 'border-orange-500 bg-orange-50 text-orange-700'
+                      : 'border-gray-200 bg-white text-gray-700 hover:border-orange-300'
+                  }`}
+                >
+                  Bloqueados
+                </button>
+              </div>
+            </div>
+
+            {/* Botón limpiar filtros */}
+            {(filters.rol_id || filters.estado || searchTerm) && (
+              <div className="flex items-center justify-between pt-2 border-t">
+                <p className="text-xs text-gray-600">Filtros activos</p>
+                <button
+                  onClick={clearFilters}
+                  className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                >
+                  <X className="w-3 h-3" />
+                  Limpiar todos los filtros
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Acciones por lote */}
+        {selectedUsers.length > 0 && (
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4 mb-6 flex items-center justify-between">
+            <p className="text-sm font-medium text-primary-900">
+              {selectedUsers.length} usuario{selectedUsers.length !== 1 ? 's' : ''} seleccionado{selectedUsers.length !== 1 ? 's' : ''}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSelectedUsers([])}
+                className="btn-secondary text-sm flex items-center gap-1"
+              >
+                <X className="w-4 h-4" />
+                Cancelar
+              </button>
+              <button
+                onClick={() => setBatchDeleteModal({ show: true })}
+                className="btn-danger text-sm flex items-center gap-1"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar seleccionados
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Lista de Usuarios */}
         {loading ? (
           <LoadingSpinner />
-        ) : (
+        ) : sortedUsers.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <User className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">No se encontraron usuarios</h3>
+            <p className="text-gray-600">
+              {searchTerm || filters.rol_id || filters.estado
+                ? 'Intenta ajustar los filtros de búsqueda'
+                : 'Comienza creando un nuevo usuario'}
+            </p>
+          </div>
+        ) : viewMode === 'list' ? (
+          // Vista de Lista
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Usuario
+                    <th className="px-4 py-3 text-left">
+                      <button
+                        onClick={handleSelectAll}
+                        className="text-gray-500 hover:text-gray-700"
+                      >
+                        {selectedUsers.length === users.length ? (
+                          <CheckSquare className="w-5 h-5 text-primary-600" />
+                        ) : (
+                          <Square className="w-5 h-5" />
+                        )}
+                      </button>
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('nombre_completo')}
+                    >
+                      Usuario <SortIcon column="nombre_completo" />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Rol
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('email')}
+                    >
+                      Email <SortIcon column="email" />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Estado
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('rol')}
+                    >
+                      Rol <SortIcon column="rol" />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Registro
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('estado')}
+                    >
+                      Estado <SortIcon column="estado" />
+                    </th>
+                    <th
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSort('fecha_registro')}
+                    >
+                      Registro <SortIcon column="fecha_registro" />
                     </th>
                     <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Acciones
@@ -197,63 +521,102 @@ const UsuariosPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
-                    <tr key={user.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10">
-                            <div className="h-10 w-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">
-                              {user.nombre?.charAt(0)}{user.apellido_paterno?.charAt(0)}
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {user.nombre} {user.apellido_paterno}
-                            </div>
-                            <div className="text-sm text-gray-500">CI: {user.ci}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{user.email}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.rol)}`}>
-                          {user.rol}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeColor(user.estado)}`}>
-                          {user.estado}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDate(user.fecha_registro)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <Link
-                          to={`/usuarios/${user.id}/editar`}
-                          className="text-primary-600 hover:text-primary-900 mr-4"
-                        >
-                          Editar
-                        </Link>
-                        {user.rol === 'Docente' && (
+                  {sortedUsers.map((user) => {
+                    const RoleIcon = getRoleIcon(user.rol);
+                    const isSelected = selectedUsers.includes(user.id);
+
+                    return (
+                      <tr key={user.id} className={`hover:bg-gray-50 transition-colors ${isSelected ? 'bg-primary-50' : ''}`}>
+                        <td className="px-4 py-4">
                           <button
-                            onClick={() => setAsignarModal({ show: true, docente: user })}
-                            className="text-blue-600 hover:text-blue-900 mr-4"
+                            onClick={() => handleSelectUser(user.id)}
+                            className="text-gray-500 hover:text-gray-700"
                           >
-                            Asignar
+                            {isSelected ? (
+                              <CheckSquare className="w-5 h-5 text-primary-600" />
+                            ) : (
+                              <Square className="w-5 h-5" />
+                            )}
                           </button>
-                        )}
-                        <button
-                          onClick={() => setDeleteModal({ show: true, user })}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center group relative">
+                            <div className="flex-shrink-0 h-10 w-10">
+                              <div className="h-10 w-10 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold">
+                                {user.nombre?.charAt(0)}{user.apellido_paterno?.charAt(0)}
+                              </div>
+                            </div>
+                            <div className="ml-4">
+                              <div className="text-sm font-medium text-gray-900">
+                                {user.nombre} {user.apellido_paterno}
+                              </div>
+                              <div className="text-sm text-gray-500">CI: {user.ci}</div>
+                            </div>
+
+                            {/* Tooltip */}
+                            <div className="absolute left-0 top-full mt-2 w-64 p-3 bg-gray-900 text-white text-xs rounded-lg shadow-lg z-20 hidden group-hover:block">
+                              <p className="font-semibold mb-2">
+                                {user.nombre} {user.apellido_paterno} {user.apellido_materno || ''}
+                              </p>
+                              <div className="space-y-1">
+                                <p className="flex items-center gap-2">
+                                  <Mail className="w-3 h-3" /> {user.email}
+                                </p>
+                                {user.telefono && (
+                                  <p className="flex items-center gap-2">
+                                    <Phone className="w-3 h-3" /> {user.telefono}
+                                  </p>
+                                )}
+                                <p className="flex items-center gap-2">
+                                  <Calendar className="w-3 h-3" /> Registrado: {formatDate(user.fecha_registro)}
+                                </p>
+                              </div>
+                              <div className="absolute bottom-full left-8 -mb-1 border-4 border-transparent border-b-gray-900"></div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{user.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.rol)}`}>
+                            <RoleIcon className="w-3 h-3" />
+                            {user.rol}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeColor(user.estado)}`}>
+                            {user.estado}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {formatDate(user.fecha_registro)}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <Link
+                            to={`/usuarios/${user.id}/editar`}
+                            className="text-primary-600 hover:text-primary-900 mr-4"
+                          >
+                            Editar
+                          </Link>
+                          {user.rol === 'Docente' && (
+                            <button
+                              onClick={() => setAsignarModal({ show: true, docente: user })}
+                              className="text-blue-600 hover:text-blue-900 mr-4"
+                            >
+                              Asignar
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setDeleteModal({ show: true, user })}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -334,6 +697,177 @@ const UsuariosPage = () => {
               </div>
             )}
           </div>
+        ) : (
+          // Vista de Tarjetas
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {sortedUsers.map((user) => {
+              const RoleIcon = getRoleIcon(user.rol);
+              const isSelected = selectedUsers.includes(user.id);
+
+              return (
+                <div
+                  key={user.id}
+                  className={`bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-all duration-200 border-2 ${
+                    isSelected ? 'border-primary-500 bg-primary-50' : 'border-transparent'
+                  }`}
+                >
+                  {/* Header de tarjeta con checkbox */}
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-full bg-primary-600 text-white flex items-center justify-center font-semibold text-lg">
+                        {user.nombre?.charAt(0)}{user.apellido_paterno?.charAt(0)}
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-sm font-semibold text-gray-900 leading-tight">
+                          {user.nombre} {user.apellido_paterno}
+                        </h3>
+                        <p className="text-xs text-gray-500">CI: {user.ci}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleSelectUser(user.id)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      {isSelected ? (
+                        <CheckSquare className="w-5 h-5 text-primary-600" />
+                      ) : (
+                        <Square className="w-5 h-5" />
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Información */}
+                  <div className="space-y-2 mb-3">
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <Mail className="w-3 h-3" />
+                      <span className="truncate">{user.email}</span>
+                    </div>
+                    {user.telefono && (
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Phone className="w-3 h-3" />
+                        <span>{user.telefono}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(user.fecha_registro)}</span>
+                    </div>
+                  </div>
+
+                  {/* Badges */}
+                  <div className="flex items-center gap-2 mb-3">
+                    <span className={`px-2 py-1 inline-flex items-center gap-1 text-xs leading-5 font-semibold rounded-full ${getRoleBadgeColor(user.rol)}`}>
+                      <RoleIcon className="w-3 h-3" />
+                      {user.rol}
+                    </span>
+                    <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getEstadoBadgeColor(user.estado)}`}>
+                      {user.estado}
+                    </span>
+                  </div>
+
+                  {/* Acciones */}
+                  <div className="flex items-center gap-2 pt-3 border-t border-gray-200">
+                    <Link
+                      to={`/usuarios/${user.id}/editar`}
+                      className="flex-1 text-center px-3 py-2 text-xs font-medium text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                    >
+                      Editar
+                    </Link>
+                    {user.rol === 'Docente' && (
+                      <button
+                        onClick={() => setAsignarModal({ show: true, docente: user })}
+                        className="flex-1 text-center px-3 py-2 text-xs font-medium text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      >
+                        Asignar
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setDeleteModal({ show: true, user })}
+                      className="px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Paginación (fuera de vistas) */}
+        {!loading && pagination.total_pages > 1 && (
+          <div className="bg-white rounded-lg shadow-md mt-6 px-4 py-3 flex items-center justify-between">
+            <div className="flex-1 flex justify-between sm:hidden">
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+                className="btn-secondary disabled:opacity-50"
+              >
+                Anterior
+              </button>
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.total_pages}
+                className="btn-secondary disabled:opacity-50"
+              >
+                Siguiente
+              </button>
+            </div>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm text-gray-700">
+                  Mostrando <span className="font-medium">{(pagination.page - 1) * pagination.per_page + 1}</span> a{' '}
+                  <span className="font-medium">
+                    {Math.min(pagination.page * pagination.per_page, pagination.total)}
+                  </span>{' '}
+                  de <span className="font-medium">{pagination.total}</span> resultados
+                </p>
+              </div>
+              <div>
+                <nav className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handlePageChange(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Anterior
+                  </button>
+
+                  {[...Array(pagination.total_pages)].map((_, i) => {
+                    const page = i + 1;
+                    if (
+                      page === 1 ||
+                      page === pagination.total_pages ||
+                      (page >= pagination.page - 2 && page <= pagination.page + 2)
+                    ) {
+                      return (
+                        <button
+                          key={page}
+                          onClick={() => handlePageChange(page)}
+                          className={`px-4 py-2 rounded-lg border ${
+                            page === pagination.page
+                              ? 'bg-primary-600 text-white border-primary-600'
+                              : 'border-gray-300 hover:bg-gray-50'
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    }
+                    return null;
+                  })}
+
+                  <button
+                    onClick={() => handlePageChange(pagination.page + 1)}
+                    disabled={pagination.page === pagination.total_pages}
+                    className="px-3 py-2 rounded-lg border border-gray-300 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                  >
+                    Siguiente
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 
@@ -358,6 +892,36 @@ const UsuariosPage = () => {
                 className="btn-danger"
               >
                 Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Eliminación por Lote */}
+      {batchDeleteModal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">Eliminar Usuarios Seleccionados</h3>
+            <p className="text-gray-600 mb-4">
+              ¿Estás seguro de que deseas eliminar {selectedUsers.length} usuario{selectedUsers.length !== 1 ? 's' : ''}?
+            </p>
+            <p className="text-sm text-red-600 mb-6">
+              Esta acción no se puede deshacer y eliminará permanentemente los usuarios seleccionados.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setBatchDeleteModal({ show: false })}
+                className="btn-secondary"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleBatchDelete}
+                className="btn-danger flex items-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Eliminar {selectedUsers.length}
               </button>
             </div>
           </div>
