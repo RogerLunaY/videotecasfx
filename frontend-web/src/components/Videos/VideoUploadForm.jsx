@@ -7,10 +7,12 @@ import { useNavigate } from 'react-router-dom';
 import { useResources } from '../../hooks/useResources';
 import { uploadVideo } from '../../services/videoService';
 import LoadingSpinner from '../Common/LoadingSpinner';
+import MateriaSelector from '../Common/MateriaSelector';
+import GradoSelector from '../Common/GradoSelector';
 
 const VideoUploadForm = () => {
   const navigate = useNavigate();
-  const { materias, grados, temas, loading: resourcesLoading } = useResources();
+  const { campos, materias, grados, temas, loading: resourcesLoading } = useResources();
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
 
@@ -224,45 +226,27 @@ const VideoUploadForm = () => {
       {/* Clasificación */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Clasificación</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="materia_id" className="block text-sm font-medium text-gray-700 mb-1">
-              Materia *
-            </label>
-            <select
-              id="materia_id"
-              name="materia_id"
-              value={formData.materia_id}
-              onChange={handleChange}
-              className={`input-field ${errors.materia_id ? 'border-red-500' : ''}`}
-            >
-              <option value="">Seleccionar materia</option>
-              {materias.map(materia => (
-                <option key={materia.id} value={materia.id}>{materia.nombre}</option>
-              ))}
-            </select>
-            {errors.materia_id && <p className="mt-1 text-sm text-red-600">{errors.materia_id}</p>}
-          </div>
+        <div className="space-y-6">
+          {/* Selector de Materia */}
+          <MateriaSelector
+            campos={campos}
+            materias={materias}
+            value={formData.materia_id}
+            onChange={(value) => setFormData(prev => ({ ...prev, materia_id: value, tema_id: '' }))}
+            error={errors.materia_id}
+            required
+          />
 
-          <div>
-            <label htmlFor="grado_id" className="block text-sm font-medium text-gray-700 mb-1">
-              Grado *
-            </label>
-            <select
-              id="grado_id"
-              name="grado_id"
-              value={formData.grado_id}
-              onChange={handleChange}
-              className={`input-field ${errors.grado_id ? 'border-red-500' : ''}`}
-            >
-              <option value="">Seleccionar grado</option>
-              {grados.map(grado => (
-                <option key={grado.id} value={grado.id}>{grado.nombre}</option>
-              ))}
-            </select>
-            {errors.grado_id && <p className="mt-1 text-sm text-red-600">{errors.grado_id}</p>}
-          </div>
+          {/* Selector de Grado */}
+          <GradoSelector
+            grados={grados}
+            value={formData.grado_id}
+            onChange={(value) => setFormData(prev => ({ ...prev, grado_id: value }))}
+            error={errors.grado_id}
+            required
+          />
 
+          {/* Selector de Tema */}
           <div>
             <label htmlFor="tema_id" className="block text-sm font-medium text-gray-700 mb-1">
               Tema *
