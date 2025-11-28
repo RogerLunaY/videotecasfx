@@ -63,10 +63,10 @@ class Usuario
     {
         $query = "INSERT INTO {$this->table}
                 (nombre, apellido_paterno, apellido_materno, ci, email, password_hash,
-                 rol_id, grado_id, materia_id, telefono, estado)
+                 rol_id, telefono, estado)
                 VALUES
                 (:nombre, :apellido_paterno, :apellido_materno, :ci, :email, :password_hash,
-                 :rol_id, :grado_id, :materia_id, :telefono, :estado)";
+                 :rol_id, :telefono, :estado)";
 
         try {
             $stmt = $this->conn->prepare($query);
@@ -82,8 +82,6 @@ class Usuario
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':password_hash', $hashed_password);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 
@@ -122,16 +120,6 @@ class Usuario
             $params[':estado'] = $filtros['estado'];
         }
 
-        if (!empty($filtros['materia_id'])) {
-            $where[] = "u.materia_id = :materia_id";
-            $params[':materia_id'] = $filtros['materia_id'];
-        }
-
-        if (!empty($filtros['grado_id'])) {
-            $where[] = "u.grado_id = :grado_id";
-            $params[':grado_id'] = $filtros['grado_id'];
-        }
-
         if (!empty($filtros['busqueda'])) {
             $where[] = "(u.nombre LIKE :busqueda OR u.apellido_paterno LIKE :busqueda OR u.email LIKE :busqueda OR u.ci LIKE :busqueda)";
             $params[':busqueda'] = "%{$filtros['busqueda']}%";
@@ -139,11 +127,9 @@ class Usuario
 
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
 
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre, g.nombre as grado_nombre
+        $query = "SELECT u.*, r.nombre as rol_nombre
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
                 {$whereClause}
                 ORDER BY u.fecha_creacion DESC
                 LIMIT :limit OFFSET :offset";
@@ -161,7 +147,43 @@ class Usuario
             $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
 
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $usuarios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Para docentes, cargar sus asignaciones
+            foreach ($usuarios as &$usuario) {
+                if ($usuario['rol_id'] == 2) {
+                    // Obtener materias asignadas
+                    $queryMaterias = "SELECT m.id, m.nombre, m.sigla
+                                    FROM docente_asignaciones da
+                                    INNER JOIN materias m ON da.materia_id = m.id
+                                    WHERE da.docente_id = :docente_id AND da.materia_id IS NOT NULL
+                                    GROUP BY m.id
+                                    ORDER BY m.nombre";
+
+                    $stmtMaterias = $this->conn->prepare($queryMaterias);
+                    $stmtMaterias->bindParam(':docente_id', $usuario['id'], PDO::PARAM_INT);
+                    $stmtMaterias->execute();
+                    $usuario['materias'] = $stmtMaterias->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Obtener grados asignados
+                    $queryGrados = "SELECT g.id, g.nombre, g.nivel
+                                   FROM docente_asignaciones da
+                                   INNER JOIN grados g ON da.grado_id = g.id
+                                   WHERE da.docente_id = :docente_id AND da.grado_id IS NOT NULL
+                                   GROUP BY g.id
+                                   ORDER BY g.nivel";
+
+                    $stmtGrados = $this->conn->prepare($queryGrados);
+                    $stmtGrados->bindParam(':docente_id', $usuario['id'], PDO::PARAM_INT);
+                    $stmtGrados->execute();
+                    $usuario['grados'] = $stmtGrados->fetchAll(PDO::FETCH_ASSOC);
+                } else {
+                    $usuario['materias'] = [];
+                    $usuario['grados'] = [];
+                }
+            }
+
+            return $usuarios;
         } catch (PDOException $e) {
             error_log("[Usuario::obtenerTodos] Error: " . $e->getMessage());
             return false;
@@ -301,8 +323,6 @@ class Usuario
                     ci = :ci,
                     email = :email,
                     rol_id = :rol_id,
-                    grado_id = :grado_id,
-                    materia_id = :materia_id,
                     telefono = :telefono,
                     estado = :estado
                 WHERE id = :id";
@@ -317,8 +337,6 @@ class Usuario
             $stmt->bindParam(':ci', $this->ci);
             $stmt->bindParam(':email', $this->email);
             $stmt->bindParam(':rol_id', $this->rol_id);
-            $stmt->bindParam(':grado_id', $this->grado_id);
-            $stmt->bindParam(':materia_id', $this->materia_id);
             $stmt->bindParam(':telefono', $this->telefono);
             $stmt->bindParam(':estado', $this->estado);
 

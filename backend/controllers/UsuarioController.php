@@ -64,8 +64,6 @@ class UsuarioController
         $filtros = [];
         if (isset($_GET['rol_id'])) $filtros['rol_id'] = (int)$_GET['rol_id'];
         if (isset($_GET['estado'])) $filtros['estado'] = $_GET['estado'];
-        if (isset($_GET['materia_id'])) $filtros['materia_id'] = (int)$_GET['materia_id'];
-        if (isset($_GET['grado_id'])) $filtros['grado_id'] = (int)$_GET['grado_id'];
         if (isset($_GET['busqueda'])) $filtros['busqueda'] = $_GET['busqueda'];
 
         // Obtener usuarios
@@ -117,7 +115,7 @@ class UsuarioController
      * Crea un nuevo usuario
      *
      * POST /api/usuarios
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materia_id, grado_id }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, password, rol_id, materias_ids, grados_ids }
      *
      * @return void
      */
@@ -163,14 +161,37 @@ class UsuarioController
         $this->usuarioModel->email = $data['email'];
         $this->usuarioModel->password = $data['password'];
         $this->usuarioModel->rol_id = $data['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? null;
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? null;
         $this->usuarioModel->telefono = $data['telefono'] ?? null;
         $this->usuarioModel->estado = $data['estado'] ?? 'activo';
 
         $usuarioId = $this->usuarioModel->crear();
 
         if ($usuarioId) {
+            // Si es docente (rol_id = 2), manejar asignaciones
+            if ((int)$data['rol_id'] === 2) {
+                require_once __DIR__ . '/../models/DocenteAsignacion.php';
+                $asignacionModel = new DocenteAsignacion();
+
+                // Preparar asignaciones (combinaciones materia+grado)
+                $asignaciones = [];
+                $materiasIds = $data['materias_ids'] ?? [];
+                $gradosIds = $data['grados_ids'] ?? [];
+
+                foreach ($materiasIds as $materiaId) {
+                    foreach ($gradosIds as $gradoId) {
+                        $asignaciones[] = [
+                            'materia_id' => (int)$materiaId,
+                            'grado_id' => (int)$gradoId
+                        ];
+                    }
+                }
+
+                // Asignar combinaciones materia-grado
+                if (!empty($asignaciones)) {
+                    $asignacionModel->asignarMultiples($usuarioId, $asignaciones, $usuario['id']);
+                }
+            }
+
             $this->logger->usuario('creado', $usuarioId, $data['nombre'] . ' ' . $data['apellido_paterno'], $usuario['id']);
 
             $usuarioCreado = $this->usuarioModel->obtenerPorId($usuarioId);
@@ -185,7 +206,7 @@ class UsuarioController
      * Actualiza un usuario existente
      *
      * PUT /api/usuarios/{id}
-     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, materia_id, grado_id, estado }
+     * Body: { nombre, apellido_paterno, apellido_materno, ci, email, rol_id, materias_ids, grados_ids, estado }
      *
      * @param int $id ID del usuario
      * @return void
@@ -249,12 +270,34 @@ class UsuarioController
         $this->usuarioModel->ci = $data['ci'] ?? $usuarioExistente['ci'];
         $this->usuarioModel->email = $data['email'] ?? $usuarioExistente['email'];
         $this->usuarioModel->rol_id = $data['rol_id'] ?? $usuarioExistente['rol_id'];
-        $this->usuarioModel->materia_id = $data['materia_id'] ?? $usuarioExistente['materia_id'];
-        $this->usuarioModel->grado_id = $data['grado_id'] ?? $usuarioExistente['grado_id'];
         $this->usuarioModel->telefono = $data['telefono'] ?? $usuarioExistente['telefono'];
         $this->usuarioModel->estado = $data['estado'] ?? $usuarioExistente['estado'];
 
         if ($this->usuarioModel->actualizar()) {
+            // Si es docente (rol_id = 2), actualizar asignaciones
+            $rolId = $data['rol_id'] ?? $usuarioExistente['rol_id'];
+            if ((int)$rolId === 2 && (isset($data['materias_ids']) || isset($data['grados_ids']))) {
+                require_once __DIR__ . '/../models/DocenteAsignacion.php';
+                $asignacionModel = new DocenteAsignacion();
+
+                // Preparar asignaciones (combinaciones materia+grado)
+                $asignaciones = [];
+                $materiasIds = $data['materias_ids'] ?? [];
+                $gradosIds = $data['grados_ids'] ?? [];
+
+                foreach ($materiasIds as $materiaId) {
+                    foreach ($gradosIds as $gradoId) {
+                        $asignaciones[] = [
+                            'materia_id' => (int)$materiaId,
+                            'grado_id' => (int)$gradoId
+                        ];
+                    }
+                }
+
+                // Actualizar asignaciones (reemplaza las existentes)
+                $asignacionModel->asignarMultiples($id, $asignaciones, $usuario['id']);
+            }
+
             $this->logger->usuario('actualizado', $id, $usuarioExistente['nombre'], $usuario['id']);
 
             $usuarioActualizado = $this->usuarioModel->obtenerPorId($id);
