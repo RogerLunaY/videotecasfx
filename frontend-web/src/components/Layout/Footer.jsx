@@ -6,32 +6,32 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-gradient-to-r from-salesiano-azul-700 via-salesiano-azul-600 to-salesiano-azul-700 text-white mt-auto">
+    <footer className="bg-gradient-to-r from-salesiano-azul-700 via-salesiano-azul-600 to-salesiano-azul-700 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-white mt-auto">
       <div className="container mx-auto px-6 py-6">
         {/* Grid: Institución | Desarrollador */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-center md:text-left">
           {/* Institución */}
           <div className="flex items-center justify-center md:justify-start">
             <p className="text-sm">
-              <span className="font-bold text-salesiano-amarillo-300">UESFX</span>
-              <span className="mx-2 text-salesiano-amarillo-400">•</span>
-              <span className="text-blue-100">Okinawa Uno, Bolivia</span>
+              <span className="font-bold text-salesiano-amarillo-300 dark:text-salesiano-amarillo-400">UESFX</span>
+              <span className="mx-2 text-salesiano-amarillo-400 dark:text-salesiano-amarillo-500">•</span>
+              <span className="text-blue-100 dark:text-gray-300">Okinawa Uno, Bolivia</span>
             </p>
           </div>
 
           {/* Desarrollador */}
           <div className="flex items-center justify-center md:justify-end">
-            <p className="text-sm text-blue-100">
+            <p className="text-sm text-blue-100 dark:text-gray-300">
               Roger Omar Luna Yujra
-              <span className="mx-2 text-salesiano-amarillo-400">•</span>
-              <span className="text-blue-200">ATSI Bolivia</span>
+              <span className="mx-2 text-salesiano-amarillo-400 dark:text-salesiano-amarillo-500">•</span>
+              <span className="text-blue-200 dark:text-gray-400">ATSI Bolivia</span>
             </p>
           </div>
         </div>
 
         {/* Copyright centrado */}
-        <div className="text-center border-t border-salesiano-azul-500 pt-4">
-          <p className="text-sm text-blue-100">
+        <div className="text-center border-t border-salesiano-azul-500 dark:border-gray-700 pt-4">
+          <p className="text-sm text-blue-100 dark:text-gray-400">
             &copy; {currentYear} San Francisco Xavier
           </p>
         </div>

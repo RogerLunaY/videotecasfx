@@ -7,13 +7,15 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, User, Video, Upload, Users, LogOut,
-  ChevronDown, Search, Menu, X, Library
+  ChevronDown, Search, Menu, X, Library, Sun, Moon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { getInitials } from '../../utils/helpers';
 
 const Navbar = () => {
   const { user, isAuthenticated, logout, isAdmin, isDocente, isEstudiante } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
@@ -116,6 +118,19 @@ const Navbar = () => {
 
           {/* Usuario / Login */}
           <div className="flex items-center space-x-3">
+            {/* Botón de Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all"
+              title={isDark ? 'Modo claro' : 'Modo oscuro'}
+            >
+              {isDark ? (
+                <Sun className="w-5 h-5" />
+              ) : (
+                <Moon className="w-5 h-5" />
+              )}
+            </button>
+
             {isAuthenticated ? (
               <>
                 {/* Menú de Dashboard para usuarios autenticados */}
@@ -164,9 +179,9 @@ const Navbar = () => {
 
                   {/* Dropdown Menu - Cardbox Style */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 mt-3 w-80 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                       {/* Header Card */}
-                      <div className="bg-gradient-to-br from-salesiano-azul-500 to-salesiano-azul-600 p-5">
+                      <div className="bg-gradient-to-br from-salesiano-azul-500 to-salesiano-azul-600 dark:from-gray-700 dark:to-gray-800 p-5">
                         <div className="flex items-center space-x-3">
                           <div className="w-14 h-14 rounded-full bg-white text-salesiano-azul-600 flex items-center justify-center text-lg font-bold shadow-md">
                             {getInitials(user?.nombre || '')}
@@ -186,45 +201,45 @@ const Navbar = () => {
                         {/* Dashboard Card */}
                         <Link
                           to="/dashboard"
-                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all group mb-1"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 dark:hover:from-blue-900/50 dark:hover:to-blue-800/50 transition-all group mb-1"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          <div className="w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
-                            <LayoutDashboard className="w-5 h-5 text-blue-600" />
+                          <div className="w-11 h-11 rounded-lg bg-blue-100 dark:bg-blue-900 flex items-center justify-center mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 group-hover:scale-110 transition-all">
+                            <LayoutDashboard className="w-5 h-5 text-blue-600 dark:text-blue-300" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-gray-900">Dashboard</p>
-                            <p className="text-xs text-gray-500">Ver panel principal</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Dashboard</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Ver panel principal</p>
                           </div>
                         </Link>
 
                         {/* Videos Card - Para todos los usuarios */}
                         <Link
                           to="/videos"
-                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all group mb-1"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 dark:hover:from-purple-900/50 dark:hover:to-purple-800/50 transition-all group mb-1"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          <div className="w-11 h-11 rounded-lg bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
-                            <Video className="w-5 h-5 text-purple-600" />
+                          <div className="w-11 h-11 rounded-lg bg-purple-100 dark:bg-purple-900 flex items-center justify-center mr-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-800 group-hover:scale-110 transition-all">
+                            <Video className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-gray-900">Videos</p>
-                            <p className="text-xs text-gray-500">Catálogo de videos</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Videos</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Catálogo de videos</p>
                           </div>
                         </Link>
 
                         {/* Perfil Card */}
                         <Link
                           to="/perfil"
-                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 transition-all group mb-1"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 dark:hover:from-green-900/50 dark:hover:to-green-800/50 transition-all group mb-1"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          <div className="w-11 h-11 rounded-lg bg-green-100 flex items-center justify-center mr-3 group-hover:bg-green-200 group-hover:scale-110 transition-all">
-                            <User className="w-5 h-5 text-green-600" />
+                          <div className="w-11 h-11 rounded-lg bg-green-100 dark:bg-green-900 flex items-center justify-center mr-3 group-hover:bg-green-200 dark:group-hover:bg-green-800 group-hover:scale-110 transition-all">
+                            <User className="w-5 h-5 text-green-600 dark:text-green-300" />
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-semibold text-gray-900">Mi Perfil</p>
-                            <p className="text-xs text-gray-500">Datos personales</p>
+                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Mi Perfil</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Datos personales</p>
                           </div>
                         </Link>
 
@@ -232,23 +247,23 @@ const Navbar = () => {
                         {(isAdmin() || isDocente()) && (
                           <>
                             <div className="my-3 px-3">
-                              <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3 mb-2">Gestión</p>
+                              <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+                              <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mt-3 mb-2">Gestión</p>
                             </div>
 
                             {/* Upload Card - Solo Docentes */}
                             {isDocente() && !isAdmin() && (
                               <Link
                                 to="/upload"
-                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 transition-all group mb-1"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 dark:hover:from-indigo-900/50 dark:hover:to-indigo-800/50 transition-all group mb-1"
                                 onClick={() => setShowUserMenu(false)}
                               >
-                                <div className="w-11 h-11 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 group-hover:bg-indigo-200 group-hover:scale-110 transition-all">
-                                  <Upload className="w-5 h-5 text-indigo-600" />
+                                <div className="w-11 h-11 rounded-lg bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center mr-3 group-hover:bg-indigo-200 dark:group-hover:bg-indigo-800 group-hover:scale-110 transition-all">
+                                  <Upload className="w-5 h-5 text-indigo-600 dark:text-indigo-300" />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-900">Subir Video</p>
-                                  <p className="text-xs text-gray-500">Nuevo contenido</p>
+                                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Subir Video</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">Nuevo contenido</p>
                                 </div>
                               </Link>
                             )}
@@ -257,15 +272,15 @@ const Navbar = () => {
                             {isAdmin() && (
                               <Link
                                 to="/usuarios"
-                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-teal-100 transition-all group mb-1"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-teal-100 dark:hover:from-teal-900/50 dark:hover:to-teal-800/50 transition-all group mb-1"
                                 onClick={() => setShowUserMenu(false)}
                               >
-                                <div className="w-11 h-11 rounded-lg bg-teal-100 flex items-center justify-center mr-3 group-hover:bg-teal-200 group-hover:scale-110 transition-all">
-                                  <Users className="w-5 h-5 text-teal-600" />
+                                <div className="w-11 h-11 rounded-lg bg-teal-100 dark:bg-teal-900 flex items-center justify-center mr-3 group-hover:bg-teal-200 dark:group-hover:bg-teal-800 group-hover:scale-110 transition-all">
+                                  <Users className="w-5 h-5 text-teal-600 dark:text-teal-300" />
                                 </div>
                                 <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-900">Usuarios</p>
-                                  <p className="text-xs text-gray-500">Gestionar usuarios</p>
+                                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">Usuarios</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">Gestionar usuarios</p>
                                 </div>
                               </Link>
                             )}
@@ -274,20 +289,20 @@ const Navbar = () => {
 
                         {/* Separator */}
                         <div className="my-2 px-3">
-                          <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                          <div className="h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
                         </div>
 
                         {/* Logout Card */}
                         <button
                           onClick={handleLogout}
-                          className="w-full flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 transition-all group"
+                          className="w-full flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 dark:hover:from-red-900/50 dark:hover:to-red-800/50 transition-all group"
                         >
-                          <div className="w-11 h-11 rounded-lg bg-red-100 flex items-center justify-center mr-3 group-hover:bg-red-200 group-hover:scale-110 transition-all">
-                            <LogOut className="w-5 h-5 text-red-600" />
+                          <div className="w-11 h-11 rounded-lg bg-red-100 dark:bg-red-900 flex items-center justify-center mr-3 group-hover:bg-red-200 dark:group-hover:bg-red-800 group-hover:scale-110 transition-all">
+                            <LogOut className="w-5 h-5 text-red-600 dark:text-red-300" />
                           </div>
                           <div className="flex-1 text-left">
-                            <p className="text-sm font-semibold text-red-600">Cerrar Sesión</p>
-                            <p className="text-xs text-red-400">Salir de tu cuenta</p>
+                            <p className="text-sm font-semibold text-red-600 dark:text-red-400">Cerrar Sesión</p>
+                            <p className="text-xs text-red-400 dark:text-red-500">Salir de tu cuenta</p>
                           </div>
                         </button>
                       </div>
