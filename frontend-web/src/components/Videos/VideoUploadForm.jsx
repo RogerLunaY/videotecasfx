@@ -272,7 +272,7 @@ const VideoUploadForm = () => {
     }
   };
 
-  const filteredTemas = temas.filter(tema => tema.materia_id == formData.materia_id);
+  const filteredTemas = temas.filter(tema => String(tema.materia_id) === String(formData.materia_id));
 
   if (resourcesLoading) {
     return <LoadingSpinner />;

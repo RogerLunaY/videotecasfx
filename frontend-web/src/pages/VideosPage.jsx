@@ -77,7 +77,6 @@ const VideosPage = () => {
       const params = {
         page: pagination.page,
         per_page: 12,
-        busqueda: debouncedSearch,
         ...filters
       };
 

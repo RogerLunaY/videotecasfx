@@ -34,7 +34,7 @@ const GradoSelector = ({ grados, value, onChange, error, required = false }) => 
       <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
         {gradosOrdenados.map(grado => {
           const color = getGradoColor(grado.nivel);
-          const isSelected = value == grado.id;
+          const isSelected = String(value) === String(grado.id);
 
           return (
             <button

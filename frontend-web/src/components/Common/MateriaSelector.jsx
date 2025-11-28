@@ -105,7 +105,7 @@ const MateriaSelector = ({ campos, materias, value, onChange, error, required = 
                     onClick={() => onChange(materia.id)}
                     className={`
                       group relative flex flex-col items-center p-3 rounded-lg border-2 transition-all
-                      ${value == materia.id
+                      ${String(value) === String(materia.id)
                         ? 'border-primary-500 bg-primary-50 shadow-md'
                         : 'border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm'
                       }
@@ -114,7 +114,7 @@ const MateriaSelector = ({ campos, materias, value, onChange, error, required = 
                     {/* Icono SVG */}
                     <div className={`
                       mb-2
-                      ${value == materia.id ? 'scale-110' : 'group-hover:scale-105'}
+                      ${String(value) === String(materia.id) ? 'scale-110' : 'group-hover:scale-105'}
                       transition-transform
                     `}>
                       <IconComponent
@@ -143,7 +143,7 @@ const MateriaSelector = ({ campos, materias, value, onChange, error, required = 
                     )}
 
                     {/* Indicador de selección */}
-                    {value == materia.id && (
+                    {String(value) === String(materia.id) && (
                       <div className="absolute top-1 right-1 w-5 h-5 bg-primary-500 rounded-full flex items-center justify-center">
                         <LucideIcons.Check className="w-3 h-3 text-white" strokeWidth={3} />
                       </div>
