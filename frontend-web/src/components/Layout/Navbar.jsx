@@ -214,22 +214,20 @@ const Navbar = () => {
                           </div>
                         </Link>
 
-                        {/* Biblioteca Card - Para estudiantes */}
-                        {isEstudiante() && (
-                          <Link
-                            to="/biblioteca"
-                            className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all group mb-1"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <div className="w-11 h-11 rounded-lg bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
-                              <Library className="w-5 h-5 text-purple-600" />
-                            </div>
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold text-gray-900">Biblioteca</p>
-                              <p className="text-xs text-gray-500">Explorar videos</p>
-                            </div>
-                          </Link>
-                        )}
+                        {/* Videos Card - Para todos los usuarios */}
+                        <Link
+                          to="/videos"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all group mb-1"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <div className="w-11 h-11 rounded-lg bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
+                            <Video className="w-5 h-5 text-purple-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900">Videos</p>
+                            <p className="text-xs text-gray-500">Catálogo de videos</p>
+                          </div>
+                        </Link>
 
                         {/* Perfil Card */}
                         <Link
@@ -253,37 +251,6 @@ const Navbar = () => {
                               <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
                               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3 mb-2">Gestión</p>
                             </div>
-
-                            {/* Videos Card */}
-                            {isAdmin() ? (
-                              <Link
-                                to="/videos"
-                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 transition-all group mb-1"
-                                onClick={() => setShowUserMenu(false)}
-                              >
-                                <div className="w-11 h-11 rounded-lg bg-orange-100 flex items-center justify-center mr-3 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
-                                  <Video className="w-5 h-5 text-orange-600" />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-900">Catálogo Videos</p>
-                                  <p className="text-xs text-gray-500">Gestionar todos los videos</p>
-                                </div>
-                              </Link>
-                            ) : (
-                              <Link
-                                to="/mis-videos"
-                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 transition-all group mb-1"
-                                onClick={() => setShowUserMenu(false)}
-                              >
-                                <div className="w-11 h-11 rounded-lg bg-orange-100 flex items-center justify-center mr-3 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
-                                  <Video className="w-5 h-5 text-orange-600" />
-                                </div>
-                                <div className="flex-1">
-                                  <p className="text-sm font-semibold text-gray-900">Mis Videos</p>
-                                  <p className="text-xs text-gray-500">Videos que he subido</p>
-                                </div>
-                              </Link>
-                            )}
 
                             {/* Upload Card */}
                             <Link

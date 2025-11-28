@@ -14,10 +14,12 @@ import VideoList from '../components/Videos/VideoList';
 import MateriaSelector from '../components/Common/MateriaSelector';
 import GradoSelector from '../components/Common/GradoSelector';
 import { useResources } from '../hooks/useResources';
+import { useAuth } from '../context/AuthContext';
 import { getVideos, searchVideos } from '../services/videoService';
 
 const VideosPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user, isAdmin, isDocente, isEstudiante } = useAuth();
   const { campos, materias, grados } = useResources();
 
   // Cargar configuración desde localStorage
@@ -79,6 +81,11 @@ const VideosPage = () => {
         per_page: 12,
         ...filters
       };
+
+      // Si es docente, filtrar solo sus videos
+      if (isDocente() && !isAdmin() && user?.id) {
+        params.docente_id = user.id;
+      }
 
       // Remover filtros vacíos
       Object.keys(params).forEach(key => {
@@ -153,66 +160,67 @@ const VideosPage = () => {
         </div>
 
         <div className="container mx-auto px-4 py-8">
-          {/* Barra de búsqueda y controles */}
-          <div className="bg-white rounded-xl shadow-md p-4 mb-6">
-            <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-              {/* Búsqueda con debounce */}
-              <div className="flex-1 relative w-full">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar videos por título, descripción, tema..."
-                  className="input-field pl-10 w-full"
-                />
-                {searchTerm && (
-                  <button
-                    onClick={() => setSearchTerm('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-
-              {/* Controles */}
-              <div className="flex items-center gap-2">
-                {/* Toggle filtros */}
-                <button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
-                    showFilters
-                      ? 'border-primary-500 bg-primary-50 text-primary-700'
-                      : 'border-gray-200 hover:border-primary-300'
-                  }`}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  <span className="hidden sm:inline">Filtros</span>
-                  {hasActiveFilters && (
-                    <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
+          {/* Barra de búsqueda y controles - Oculta para estudiantes */}
+          {!isEstudiante() && (
+            <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+              <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
+                {/* Búsqueda con debounce */}
+                <div className="flex-1 relative w-full">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Buscar videos por título, descripción, tema..."
+                    className="input-field pl-10 w-full"
+                  />
+                  {searchTerm && (
+                    <button
+                      onClick={() => setSearchTerm('')}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   )}
-                </button>
+                </div>
 
-                {/* Toggle vista */}
-                <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1">
+                {/* Controles */}
+                <div className="flex items-center gap-2">
+                  {/* Toggle filtros */}
                   <button
-                    onClick={() => setViewMode('grid')}
-                    className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-                    title="Vista de cuadrícula"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
+                      showFilters
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-gray-200 hover:border-primary-300'
+                    }`}
                   >
-                    <LayoutGrid className="w-4 h-4" />
+                    <SlidersHorizontal className="w-4 h-4" />
+                    <span className="hidden sm:inline">Filtros</span>
+                    {hasActiveFilters && (
+                      <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
+                    )}
                   </button>
-                  <button
-                    onClick={() => setViewMode('list')}
-                    className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
-                    title="Vista de lista"
-                  >
-                    <LayoutList className="w-4 h-4" />
-                  </button>
+
+                  {/* Toggle vista */}
+                  <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1">
+                    <button
+                      onClick={() => setViewMode('grid')}
+                      className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      title="Vista de cuadrícula"
+                    >
+                      <LayoutGrid className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => setViewMode('list')}
+                      className={`p-2 rounded ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      title="Vista de lista"
+                    >
+                      <LayoutList className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
 
             {/* Panel de Filtros Expandible */}
             {showFilters && (
@@ -332,7 +340,8 @@ const VideosPage = () => {
                 )}
               </div>
             )}
-          </div>
+            </div>
+          )}
 
           {/* Contador de resultados */}
           <div className="mb-6 flex items-center justify-between">

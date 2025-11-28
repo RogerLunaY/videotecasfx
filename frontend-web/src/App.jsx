@@ -17,7 +17,6 @@ import AcercaDePage from './pages/AcercaDePage';
 import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
 import VideosPage from './pages/VideosPage';
-import VideosEstudiantesPage from './pages/VideosEstudiantesPage';
 import VideoDetailPage from './pages/VideoDetailPage';
 import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
@@ -79,6 +78,15 @@ function App() {
 
       {/* Rutas protegidas - Solo autenticados */}
       <Route
+        path="/videos"
+        element={
+          <ProtectedRoute>
+            <VideosPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/videos/:id"
         element={
           <ProtectedRoute>
@@ -87,16 +95,6 @@ function App() {
         }
       />
 
-      <Route
-        path="/biblioteca"
-        element={
-          <ProtectedRoute>
-            <VideosEstudiantesPage />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Rutas protegidas - Solo autenticados (continuación) */}
       <Route
         path="/dashboard"
         element={
@@ -125,14 +123,6 @@ function App() {
       />
 
       {/* Rutas protegidas - Solo admin */}
-      <Route
-        path="/videos"
-        element={
-          <ProtectedRoute requireAdmin>
-            <VideosPage />
-          </ProtectedRoute>
-        }
-      />
 
       {/* Rutas protegidas - Solo admin (continuación) */}
       <Route
