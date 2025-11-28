@@ -27,6 +27,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import Navbar from './components/Layout/Navbar';
 import Footer from './components/Layout/Footer';
 import LoadingSpinner from './components/Common/LoadingSpinner';
+import LoginDebug from './components/Debug/LoginDebug';
 
 /**
  * Componente para rutas protegidas
@@ -71,6 +72,7 @@ function App() {
   return (
     <>
       {shouldShowNavbar && <Navbar />}
+      <LoginDebug />
       <Routes>
         {/* Rutas públicas */}
         <Route path="/login" element={<LoginPage />} />
