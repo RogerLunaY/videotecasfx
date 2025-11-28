@@ -3,12 +3,13 @@
  * Wizard multi-paso con drag & drop y preview
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Upload, FileVideo, Check, ChevronRight, ChevronLeft,
   Play, Pause, Image as ImageIcon, Info, AlertCircle, X
 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 import { useResources } from '../../hooks/useResources';
 import { uploadVideo } from '../../services/videoService';
 import LoadingSpinner from '../Common/LoadingSpinner';
@@ -24,6 +25,7 @@ const STEPS = [
 
 const VideoUploadForm = () => {
   const navigate = useNavigate();
+  const { user, isAdmin, isDocente } = useAuth();
   const { campos, materias, grados, temas, loading: resourcesLoading } = useResources();
   const videoInputRef = useRef(null);
   const thumbnailInputRef = useRef(null);
@@ -274,6 +276,19 @@ const VideoUploadForm = () => {
 
   const filteredTemas = temas.filter(tema => String(tema.materia_id) === String(formData.materia_id));
 
+  // Filtrar grados por asignaciones del docente
+  const gradosDisponibles = useMemo(() => {
+    if (isAdmin()) {
+      return grados; // Admin ve todos los grados
+    }
+    if (isDocente() && user?.grados) {
+      // Docente solo ve sus grados asignados
+      const gradosIds = user.grados.map(g => g.id);
+      return grados.filter(g => gradosIds.includes(g.id));
+    }
+    return grados;
+  }, [grados, user, isAdmin, isDocente]);
+
   if (resourcesLoading) {
     return <LoadingSpinner />;
   }
@@ -492,7 +507,7 @@ const VideoUploadForm = () => {
             />
 
             <GradoSelector
-              grados={grados}
+              grados={gradosDisponibles}
               value={formData.grado_id}
               onChange={(value) => setFormData(prev => ({ ...prev, grado_id: value }))}
               error={errors.grado_id}

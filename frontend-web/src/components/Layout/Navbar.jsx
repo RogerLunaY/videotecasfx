@@ -3,17 +3,39 @@
  * Versión pública y autenticada con colores salesianos
  */
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import {
+  LayoutDashboard, User, Video, Upload, Users, LogOut,
+  ChevronDown, Search, Menu, X, Library
+} from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { getInitials } from '../../utils/helpers';
 
 const Navbar = () => {
-  const { user, isAuthenticated, logout, isAdmin, isDocente } = useAuth();
+  const { user, isAuthenticated, logout, isAdmin, isDocente, isEstudiante } = useAuth();
   const navigate = useNavigate();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const dropdownRef = useRef(null);
+
+  // Cerrar menú al hacer clic fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowUserMenu(false);
+      }
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   const handleLogout = async () => {
     setShowUserMenu(false);
@@ -141,103 +163,181 @@ const Navbar = () => {
                 </div>
 
                 {/* Avatar y Dropdown */}
-                <div className="relative">
+                <div className="relative" ref={dropdownRef}>
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center space-x-2 hover:bg-white/10 rounded-lg px-3 py-2 transition"
+                    className="flex items-center space-x-2 hover:bg-white/10 rounded-lg px-3 py-2 transition-all group"
                   >
-                    <div className="w-9 h-9 rounded-full bg-salesiano-amarillo-400 text-salesiano-azul-900 flex items-center justify-center text-sm font-bold shadow-md">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-salesiano-amarillo-400 to-salesiano-amarillo-500 text-salesiano-azul-900 flex items-center justify-center text-sm font-bold shadow-lg group-hover:shadow-xl transition-shadow ring-2 ring-white/30">
                       {getInitials(user?.nombre || '')}
                     </div>
                     <div className="hidden xl:block text-left">
                       <p className="text-sm font-semibold text-white">{user?.nombre}</p>
                       <p className="text-xs text-salesiano-amarillo-300">{user?.rol}</p>
                     </div>
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
+                    <ChevronDown className={`w-4 h-4 text-white transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
                   </button>
 
-                  {/* Dropdown Menu */}
+                  {/* Dropdown Menu - Cardbox Style */}
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl py-2 border border-gray-200 z-50">
-                      <div className="px-4 py-2 border-b border-gray-200">
-                        <p className="text-sm font-semibold text-gray-900">{user?.nombre}</p>
-                        <p className="text-xs text-gray-500">{user?.email}</p>
+                    <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* Header Card */}
+                      <div className="bg-gradient-to-br from-salesiano-azul-500 to-salesiano-azul-600 p-5">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-14 h-14 rounded-full bg-white text-salesiano-azul-600 flex items-center justify-center text-lg font-bold shadow-md">
+                            {getInitials(user?.nombre || '')}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-base font-bold text-white truncate">{user?.nombre}</p>
+                            <p className="text-sm text-salesiano-amarillo-300 truncate">{user?.email}</p>
+                            <span className="inline-block mt-1 px-2 py-0.5 text-xs font-semibold rounded-full bg-white/20 text-white">
+                              {user?.rol}
+                            </span>
+                          </div>
+                        </div>
                       </div>
 
-                      <Link
-                        to="/dashboard"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <svg className="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                        </svg>
-                        Dashboard
-                      </Link>
-
-                      <Link
-                        to="/perfil"
-                        className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <svg className="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg>
-                        Mi Perfil
-                      </Link>
-
-                      {(isAdmin() || isDocente()) && (
-                        <>
-                          <Link
-                            to="/mis-videos"
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <svg className="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            Mis Videos
-                          </Link>
-
-                          <Link
-                            to="/upload"
-                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                            onClick={() => setShowUserMenu(false)}
-                          >
-                            <svg className="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                            </svg>
-                            Subir Video
-                          </Link>
-                        </>
-                      )}
-
-                      {isAdmin() && (
+                      {/* Menu Items - Card Style */}
+                      <div className="p-2">
+                        {/* Dashboard Card */}
                         <Link
-                          to="/usuarios"
-                          className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                          to="/dashboard"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-blue-50 hover:to-blue-100 transition-all group mb-1"
                           onClick={() => setShowUserMenu(false)}
                         >
-                          <svg className="w-4 h-4 mr-3 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                          </svg>
-                          Gestionar Usuarios
+                          <div className="w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center mr-3 group-hover:bg-blue-200 group-hover:scale-110 transition-all">
+                            <LayoutDashboard className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900">Dashboard</p>
+                            <p className="text-xs text-gray-500">Ver panel principal</p>
+                          </div>
                         </Link>
-                      )}
 
-                      <hr className="my-2" />
+                        {/* Biblioteca Card - Para estudiantes */}
+                        {isEstudiante() && (
+                          <Link
+                            to="/biblioteca"
+                            className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-purple-50 hover:to-purple-100 transition-all group mb-1"
+                            onClick={() => setShowUserMenu(false)}
+                          >
+                            <div className="w-11 h-11 rounded-lg bg-purple-100 flex items-center justify-center mr-3 group-hover:bg-purple-200 group-hover:scale-110 transition-all">
+                              <Library className="w-5 h-5 text-purple-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-gray-900">Biblioteca</p>
+                              <p className="text-xs text-gray-500">Explorar videos</p>
+                            </div>
+                          </Link>
+                        )}
 
-                      <button
-                        onClick={handleLogout}
-                        className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                      >
-                        <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                        </svg>
-                        Cerrar Sesión
-                      </button>
+                        {/* Perfil Card */}
+                        <Link
+                          to="/perfil"
+                          className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-green-50 hover:to-green-100 transition-all group mb-1"
+                          onClick={() => setShowUserMenu(false)}
+                        >
+                          <div className="w-11 h-11 rounded-lg bg-green-100 flex items-center justify-center mr-3 group-hover:bg-green-200 group-hover:scale-110 transition-all">
+                            <User className="w-5 h-5 text-green-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-semibold text-gray-900">Mi Perfil</p>
+                            <p className="text-xs text-gray-500">Datos personales</p>
+                          </div>
+                        </Link>
+
+                        {/* Sección Docente/Admin */}
+                        {(isAdmin() || isDocente()) && (
+                          <>
+                            <div className="my-3 px-3">
+                              <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3 mb-2">Gestión</p>
+                            </div>
+
+                            {/* Videos Card */}
+                            {isAdmin() ? (
+                              <Link
+                                to="/videos"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 transition-all group mb-1"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <div className="w-11 h-11 rounded-lg bg-orange-100 flex items-center justify-center mr-3 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
+                                  <Video className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-900">Catálogo Videos</p>
+                                  <p className="text-xs text-gray-500">Gestionar todos los videos</p>
+                                </div>
+                              </Link>
+                            ) : (
+                              <Link
+                                to="/mis-videos"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-orange-50 hover:to-orange-100 transition-all group mb-1"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <div className="w-11 h-11 rounded-lg bg-orange-100 flex items-center justify-center mr-3 group-hover:bg-orange-200 group-hover:scale-110 transition-all">
+                                  <Video className="w-5 h-5 text-orange-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-900">Mis Videos</p>
+                                  <p className="text-xs text-gray-500">Videos que he subido</p>
+                                </div>
+                              </Link>
+                            )}
+
+                            {/* Upload Card */}
+                            <Link
+                              to="/upload"
+                              className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 transition-all group mb-1"
+                              onClick={() => setShowUserMenu(false)}
+                            >
+                              <div className="w-11 h-11 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 group-hover:bg-indigo-200 group-hover:scale-110 transition-all">
+                                <Upload className="w-5 h-5 text-indigo-600" />
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-sm font-semibold text-gray-900">Subir Video</p>
+                                <p className="text-xs text-gray-500">Nuevo contenido</p>
+                              </div>
+                            </Link>
+
+                            {/* Usuarios Card - Solo Admin */}
+                            {isAdmin() && (
+                              <Link
+                                to="/usuarios"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-teal-50 hover:to-teal-100 transition-all group mb-1"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <div className="w-11 h-11 rounded-lg bg-teal-100 flex items-center justify-center mr-3 group-hover:bg-teal-200 group-hover:scale-110 transition-all">
+                                  <Users className="w-5 h-5 text-teal-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-900">Usuarios</p>
+                                  <p className="text-xs text-gray-500">Gestionar usuarios</p>
+                                </div>
+                              </Link>
+                            )}
+                          </>
+                        )}
+
+                        {/* Separator */}
+                        <div className="my-2 px-3">
+                          <div className="h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        </div>
+
+                        {/* Logout Card */}
+                        <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100 transition-all group"
+                        >
+                          <div className="w-11 h-11 rounded-lg bg-red-100 flex items-center justify-center mr-3 group-hover:bg-red-200 group-hover:scale-110 transition-all">
+                            <LogOut className="w-5 h-5 text-red-600" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="text-sm font-semibold text-red-600">Cerrar Sesión</p>
+                            <p className="text-xs text-red-400">Salir de tu cuenta</p>
+                          </div>
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>

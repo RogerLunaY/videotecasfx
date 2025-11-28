@@ -17,6 +17,7 @@ import AcercaDePage from './pages/AcercaDePage';
 import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
 import VideosPage from './pages/VideosPage';
+import VideosEstudiantesPage from './pages/VideosEstudiantesPage';
 import VideoDetailPage from './pages/VideoDetailPage';
 import UploadVideoPage from './pages/UploadVideoPage';
 import UsuariosPage from './pages/UsuariosPage';
@@ -75,10 +76,27 @@ function App() {
         <Route path="/cursos" element={<CursosPage />} />
         <Route path="/acerca-de" element={<AcercaDePage />} />
         <Route path="/faq" element={<FAQPage />} />
-        <Route path="/videos" element={<VideosPage />} />
-        <Route path="/videos/:id" element={<VideoDetailPage />} />
 
       {/* Rutas protegidas - Solo autenticados */}
+      <Route
+        path="/videos/:id"
+        element={
+          <ProtectedRoute>
+            <VideoDetailPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/biblioteca"
+        element={
+          <ProtectedRoute>
+            <VideosEstudiantesPage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Rutas protegidas - Solo autenticados (continuación) */}
       <Route
         path="/dashboard"
         element={
@@ -106,16 +124,17 @@ function App() {
         }
       />
 
+      {/* Rutas protegidas - Solo admin */}
       <Route
-        path="/mis-videos"
+        path="/videos"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requireAdmin>
             <VideosPage />
           </ProtectedRoute>
         }
       />
 
-      {/* Rutas protegidas - Solo admin */}
+      {/* Rutas protegidas - Solo admin (continuación) */}
       <Route
         path="/register"
         element={

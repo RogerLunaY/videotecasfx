@@ -107,6 +107,13 @@ export const AuthProvider = ({ children }) => {
     return hasRole('Docente');
   };
 
+  /**
+   * Verifica si el usuario es estudiante
+   */
+  const isEstudiante = () => {
+    return hasRole('Estudiante');
+  };
+
   const value = {
     user,
     loading,
@@ -117,6 +124,7 @@ export const AuthProvider = ({ children }) => {
     hasRole,
     isAdmin,
     isDocente,
+    isEstudiante,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

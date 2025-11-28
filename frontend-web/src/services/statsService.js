@@ -12,7 +12,17 @@ const statsService = {
    */
   async getDashboard() {
     const response = await api.get('/estadisticas/dashboard');
-    return response.data.dashboard;
+    const dashboard = response.data.dashboard;
+
+    // Combinar las estadísticas generales con el resto del dashboard para acceso directo
+    return {
+      ...dashboard.generales,
+      videos_populares: dashboard.videos_populares || [],
+      actividad_reciente: dashboard.actividad_reciente || [],
+      por_materia: dashboard.por_materia || [],
+      por_grado: dashboard.por_grado || [],
+      tendencias: dashboard.tendencias || []
+    };
   },
 
   /**

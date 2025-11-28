@@ -106,27 +106,35 @@ class Estadistica
             $stmt2 = $this->conn->query("SELECT COUNT(*) as count FROM videos WHERE estado = 'activo'");
             $videos = $stmt2->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Total de reproducciones
-            $stmt3 = $this->conn->query("SELECT COUNT(*) as count FROM reproducciones");
-            $reproducciones = $stmt3->fetch(PDO::FETCH_ASSOC)['count'];
+            // Total de docentes activos
+            $stmt3 = $this->conn->query("SELECT COUNT(*) as count FROM usuarios WHERE rol = 'Docente' AND estado = 'activo'");
+            $docentes = $stmt3->fetch(PDO::FETCH_ASSOC)['count'];
 
-            // Total de visualizaciones
-            $stmt4 = $this->conn->query("SELECT SUM(visualizaciones) as total FROM videos");
-            $visualizaciones = $stmt4->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            // Total de reproducciones
+            $stmt4 = $this->conn->query("SELECT COUNT(*) as count FROM reproducciones");
+            $reproducciones = $stmt4->fetch(PDO::FETCH_ASSOC)['count'];
+
+            // Total de visualizaciones y espacio usado
+            $stmt5 = $this->conn->query("SELECT SUM(visualizaciones) as visualizaciones, COALESCE(SUM(tamano_archivo), 0) as espacio FROM videos WHERE estado = 'activo'");
+            $stats = $stmt5->fetch(PDO::FETCH_ASSOC);
+            $visualizaciones = $stats['visualizaciones'] ?? 0;
+            $espacioUsado = $stats['espacio'] ?? 0;
 
             // Total de materias
-            $stmt5 = $this->conn->query("SELECT COUNT(*) as count FROM materias WHERE estado = 'activo'");
-            $materias = $stmt5->fetch(PDO::FETCH_ASSOC)['count'];
+            $stmt6 = $this->conn->query("SELECT COUNT(*) as count FROM materias WHERE estado = 'activo'");
+            $materias = $stmt6->fetch(PDO::FETCH_ASSOC)['count'];
 
             // Total de grados
-            $stmt6 = $this->conn->query("SELECT COUNT(*) as count FROM grados WHERE estado = 'activo'");
-            $grados = $stmt6->fetch(PDO::FETCH_ASSOC)['count'];
+            $stmt7 = $this->conn->query("SELECT COUNT(*) as count FROM grados WHERE estado = 'activo'");
+            $grados = $stmt7->fetch(PDO::FETCH_ASSOC)['count'];
 
             return [
                 'total_usuarios_activos' => (int)$usuarios,
-                'total_videos_activos' => (int)$videos,
+                'total_videos' => (int)$videos,
+                'total_docentes' => (int)$docentes,
                 'total_reproducciones' => (int)$reproducciones,
                 'total_visualizaciones' => (int)$visualizaciones,
+                'espacio_usado' => (int)$espacioUsado,
                 'total_materias' => (int)$materias,
                 'total_grados' => (int)$grados
             ];
@@ -392,14 +400,18 @@ class Estadistica
             $stmt1->execute();
             $totalVideos = $stmt1->fetch(PDO::FETCH_ASSOC)['total'];
 
-            // Total de visualizaciones
-            $query2 = "SELECT SUM(visualizaciones) as total
+            // Total de visualizaciones y espacio usado
+            $query2 = "SELECT
+                        SUM(visualizaciones) as total_visualizaciones,
+                        SUM(tamano_archivo) as espacio_usado
                     FROM videos
                     WHERE docente_id = :docente_id";
             $stmt2 = $this->conn->prepare($query2);
             $stmt2->bindParam(':docente_id', $docenteId, PDO::PARAM_INT);
             $stmt2->execute();
-            $totalVisualizaciones = $stmt2->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+            $stats = $stmt2->fetch(PDO::FETCH_ASSOC);
+            $totalVisualizaciones = $stats['total_visualizaciones'] ?? 0;
+            $espacioUsado = $stats['espacio_usado'] ?? 0;
 
             // Videos del docente más vistos
             $query3 = "SELECT
@@ -416,6 +428,7 @@ class Estadistica
             return [
                 'total_videos' => (int)$totalVideos,
                 'total_visualizaciones' => (int)$totalVisualizaciones,
+                'espacio_usado' => (int)$espacioUsado,
                 'promedio_visualizaciones' => $totalVideos > 0 ? round($totalVisualizaciones / $totalVideos, 2) : 0,
                 'videos_populares' => $videosPopulares
             ];

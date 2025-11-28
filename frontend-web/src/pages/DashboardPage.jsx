@@ -4,7 +4,7 @@
  * Para admin: estadísticas generales con visualizaciones y top content
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Video, Eye, HardDrive, Upload, User, Users,
@@ -27,6 +27,19 @@ const DashboardPage = () => {
   const { grados } = useResources();
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Filtrar grados por asignaciones del docente
+  const gradosDisponibles = useMemo(() => {
+    if (isAdmin()) {
+      return grados; // Admin ve todos los grados
+    }
+    if (isDocente() && user?.grados) {
+      // Docente solo ve sus grados asignados
+      const gradosIds = user.grados.map(g => g.id);
+      return grados.filter(g => gradosIds.includes(g.id));
+    }
+    return grados;
+  }, [grados, user, isAdmin, isDocente]);
 
   // Estados para videos de docente
   const [misVideos, setMisVideos] = useState([]);
@@ -56,8 +69,8 @@ const DashboardPage = () => {
   const loadDashboard = async () => {
     try {
       setLoading(true);
-      const response = await getDashboard();
-      setStats(response.data);
+      const data = await getDashboard();
+      setStats(data);
     } catch (error) {
       console.error('Error loading dashboard:', error);
     } finally {
@@ -258,7 +271,7 @@ const DashboardPage = () => {
                     Filtrar por Grado
                   </label>
                   <GradoSelector
-                    grados={grados}
+                    grados={gradosDisponibles}
                     value={filtroGrado}
                     onChange={handleFiltroChange}
                     allowClear
