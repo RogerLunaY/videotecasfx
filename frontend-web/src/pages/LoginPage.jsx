@@ -1,11 +1,12 @@
 /**
  * Página de Login
+ * Split screen con ilustración educativa
  */
 
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Play, BookOpen, GraduationCap, Video, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import LoadingSpinner from '../components/Common/LoadingSpinner';
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -75,32 +76,98 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        {/* Header */}
-        <Link to="/" className="block text-center mb-8 group">
-          <div className="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center mb-4 group-hover:shadow-lg transition-shadow">
-            <svg className="w-10 h-10 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+    <div className="min-h-screen flex">
+      {/* Left Side - Illustration */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary-600 via-primary-500 to-salesiano-azul-500 relative overflow-hidden">
+        {/* Elementos decorativos */}
+        <div className="absolute inset-0">
+          <div className="absolute top-10 right-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-10 left-10 w-96 h-96 bg-salesiano-amarillo-400/10 rounded-full blur-3xl"></div>
+        </div>
+
+        {/* Contenido */}
+        <div className="relative z-10 flex flex-col justify-center items-center w-full px-12 text-white">
+          {/* Logo/Icono */}
+          <div className="w-24 h-24 bg-white/20 backdrop-blur-sm rounded-3xl flex items-center justify-center mb-8">
+            <Play className="w-14 h-14 text-white" strokeWidth={2} />
           </div>
-          <h2 className="text-3xl font-bold text-white group-hover:text-salesiano-amarillo-300 transition-colors">Videoteca SFX</h2>
-        </Link>
 
-        {/* Card */}
-        <div className="bg-white rounded-lg shadow-xl p-8">
+          {/* Título */}
+          <h1 className="text-5xl font-extrabold mb-4 text-center">
+            VIDEOTECA SFX
+          </h1>
+          <p className="text-xl text-primary-100 mb-12 text-center max-w-md">
+            Plataforma Educativa Digital de la U.E. San Francisco Xavier
+          </p>
 
+          {/* Ilustración con iconos */}
+          <div className="grid grid-cols-3 gap-8 max-w-lg">
+            <div className="flex flex-col items-center group">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <BookOpen className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-sm font-semibold">Materias</p>
+            </div>
+
+            <div className="flex flex-col items-center group">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Video className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-sm font-semibold">Videos</p>
+            </div>
+
+            <div className="flex flex-col items-center group">
+              <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <GraduationCap className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-sm font-semibold">Cursos</p>
+            </div>
+          </div>
+
+          {/* Footer text */}
+          <div className="mt-16 text-center">
+            <p className="text-primary-100">
+              © 2025 U.E. San Francisco Xavier
+            </p>
+            <p className="text-sm text-primary-200">
+              Okinawa Uno, Bolivia • Comunidad Salesiana
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Right Side - Login Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
+        <div className="max-w-md w-full">
+          {/* Back to home button */}
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Volver al inicio
+          </Link>
+
+          {/* Header */}
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Iniciar Sesión</h2>
+            <p className="text-gray-600">
+              Accede a tu cuenta para continuar
+            </p>
+          </div>
+
+          {/* Error Message */}
           {errorMessage && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{errorMessage}</p>
+            <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded">
+              <p className="text-sm text-red-700">{errorMessage}</p>
             </div>
           )}
 
+          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
                 Correo Electrónico
               </label>
               <input
@@ -109,68 +176,105 @@ const LoginPage = () => {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                className={`input-field ${errors.email ? 'border-red-500' : ''}`}
+                className={`input-field ${errors.email ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="tu.email@ejemplo.com"
                 autoComplete="email"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.email}</p>
               )}
             </div>
 
             {/* Password */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Contraseña
-              </label>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  Contraseña
+                </label>
+                <a href="#" className="text-sm text-primary-600 hover:text-primary-700">
+                  ¿Olvidaste tu contraseña?
+                </a>
+              </div>
               <input
                 type="password"
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                className={`input-field ${errors.password ? 'border-red-500' : ''}`}
+                className={`input-field ${errors.password ? 'border-red-500 focus:ring-red-500' : ''}`}
                 placeholder="••••••••"
                 autoComplete="current-password"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-2 text-sm text-red-600">{errors.password}</p>
               )}
+            </div>
+
+            {/* Remember me */}
+            <div className="flex items-center">
+              <input
+                id="remember"
+                name="remember"
+                type="checkbox"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+              />
+              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                Recordarme
+              </label>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3 text-base font-semibold"
+              className="w-full btn-primary py-3 text-base font-semibold flex items-center justify-center gap-2"
             >
               {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   Iniciando sesión...
-                </span>
+                </>
               ) : (
-                'Iniciar Sesión'
+                <>
+                  Iniciar Sesión
+                  <Play className="w-4 h-4" />
+                </>
               )}
             </button>
           </form>
 
           {/* Credenciales de prueba */}
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <p className="text-xs font-semibold text-gray-700 mb-2">Credenciales de prueba:</p>
-            <div className="text-xs text-gray-600 space-y-1">
-              <p><strong>Admin:</strong> vladimir.mamani@atsi.edu.bo / Password123!</p>
-              <p><strong>Docente:</strong> juan.perez@sfx.edu.bo / Password123!</p>
+          <div className="mt-8 p-5 bg-gradient-to-r from-blue-50 to-primary-50 rounded-xl border border-blue-100">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                <BookOpen className="w-5 h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-700 mb-3">Credenciales de prueba:</p>
+                <div className="space-y-2 text-xs text-gray-600">
+                  <div className="bg-white/60 rounded px-3 py-2">
+                    <p className="font-semibold text-gray-900 mb-1">Administrador:</p>
+                    <p className="font-mono">vladimir.mamani@atsi.edu.bo</p>
+                    <p className="font-mono">Password123!</p>
+                  </div>
+                  <div className="bg-white/60 rounded px-3 py-2">
+                    <p className="font-semibold text-gray-900 mb-1">Docente:</p>
+                    <p className="font-mono">juan.perez@sfx.edu.bo</p>
+                    <p className="font-mono">Password123!</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Link al inicio */}
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-sm text-primary-600 hover:text-primary-700">
-              Volver al inicio
+          {/* Mobile logo */}
+          <div className="lg:hidden mt-8 text-center">
+            <Link to="/" className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-semibold">
+              <Play className="w-5 h-5" />
+              Videoteca SFX
             </Link>
           </div>
         </div>

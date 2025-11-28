@@ -14,6 +14,7 @@ import HomePage from './pages/HomePage';
 import MateriasPage from './pages/MateriasPage';
 import CursosPage from './pages/CursosPage';
 import AcercaDePage from './pages/AcercaDePage';
+import FAQPage from './pages/FAQPage';
 import DashboardPage from './pages/DashboardPage';
 import VideosPage from './pages/VideosPage';
 import VideoDetailPage from './pages/VideoDetailPage';
@@ -73,6 +74,7 @@ function App() {
         <Route path="/materias" element={<MateriasPage />} />
         <Route path="/cursos" element={<CursosPage />} />
         <Route path="/acerca-de" element={<AcercaDePage />} />
+        <Route path="/faq" element={<FAQPage />} />
         <Route path="/videos" element={<VideosPage />} />
         <Route path="/videos/:id" element={<VideoDetailPage />} />
 
