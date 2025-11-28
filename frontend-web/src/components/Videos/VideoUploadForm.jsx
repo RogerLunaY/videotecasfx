@@ -308,7 +308,7 @@ const VideoUploadForm = () => {
   return (
     <div className="space-y-6">
       {/* Progress Stepper */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 border-gray-200 p-6">
         <div className="flex items-center justify-between">
           {STEPS.map((step, index) => {
             const Icon = step.icon;
@@ -367,11 +367,11 @@ const VideoUploadForm = () => {
       )}
 
       {/* Step Content */}
-      <div className="bg-white rounded-lg border border-gray-200 p-6 min-h-[400px]">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border dark:border-gray-700 border-gray-200 p-6 min-h-[400px]">
         {/* STEP 1: Seleccionar Video */}
         {currentStep === 1 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Selecciona tu video</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Selecciona tu video</h2>
 
             {!files.video ? (
               <div
@@ -410,7 +410,7 @@ const VideoUploadForm = () => {
                 >
                   Seleccionar Video
                 </button>
-                <p className="text-xs text-gray-500 mt-4">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
                   Formatos: MP4, WebM, OGG, AVI • Tamaño máximo: 500MB
                 </p>
                 {errors.video && (
@@ -439,12 +439,12 @@ const VideoUploadForm = () => {
                     )}
                   </button>
                 </div>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center gap-3">
                     <FileVideo className="w-5 h-5 text-gray-600" />
                     <div>
-                      <p className="font-medium text-gray-900">{files.video.name}</p>
-                      <p className="text-sm text-gray-600">
+                      <p className="font-medium text-gray-900 dark:text-gray-100">{files.video.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">
                         {(files.video.size / 1024 / 1024).toFixed(2)} MB
                       </p>
                     </div>
@@ -469,14 +469,14 @@ const VideoUploadForm = () => {
         {/* STEP 2: Información y Clasificación */}
         {currentStep === 2 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Información y Clasificación</h2>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Información y Clasificación</h2>
 
             {/* Información del Video */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Información del Video</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-2">Información del Video</h3>
 
               <div>
-                <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Título *
                 </label>
                 <input
@@ -492,7 +492,7 @@ const VideoUploadForm = () => {
               </div>
 
               <div>
-                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Descripción
                 </label>
                 <textarea
@@ -501,7 +501,7 @@ const VideoUploadForm = () => {
                   value={formData.descripcion}
                   onChange={handleChange}
                   rows={4}
-                  className="input-field"
+                  className="input-field dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                   placeholder="Describe el contenido del video, temas que cubre, objetivos de aprendizaje..."
                 />
               </div>
@@ -509,42 +509,131 @@ const VideoUploadForm = () => {
 
             {/* Clasificación Académica */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Clasificación Académica</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 border-b pb-2">Clasificación Académica</h3>
 
-              {/* Materia - Color Azul */}
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
-                <MateriaSelector
-                  campos={campos}
-                  materias={materiasDisponibles}
-                  value={formData.materia_id}
-                  onChange={(value) => setFormData(prev => ({ ...prev, materia_id: value, tema_id: '' }))}
-                  error={errors.materia_id}
-                  required
-                />
+              {/* Materia - Selección con badges */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Materia * {!isAdmin() && <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">(Tus materias asignadas)</span>}
+                </label>
+
+                {materiasDisponibles.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                    <p className="text-sm">No tienes materias asignadas.</p>
+                    <p className="text-xs mt-1">Contacta al administrador para asignarte materias.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {materiasDisponibles.map((materia) => {
+                      const isSelected = formData.materia_id === materia.id.toString();
+                      return (
+                        <button
+                          key={materia.id}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, materia_id: materia.id.toString(), tema_id: '' }))}
+                          className={`relative p-4 rounded-lg border-2 text-left transition-all ${
+                            isSelected
+                              ? 'border-blue-600 bg-blue-100 dark:bg-blue-900/40 shadow-md'
+                              : 'border-blue-200 dark:border-blue-700 bg-white dark:bg-gray-800 hover:border-blue-400 hover:shadow'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <p className={`font-semibold text-sm mb-1 ${
+                                isSelected ? 'text-blue-900 dark:text-blue-200' : 'text-gray-900 dark:text-gray-100'
+                              }`}>
+                                {materia.nombre}
+                              </p>
+                              {materia.sigla && (
+                                <span className={`inline-block text-xs px-2 py-1 rounded ${
+                                  isSelected
+                                    ? 'bg-blue-200 dark:bg-blue-800 text-blue-900 dark:text-blue-100'
+                                    : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                }`}>
+                                  {materia.sigla}
+                                </span>
+                              )}
+                            </div>
+                            {isSelected && (
+                              <div className="ml-2 flex-shrink-0">
+                                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                  <Check className="w-4 h-4 text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {errors.materia_id && <p className="mt-2 text-sm text-red-600">{errors.materia_id}</p>}
               </div>
 
-              {/* Grado/Curso - Color Verde */}
-              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
-                <GradoSelector
-                  grados={gradosDisponibles}
-                  value={formData.grado_id}
-                  onChange={(value) => setFormData(prev => ({ ...prev, grado_id: value }))}
-                  error={errors.grado_id}
-                  required
-                />
+              {/* Grado/Curso - Selección con badges */}
+              <div className="bg-green-50 dark:bg-green-900/20 border-2 border-green-200 dark:border-green-800 rounded-lg p-4">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Grado/Curso * {!isAdmin() && <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">(Tus cursos asignados)</span>}
+                </label>
+
+                {gradosDisponibles.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500 dark:text-gray-400">
+                    <p className="text-sm">No tienes cursos asignados.</p>
+                    <p className="text-xs mt-1">Contacta al administrador para asignarte cursos.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {gradosDisponibles.map((grado) => {
+                      const isSelected = formData.grado_id === grado.id.toString();
+                      return (
+                        <button
+                          key={grado.id}
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, grado_id: grado.id.toString() }))}
+                          className={`relative p-4 rounded-lg border-2 text-center transition-all ${
+                            isSelected
+                              ? 'border-green-600 bg-green-100 dark:bg-green-900/40 shadow-md'
+                              : 'border-green-200 dark:border-green-700 bg-white dark:bg-gray-800 hover:border-green-400 hover:shadow'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center">
+                            <p className={`text-2xl font-bold mb-1 ${
+                              isSelected ? 'text-green-900 dark:text-green-200' : 'text-gray-900 dark:text-gray-100'
+                            }`}>
+                              {grado.nivel}°
+                            </p>
+                            <p className={`text-xs ${
+                              isSelected ? 'text-green-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'
+                            }`}>
+                              {grado.nombre}
+                            </p>
+                            {isSelected && (
+                              <div className="absolute top-2 right-2">
+                                <div className="w-5 h-5 bg-green-600 rounded-full flex items-center justify-center">
+                                  <Check className="w-3 h-3 text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {errors.grado_id && <p className="mt-2 text-sm text-red-600">{errors.grado_id}</p>}
               </div>
 
               {/* Tema */}
-              <div>
-                <label htmlFor="tema_id" className="block text-sm font-medium text-gray-700 mb-2">
-                  Tema *
+              <div className="bg-purple-50 dark:bg-purple-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                <label htmlFor="tema_id" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Tema * {!formData.materia_id && <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400">(Primero selecciona una materia)</span>}
                 </label>
                 <select
                   id="tema_id"
                   name="tema_id"
                   value={formData.tema_id}
                   onChange={handleChange}
-                  className={`input-field ${errors.tema_id ? 'border-red-500' : ''}`}
+                  className={`input-field dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 ${errors.tema_id ? 'border-red-500' : ''}`}
                   disabled={!formData.materia_id}
                 >
                   <option value="">Seleccionar tema</option>
@@ -552,7 +641,12 @@ const VideoUploadForm = () => {
                     <option key={tema.id} value={tema.id}>{tema.nombre}</option>
                   ))}
                 </select>
-                {errors.tema_id && <p className="mt-1 text-sm text-red-600">{errors.tema_id}</p>}
+                {!formData.materia_id && (
+                  <p className="mt-2 text-xs text-purple-600 dark:text-purple-400">
+                    Los temas disponibles dependen de la materia seleccionada
+                  </p>
+                )}
+                {errors.tema_id && <p className="mt-2 text-sm text-red-600">{errors.tema_id}</p>}
               </div>
             </div>
           </div>
@@ -561,15 +655,15 @@ const VideoUploadForm = () => {
         {/* STEP 3: Thumbnail */}
         {currentStep === 3 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Miniatura del video</h2>
-            <p className="text-gray-600">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Miniatura del video</h2>
+            <p className="text-gray-600 dark:text-gray-400">
               Selecciona una imagen o captura un fotograma del video
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Video Preview para captura */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Capturar del video</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Capturar del video</h3>
                 <div className="bg-gray-900 rounded-lg overflow-hidden">
                   <video
                     ref={videoPreviewRef}
@@ -590,7 +684,7 @@ const VideoUploadForm = () => {
 
               {/* Thumbnail Preview */}
               <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900">Vista previa</h3>
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">Vista previa</h3>
                 {thumbnailPreviewUrl ? (
                   <div className="relative">
                     <img
@@ -611,9 +705,9 @@ const VideoUploadForm = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center">
                     <ImageIcon className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-600">Sin miniatura seleccionada</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Sin miniatura seleccionada</p>
                   </div>
                 )}
                 <input
@@ -630,7 +724,7 @@ const VideoUploadForm = () => {
                 >
                   Subir imagen
                 </button>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Si no seleccionas una miniatura, se generará automáticamente
                 </p>
               </div>
@@ -638,10 +732,10 @@ const VideoUploadForm = () => {
 
             {/* Upload Progress */}
             {loading && (
-              <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
+              <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 rounded-lg p-6">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="font-semibold text-primary-900">Subiendo video...</span>
-                  <span className="text-primary-700 font-bold">{uploadProgress}%</span>
+                  <span className="font-semibold text-primary-900 dark:text-primary-100">Subiendo video...</span>
+                  <span className="text-primary-700 dark:text-primary-300 font-bold">{uploadProgress}%</span>
                 </div>
                 <div className="w-full bg-primary-200 rounded-full h-3 overflow-hidden">
                   <div
