@@ -275,6 +275,19 @@ const VideoUploadForm = () => {
 
   const filteredTemas = temas.filter(tema => String(tema.materia_id) === String(formData.materia_id));
 
+  // Filtrar materias por asignaciones del docente
+  const materiasDisponibles = useMemo(() => {
+    if (isAdmin()) {
+      return materias; // Admin ve todas las materias
+    }
+    if (isDocente() && user?.materias) {
+      // Docente solo ve sus materias asignadas
+      const materiasIds = user.materias.map(m => m.id);
+      return materias.filter(m => materiasIds.includes(m.id));
+    }
+    return materias;
+  }, [materias, user, isAdmin, isDocente]);
+
   // Filtrar grados por asignaciones del docente
   const gradosDisponibles = useMemo(() => {
     if (isAdmin()) {
@@ -502,7 +515,7 @@ const VideoUploadForm = () => {
               <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
                 <MateriaSelector
                   campos={campos}
-                  materias={materias}
+                  materias={materiasDisponibles}
                   value={formData.materia_id}
                   onChange={(value) => setFormData(prev => ({ ...prev, materia_id: value, tema_id: '' }))}
                   error={errors.materia_id}
