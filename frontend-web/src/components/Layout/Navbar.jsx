@@ -128,37 +128,21 @@ const Navbar = () => {
                   </Link>
 
                   {isAdmin() && (
-                    <>
-                      <Link
-                        to="/usuarios"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Usuarios
-                      </Link>
-                      <Link
-                        to="/upload"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Subir Video
-                      </Link>
-                    </>
+                    <Link
+                      to="/usuarios"
+                      className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
+                    >
+                      Usuarios
+                    </Link>
                   )}
 
                   {isDocente() && !isAdmin() && (
-                    <>
-                      <Link
-                        to="/mis-videos"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Mis Videos
-                      </Link>
-                      <Link
-                        to="/upload"
-                        className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
-                      >
-                        Subir Video
-                      </Link>
-                    </>
+                    <Link
+                      to="/upload"
+                      className="px-3 py-2 text-white hover:bg-white/10 rounded-lg transition text-sm"
+                    >
+                      Subir Video
+                    </Link>
                   )}
                 </div>
 
@@ -244,7 +228,7 @@ const Navbar = () => {
                           </div>
                         </Link>
 
-                        {/* Sección Docente/Admin */}
+                        {/* Sección Gestión */}
                         {(isAdmin() || isDocente()) && (
                           <>
                             <div className="my-3 px-3">
@@ -252,20 +236,22 @@ const Navbar = () => {
                               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mt-3 mb-2">Gestión</p>
                             </div>
 
-                            {/* Upload Card */}
-                            <Link
-                              to="/upload"
-                              className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 transition-all group mb-1"
-                              onClick={() => setShowUserMenu(false)}
-                            >
-                              <div className="w-11 h-11 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 group-hover:bg-indigo-200 group-hover:scale-110 transition-all">
-                                <Upload className="w-5 h-5 text-indigo-600" />
-                              </div>
-                              <div className="flex-1">
-                                <p className="text-sm font-semibold text-gray-900">Subir Video</p>
-                                <p className="text-xs text-gray-500">Nuevo contenido</p>
-                              </div>
-                            </Link>
+                            {/* Upload Card - Solo Docentes */}
+                            {isDocente() && !isAdmin() && (
+                              <Link
+                                to="/upload"
+                                className="flex items-center p-3 rounded-xl hover:bg-gradient-to-r hover:from-indigo-50 hover:to-indigo-100 transition-all group mb-1"
+                                onClick={() => setShowUserMenu(false)}
+                              >
+                                <div className="w-11 h-11 rounded-lg bg-indigo-100 flex items-center justify-center mr-3 group-hover:bg-indigo-200 group-hover:scale-110 transition-all">
+                                  <Upload className="w-5 h-5 text-indigo-600" />
+                                </div>
+                                <div className="flex-1">
+                                  <p className="text-sm font-semibold text-gray-900">Subir Video</p>
+                                  <p className="text-xs text-gray-500">Nuevo contenido</p>
+                                </div>
+                              </Link>
+                            )}
 
                             {/* Usuarios Card - Solo Admin */}
                             {isAdmin() && (
@@ -401,23 +387,14 @@ const Navbar = () => {
                     Gestionar Usuarios
                   </Link>
                 )}
-                {(isAdmin() || isDocente()) && (
-                  <>
-                    <Link
-                      to="/mis-videos"
-                      className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg"
-                      onClick={() => setShowMobileMenu(false)}
-                    >
-                      Mis Videos
-                    </Link>
-                    <Link
-                      to="/upload"
-                      className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg"
-                      onClick={() => setShowMobileMenu(false)}
-                    >
-                      Subir Video
-                    </Link>
-                  </>
+                {isDocente() && !isAdmin() && (
+                  <Link
+                    to="/upload"
+                    className="block px-4 py-2 text-white hover:bg-white/10 rounded-lg"
+                    onClick={() => setShowMobileMenu(false)}
+                  >
+                    Subir Video
+                  </Link>
                 )}
               </>
             )}

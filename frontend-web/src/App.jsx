@@ -31,8 +31,8 @@ import LoadingSpinner from './components/Common/LoadingSpinner';
 /**
  * Componente para rutas protegidas
  */
-const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, loading, isAdmin } = useAuth();
+const ProtectedRoute = ({ children, requireAdmin = false, requireDocente = false }) => {
+  const { isAuthenticated, loading, isAdmin, isDocente } = useAuth();
 
   if (loading) {
     return <LoadingSpinner fullScreen />;
@@ -43,6 +43,10 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
   }
 
   if (requireAdmin && !isAdmin()) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (requireDocente && !isDocente()) {
     return <Navigate to="/" replace />;
   }
 
@@ -107,7 +111,7 @@ function App() {
       <Route
         path="/upload"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute requireDocente>
             <UploadVideoPage />
           </ProtectedRoute>
         }
