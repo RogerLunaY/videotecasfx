@@ -13,10 +13,10 @@ const NotFoundPage = () => {
           <div className="mb-8">
             <h1 className="text-9xl font-bold text-primary-600">404</h1>
           </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
             Página no encontrada
           </h2>
-          <p className="text-gray-600 mb-8">
+          <p className="text-gray-600 dark:text-gray-400 mb-8">
             Lo sentimos, la página que buscas no existe o ha sido movida.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

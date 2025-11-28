@@ -229,8 +229,8 @@ const PerfilPage = () => {
           <div className="h-48 md:h-64 bg-gradient-to-r from-salesiano-azul-600 via-primary-500 to-salesiano-azul-400 relative overflow-hidden">
             {/* Patrón decorativo */}
             <div className="absolute inset-0 opacity-10">
-              <div className="absolute top-0 left-0 w-64 h-64 bg-white rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-              <div className="absolute bottom-0 right-0 w-96 h-96 bg-white rounded-full translate-x-1/3 translate-y-1/3"></div>
+              <div className="absolute top-0 left-0 w-64 h-64 bg-white dark:bg-gray-800 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+              <div className="absolute bottom-0 right-0 w-96 h-96 bg-white dark:bg-gray-800 rounded-full translate-x-1/3 translate-y-1/3"></div>
             </div>
           </div>
 
@@ -240,20 +240,20 @@ const PerfilPage = () => {
               <div className="flex flex-col md:flex-row items-center md:items-end gap-6">
                 {/* Avatar Grande */}
                 <div className="relative group">
-                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-white p-2 shadow-xl">
+                  <div className="w-32 h-32 md:w-40 md:h-40 rounded-full bg-white dark:bg-gray-800 p-2 shadow-xl">
                     <div className="w-full h-full rounded-full bg-gradient-to-br from-primary-600 to-salesiano-azul-600 flex items-center justify-center text-white text-4xl md:text-5xl font-bold">
                       {getInitials()}
                     </div>
                   </div>
                   {/* Botón cambiar foto (futuro) */}
-                  <button className="absolute bottom-2 right-2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center text-primary-600 hover:bg-primary-50 transition-colors">
+                  <button className="absolute bottom-2 right-2 w-10 h-10 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center text-primary-600 hover:bg-primary-50 transition-colors">
                     <Camera className="w-5 h-5" />
                   </button>
                 </div>
 
                 {/* Info del Usuario */}
                 <div className="flex-1 text-center md:text-left mb-6 md:mb-4">
-                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
                     {user?.nombre} {user?.apellido_paterno} {user?.apellido_materno || ''}
                   </h1>
                   <div className="flex items-center justify-center md:justify-start gap-3 flex-wrap">
@@ -266,13 +266,13 @@ const PerfilPage = () => {
                       {user?.rol}
                     </span>
                     {user?.email && (
-                      <span className="text-gray-600 text-sm flex items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-1">
                         <Mail className="w-4 h-4" />
                         {user.email}
                       </span>
                     )}
                     {user?.fecha_registro && (
-                      <span className="text-gray-600 text-sm flex items-center gap-1">
+                      <span className="text-gray-600 dark:text-gray-400 text-sm flex items-center gap-1">
                         <Calendar className="w-4 h-4" />
                         Desde {formatDate(user.fecha_registro)}
                       </span>
@@ -288,36 +288,36 @@ const PerfilPage = () => {
         {isDocente() && (
           <div className="container mx-auto px-4 mt-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-2">
                   <Video className="w-8 h-8 text-blue-600" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.videosSubidos}</p>
-                <p className="text-sm text-gray-600">Videos Subidos</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.videosSubidos}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Videos Subidos</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-2">
                   <TrendingUp className="w-8 h-8 text-green-600" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalVisualizaciones}</p>
-                <p className="text-sm text-gray-600">Visualizaciones</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.totalVisualizaciones}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Visualizaciones</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-2">
                   <BookOpen className="w-8 h-8 text-purple-600" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.materiasAsignadas}</p>
-                <p className="text-sm text-gray-600">Materias</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.materiasAsignadas}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Materias</p>
               </div>
 
-              <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-2">
                   <GraduationCap className="w-8 h-8 text-orange-600" />
                 </div>
-                <p className="text-3xl font-bold text-gray-900">{stats.gradosAsignados}</p>
-                <p className="text-sm text-gray-600">Cursos</p>
+                <p className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.gradosAsignados}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Cursos</p>
               </div>
             </div>
           </div>
@@ -328,7 +328,7 @@ const PerfilPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Sidebar con Tabs Verticales */}
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-xl shadow-md p-4 sticky top-4">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 sticky top-4">
                 <nav className="space-y-2">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
@@ -342,7 +342,7 @@ const PerfilPage = () => {
                         className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                           activeTab === tab.id
                             ? 'bg-primary-600 text-white shadow-md'
-                            : 'text-gray-700 hover:bg-gray-100'
+                            : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100'
                         }`}
                       >
                         <Icon className="w-5 h-5" />
@@ -356,7 +356,7 @@ const PerfilPage = () => {
 
             {/* Contenido Principal */}
             <div className="lg:col-span-3">
-              <div className="bg-white rounded-xl shadow-md p-6">
+              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-6">
                 {/* Mensajes de Éxito/Error */}
                 {message.text && (
                   <div className={`mb-6 p-4 rounded-lg flex items-center gap-3 ${
@@ -378,12 +378,12 @@ const PerfilPage = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-6">
                       <User className="w-6 h-6 text-primary-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Información Personal</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Información Personal</h2>
                     </div>
                     <form onSubmit={handleInfoSubmit} className="space-y-6">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                          <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="nombre" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Nombre <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -398,7 +398,7 @@ const PerfilPage = () => {
                         </div>
 
                         <div>
-                          <label htmlFor="apellido_paterno" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="apellido_paterno" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Apellido Paterno <span className="text-red-500">*</span>
                           </label>
                           <input
@@ -413,7 +413,7 @@ const PerfilPage = () => {
                         </div>
 
                         <div>
-                          <label htmlFor="apellido_materno" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="apellido_materno" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             Apellido Materno
                           </label>
                           <input
@@ -427,7 +427,7 @@ const PerfilPage = () => {
                         </div>
 
                         <div>
-                          <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="telefono" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <Phone className="w-4 h-4 inline mr-1" />
                             Teléfono
                           </label>
@@ -442,7 +442,7 @@ const PerfilPage = () => {
                         </div>
 
                         <div className="md:col-span-2">
-                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <Mail className="w-4 h-4 inline mr-1" />
                             Email <span className="text-red-500">*</span>
                           </label>
@@ -458,19 +458,19 @@ const PerfilPage = () => {
                         </div>
 
                         <div className="md:col-span-2">
-                          <div className="bg-gray-50 rounded-lg p-4">
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                          <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4">
+                            <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3 flex items-center gap-2">
                               <Shield className="w-4 h-4" />
                               Información de Cuenta
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                               <div>
                                 <p className="text-gray-500">CI</p>
-                                <p className="font-medium text-gray-900">{user?.ci || 'No especificado'}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-100">{user?.ci || 'No especificado'}</p>
                               </div>
                               <div>
                                 <p className="text-gray-500">Rol</p>
-                                <p className="font-medium text-gray-900">{user?.rol}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-100">{user?.rol}</p>
                               </div>
                               <div>
                                 <p className="text-gray-500">Estado</p>
@@ -484,7 +484,7 @@ const PerfilPage = () => {
                               </div>
                               <div>
                                 <p className="text-gray-500">Fecha de Registro</p>
-                                <p className="font-medium text-gray-900">{formatDate(user?.fecha_registro)}</p>
+                                <p className="font-medium text-gray-900 dark:text-gray-100">{formatDate(user?.fecha_registro)}</p>
                               </div>
                             </div>
                           </div>
@@ -518,7 +518,7 @@ const PerfilPage = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-6">
                       <Lock className="w-6 h-6 text-primary-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Seguridad</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Seguridad</h2>
                     </div>
                     <form onSubmit={handlePasswordSubmit} className="space-y-6">
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
@@ -528,7 +528,7 @@ const PerfilPage = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Contraseña Actual <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -543,7 +543,7 @@ const PerfilPage = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Nueva Contraseña <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -558,7 +558,7 @@ const PerfilPage = () => {
                       </div>
 
                       <div>
-                        <label htmlFor="new_password_confirmation" className="block text-sm font-medium text-gray-700 mb-2">
+                        <label htmlFor="new_password_confirmation" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                           Confirmar Nueva Contraseña <span className="text-red-500">*</span>
                         </label>
                         <input
@@ -606,7 +606,7 @@ const PerfilPage = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-6">
                       <Activity className="w-6 h-6 text-primary-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Actividad Reciente</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Actividad Reciente</h2>
                     </div>
 
                     {activityLoading ? (
@@ -616,7 +616,7 @@ const PerfilPage = () => {
                     ) : recentActivity.length === 0 ? (
                       <div className="text-center py-12">
                         <Video className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-600">No hay actividad reciente</p>
+                        <p className="text-gray-600 dark:text-gray-400">No hay actividad reciente</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -630,15 +630,15 @@ const PerfilPage = () => {
                                 <Video className="w-6 h-6 text-primary-600" />
                               </div>
 
-                              <div className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+                              <div className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 hover:bg-gray-100 transition-colors">
                                 <div className="flex items-start justify-between mb-2">
-                                  <h3 className="font-semibold text-gray-900">{video.titulo}</h3>
+                                  <h3 className="font-semibold text-gray-900 dark:text-gray-100">{video.titulo}</h3>
                                   <span className="text-xs text-gray-500 flex items-center gap-1">
                                     <Clock className="w-3 h-3" />
                                     {formatDate(video.fecha_subida)}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-600 mb-2">{video.descripcion}</p>
+                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{video.descripcion}</p>
                                 <div className="flex items-center gap-4 text-xs text-gray-500">
                                   <span className="flex items-center gap-1">
                                     <TrendingUp className="w-3 h-3" />
@@ -667,13 +667,13 @@ const PerfilPage = () => {
                   <div>
                     <div className="flex items-center gap-3 mb-6">
                       <BookOpen className="w-6 h-6 text-primary-600" />
-                      <h2 className="text-2xl font-bold text-gray-900">Mis Asignaciones</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Mis Asignaciones</h2>
                     </div>
 
                     <div className="space-y-6">
                       {/* Materias Asignadas */}
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                           <BookOpen className="w-5 h-5 text-purple-600" />
                           Materias Asignadas
                         </h3>
@@ -687,15 +687,15 @@ const PerfilPage = () => {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-8 bg-gray-50 rounded-lg">
-                            <p className="text-gray-600">No tienes materias asignadas</p>
+                          <div className="text-center py-8 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <p className="text-gray-600 dark:text-gray-400">No tienes materias asignadas</p>
                           </div>
                         )}
                       </div>
 
                       {/* Cursos/Grados Asignados */}
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                           <GraduationCap className="w-5 h-5 text-orange-600" />
                           Cursos Asignados
                         </h3>
@@ -709,8 +709,8 @@ const PerfilPage = () => {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-8 bg-gray-50 rounded-lg">
-                            <p className="text-gray-600">No tienes cursos asignados</p>
+                          <div className="text-center py-8 bg-gray-50 dark:bg-gray-900 rounded-lg">
+                            <p className="text-gray-600 dark:text-gray-400">No tienes cursos asignados</p>
                           </div>
                         )}
                       </div>

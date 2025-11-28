@@ -12,7 +12,7 @@ const AcercaDePage = () => {
       <div className="bg-gradient-to-r from-salesiano-azul-600 to-salesiano-azul-500 text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <div className="mb-6 flex justify-center">
-            <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center">
+            <div className="w-20 h-20 bg-white dark:bg-gray-800 rounded-2xl shadow-xl flex items-center justify-center">
               <svg className="w-12 h-12 text-salesiano-azul-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -30,14 +30,14 @@ const AcercaDePage = () => {
       {/* Contenido Principal */}
       <div className="container mx-auto px-4 py-12">
         {/* Nuestra Institución */}
-        <div className="max-w-4xl mx-auto mb-12 bg-white rounded-2xl shadow-xl p-8">
+        <div className="max-w-4xl mx-auto mb-12 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold text-salesiano-azul-700 mb-6 flex items-center">
             <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
             Nuestra Institución
           </h2>
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+          <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
             <p className="mb-4">
               La <strong>Unidad Educativa San Francisco Xavier</strong> es una institución educativa comprometida
               con la formación integral de nuestros estudiantes, ubicada en Okinawa Uno, Bolivia.
@@ -61,7 +61,7 @@ const AcercaDePage = () => {
             </svg>
             Videoteca Digital
           </h2>
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+          <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
             <p className="mb-4">
               Nuestra <strong>Videoteca Digital</strong> es una plataforma educativa diseñada para facilitar
               el acceso a contenido educativo de calidad para todos nuestros estudiantes y docentes.
@@ -71,31 +71,31 @@ const AcercaDePage = () => {
               garantizando acceso permanente a los recursos educativos.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
                 <div className="text-3xl font-bold text-salesiano-azul-600 mb-2">12</div>
-                <div className="text-sm text-gray-600">Materias Disponibles</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Materias Disponibles</div>
               </div>
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
                 <div className="text-3xl font-bold text-salesiano-amarillo-600 mb-2">6</div>
-                <div className="text-sm text-gray-600">Grados de Secundaria</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Grados de Secundaria</div>
               </div>
-              <div className="bg-white rounded-lg p-4 text-center">
+              <div className="bg-white dark:bg-gray-800 rounded-lg p-4 text-center">
                 <div className="text-3xl font-bold text-salesiano-azul-600 mb-2">20+</div>
-                <div className="text-sm text-gray-600">Videos Educativos</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Videos Educativos</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* Comunidad Salesiana */}
-        <div className="max-w-4xl mx-auto mb-12 bg-white rounded-2xl shadow-xl p-8">
+        <div className="max-w-4xl mx-auto mb-12 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold text-salesiano-azul-700 mb-6 flex items-center">
             <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
             </svg>
             Carisma Salesiano
           </h2>
-          <div className="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+          <div className="prose prose-lg max-w-none text-gray-700 dark:text-gray-300 leading-relaxed">
             <p className="mb-4">
               Como institución salesiana, nuestra labor educativa se inspira en el <strong>Sistema Preventivo</strong>
               de Don Bosco, basado en tres pilares fundamentales:
@@ -108,7 +108,7 @@ const AcercaDePage = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-salesiano-azul-700 mb-2">Razón</h3>
-                <p className="text-sm text-gray-600">Educación basada en el diálogo y la comprensión</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Educación basada en el diálogo y la comprensión</p>
               </div>
               <div className="bg-salesiano-amarillo-50 rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-salesiano-amarillo-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -117,7 +117,7 @@ const AcercaDePage = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-salesiano-amarillo-700 mb-2">Amor</h3>
-                <p className="text-sm text-gray-600">Acompañamiento cercano y afectuoso</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Acompañamiento cercano y afectuoso</p>
               </div>
               <div className="bg-salesiano-azul-50 rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-salesiano-azul-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -126,14 +126,14 @@ const AcercaDePage = () => {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-salesiano-azul-700 mb-2">Religión</h3>
-                <p className="text-sm text-gray-600">Formación en valores cristianos</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Formación en valores cristianos</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Características de la Plataforma */}
-        <div className="max-w-4xl mx-auto mb-12 bg-white rounded-2xl shadow-xl p-8">
+        <div className="max-w-4xl mx-auto mb-12 bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
           <h2 className="text-3xl font-bold text-salesiano-azul-700 mb-6 flex items-center">
             <svg className="w-8 h-8 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -148,8 +148,8 @@ const AcercaDePage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Acceso Local</h3>
-                <p className="text-gray-600 text-sm">Sin necesidad de internet, disponible 24/7 en la intranet</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">Acceso Local</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Sin necesidad de internet, disponible 24/7 en la intranet</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -159,8 +159,8 @@ const AcercaDePage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Búsqueda Avanzada</h3>
-                <p className="text-gray-600 text-sm">Filtros por materia, curso y palabras clave</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">Búsqueda Avanzada</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Filtros por materia, curso y palabras clave</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -170,8 +170,8 @@ const AcercaDePage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Gestión de Usuarios</h3>
-                <p className="text-gray-600 text-sm">Acceso personalizado para docentes y administradores</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">Gestión de Usuarios</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Acceso personalizado para docentes y administradores</p>
               </div>
             </div>
             <div className="flex items-start">
@@ -181,8 +181,8 @@ const AcercaDePage = () => {
                 </svg>
               </div>
               <div>
-                <h3 className="font-bold text-lg text-gray-900 mb-1">Subida de Videos</h3>
-                <p className="text-gray-600 text-sm">Los docentes pueden compartir contenido educativo</p>
+                <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">Subida de Videos</h3>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Los docentes pueden compartir contenido educativo</p>
               </div>
             </div>
           </div>
@@ -206,7 +206,7 @@ const AcercaDePage = () => {
               </Link>
               <Link
                 to="/cursos"
-                className="px-8 py-3 bg-white text-salesiano-azul-700 rounded-lg font-bold hover:bg-gray-100 transition shadow-lg hover:shadow-xl"
+                className="px-8 py-3 bg-white dark:bg-gray-800 text-salesiano-azul-700 rounded-lg font-bold hover:bg-gray-100 transition shadow-lg hover:shadow-xl"
               >
                 Explorar Cursos
               </Link>

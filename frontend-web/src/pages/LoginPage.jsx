@@ -142,7 +142,7 @@ const LoginPage = () => {
           {/* Back to home button */}
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors"
+            className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:text-gray-100 mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Volver al inicio
@@ -150,8 +150,8 @@ const LoginPage = () => {
 
           {/* Header */}
           <div className="mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Iniciar Sesión</h2>
-            <p className="text-gray-600">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2">Iniciar Sesión</h2>
+            <p className="text-gray-600 dark:text-gray-400">
               Accede a tu cuenta para continuar
             </p>
           </div>
@@ -167,7 +167,7 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Correo Electrónico
               </label>
               <input
@@ -188,7 +188,7 @@ const LoginPage = () => {
             {/* Password */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Contraseña
                 </label>
                 <a href="#" className="text-sm text-primary-600 hover:text-primary-700">
@@ -218,7 +218,7 @@ const LoginPage = () => {
                 type="checkbox"
                 className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
               />
-              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                 Recordarme
               </label>
             </div>
@@ -253,15 +253,15 @@ const LoginPage = () => {
                 <BookOpen className="w-5 h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-xs font-semibold text-gray-700 mb-3">Credenciales de prueba:</p>
-                <div className="space-y-2 text-xs text-gray-600">
+                <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3">Credenciales de prueba:</p>
+                <div className="space-y-2 text-xs text-gray-600 dark:text-gray-400">
                   <div className="bg-white/60 rounded px-3 py-2">
-                    <p className="font-semibold text-gray-900 mb-1">Administrador:</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Administrador:</p>
                     <p className="font-mono">vladimir.mamani@atsi.edu.bo</p>
                     <p className="font-mono">Password123!</p>
                   </div>
                   <div className="bg-white/60 rounded px-3 py-2">
-                    <p className="font-semibold text-gray-900 mb-1">Docente:</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Docente:</p>
                     <p className="font-mono">juan.perez@sfx.edu.bo</p>
                     <p className="font-mono">Password123!</p>
                   </div>

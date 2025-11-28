@@ -135,7 +135,7 @@ const FAQPage = () => {
               placeholder="Buscar en preguntas frecuentes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all shadow-lg"
+              className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200 dark:border-gray-700 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 transition-all shadow-lg"
             />
           </div>
         </div>
@@ -148,7 +148,7 @@ const FAQPage = () => {
             <div className="space-y-8">
               {filteredFAQs.map((category, categoryIndex) => (
                 <div key={categoryIndex}>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
                     <div className="w-2 h-8 bg-primary-600 rounded-full"></div>
                     {category.category}
                   </h2>
@@ -160,13 +160,13 @@ const FAQPage = () => {
                       return (
                         <div
                           key={questionIndex}
-                          className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
+                          className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
                         >
                           <button
                             onClick={() => toggleQuestion(categoryIndex, questionIndex)}
-                            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 transition-colors"
+                            className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50 dark:bg-gray-900 transition-colors"
                           >
-                            <span className="font-semibold text-gray-900 pr-4">
+                            <span className="font-semibold text-gray-900 dark:text-gray-100 pr-4">
                               {item.q}
                             </span>
                             {isExpanded ? (
@@ -176,7 +176,7 @@ const FAQPage = () => {
                             )}
                           </button>
                           {isExpanded && (
-                            <div className="px-6 pb-4 text-gray-600 leading-relaxed border-t border-gray-100 pt-4">
+                            <div className="px-6 pb-4 text-gray-600 dark:text-gray-400 leading-relaxed border-t border-gray-100 pt-4">
                               {item.a}
                             </div>
                           )}
@@ -192,7 +192,7 @@ const FAQPage = () => {
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <HelpCircle className="w-10 h-10 text-gray-400" />
               </div>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-gray-600 dark:text-gray-400">
                 No se encontraron preguntas que coincidan con "{searchTerm}"
               </p>
             </div>
@@ -211,7 +211,7 @@ const FAQPage = () => {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link
                 to="/login"
-                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white text-primary-600 font-semibold rounded-xl hover:shadow-lg transition-all"
+                className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-primary-600 font-semibold rounded-xl hover:shadow-lg transition-all"
               >
                 Iniciar Sesión
               </Link>
