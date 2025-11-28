@@ -104,24 +104,29 @@ const MateriasPage = () => {
       {/* Header con gradiente */}
       <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-salesiano-azul-500 text-white py-12">
         <div className="container mx-auto px-4">
-          <div className="text-center">
-            {/* Icono */}
-            <div className="mb-6 flex justify-center">
+          <div className="flex items-center gap-6 max-w-5xl mx-auto">
+            {/* Icono a la izquierda */}
+            <div className="flex-shrink-0">
               <div className="w-20 h-20 bg-white/20 backdrop-blur-sm rounded-2xl shadow-xl flex items-center justify-center">
                 <BookOpen className="w-12 h-12 text-white" strokeWidth={2} />
               </div>
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
-              MATERIAS
-            </h1>
-            <p className="text-xl text-primary-100 max-w-2xl mx-auto">
-              Explora las materias organizadas por campos de saberes
-            </p>
+            {/* Texto a la derecha */}
+            <div className="flex-1">
+              <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
+                MATERIAS
+              </h1>
+              <p className="text-xl text-primary-100">
+                Explora las materias organizadas por campos de saberes
+              </p>
+            </div>
+          </div>
 
-            {/* Grado Seleccionado (si existe) */}
-            {gradoSeleccionado && (
-              <div className="mt-6 inline-flex items-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
+          {/* Grado Seleccionado (si existe) */}
+          {gradoSeleccionado && (
+            <div className="mt-6 flex justify-center max-w-5xl mx-auto">
+              <div className="inline-flex items-center bg-white/20 backdrop-blur-sm rounded-lg px-4 py-2">
                 <GraduationCap className="w-5 h-5 mr-2" />
                 <span className="font-semibold">Curso: {gradoSeleccionado.nombre}</span>
                 <Link
@@ -131,8 +136,8 @@ const MateriasPage = () => {
                   Cambiar
                 </Link>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -175,8 +180,9 @@ const MateriasPage = () => {
                 <div
                   key={campo.id}
                   className="bg-white rounded-xl shadow-md overflow-hidden transition-all hover:shadow-lg"
+                  onMouseEnter={() => setCampoExpandido(campo.id)}
                 >
-                  {/* Header del Campo - Clickeable */}
+                  {/* Header del Campo - Clickeable y auto-expandible en hover */}
                   <button
                     onClick={() => toggleCampo(campo.id)}
                     className="w-full px-6 py-5 flex items-center justify-between hover:bg-gray-50 transition-colors"
@@ -238,10 +244,10 @@ const MateriasPage = () => {
                     </div>
                   </button>
 
-                  {/* Grid de Materias - Colapsable */}
+                  {/* Lista de Materias - Colapsable y Vertical */}
                   {isExpanded && (
                     <div className="px-6 pb-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 gap-3">
                         {campo.materias && campo.materias.map((materia) => {
                           const MateriaIcon = getIconComponent(materia.icono);
 
@@ -249,69 +255,72 @@ const MateriasPage = () => {
                             <button
                               key={materia.id}
                               onClick={() => handleMateriaClick(materia.id)}
-                              className="group relative overflow-hidden rounded-xl p-6 text-left transition-all hover:shadow-xl border-2 border-gray-100 hover:border-primary-300 bg-white"
+                              className="group relative overflow-hidden rounded-xl p-4 text-left transition-all hover:shadow-lg border-2 border-gray-100 hover:border-primary-300 bg-white flex items-center gap-4"
                             >
-                              {/* Barra de color */}
+                              {/* Barra de color vertical a la izquierda */}
                               <div
-                                className="absolute top-0 left-0 right-0 h-1"
+                                className="absolute top-0 left-0 bottom-0 w-1"
                                 style={{ backgroundColor: materia.color || campo.color }}
                               />
 
-                              {/* Icono */}
-                              <div className="mb-4 flex items-center justify-between">
+                              {/* Icono a la izquierda */}
+                              <div className="flex-shrink-0 ml-2">
                                 <div
-                                  className="w-12 h-12 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform"
+                                  className="w-14 h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
                                   style={{ backgroundColor: `${materia.color || campo.color}20` }}
                                 >
                                   <MateriaIcon
-                                    className="w-7 h-7"
+                                    className="w-8 h-8"
                                     style={{ color: materia.color || campo.color }}
                                     strokeWidth={2}
                                   />
                                 </div>
+                              </div>
 
-                                {/* Sigla */}
-                                {materia.sigla && (
-                                  <span
-                                    className="text-xs font-bold px-2 py-1 rounded"
-                                    style={{
-                                      backgroundColor: `${materia.color || campo.color}15`,
-                                      color: materia.color || campo.color,
-                                    }}
-                                  >
-                                    {materia.sigla}
-                                  </span>
+                              {/* Contenido principal */}
+                              <div className="flex-1 min-w-0">
+                                {/* Nombre y Sigla */}
+                                <div className="flex items-center gap-3 mb-1">
+                                  <h3 className="text-lg font-bold text-gray-900 group-hover:text-primary-600 transition-colors">
+                                    {materia.nombre}
+                                  </h3>
+                                  {materia.sigla && (
+                                    <span
+                                      className="text-xs font-bold px-2 py-1 rounded flex-shrink-0"
+                                      style={{
+                                        backgroundColor: `${materia.color || campo.color}15`,
+                                        color: materia.color || campo.color,
+                                      }}
+                                    >
+                                      {materia.sigla}
+                                    </span>
+                                  )}
+                                </div>
+
+                                {/* Descripción */}
+                                {materia.descripcion && (
+                                  <p className="text-sm text-gray-600 line-clamp-1">
+                                    {materia.descripcion}
+                                  </p>
+                                )}
+
+                                {/* Contador de videos */}
+                                {materia.videos_count !== undefined && (
+                                  <div className="flex items-center gap-2 text-sm text-gray-500 mt-1">
+                                    <Play className="w-4 h-4" />
+                                    <span>{materia.videos_count} videos</span>
+                                  </div>
                                 )}
                               </div>
 
-                              {/* Nombre */}
-                              <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-primary-600 transition-colors">
-                                {materia.nombre}
-                              </h3>
-
-                              {/* Descripción */}
-                              {materia.descripcion && (
-                                <p className="text-sm text-gray-600 mb-4 line-clamp-2">
-                                  {materia.descripcion}
-                                </p>
-                              )}
-
-                              {/* Contador de videos (si existe) */}
-                              {materia.videos_count !== undefined && (
-                                <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                                  <Play className="w-4 h-4" />
-                                  <span>{materia.videos_count} videos</span>
-                                </div>
-                              )}
-
-                              {/* Flecha */}
-                              <div className="flex justify-end">
+                              {/* Flecha a la derecha */}
+                              <div className="flex-shrink-0">
                                 <div
-                                  className="w-8 h-8 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
+                                  className="w-10 h-10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform"
                                   style={{ backgroundColor: `${materia.color || campo.color}20` }}
                                 >
                                   <ArrowRight
-                                    className="w-5 h-5"
+                                    className="w-6 h-6"
                                     style={{ color: materia.color || campo.color }}
                                   />
                                 </div>
