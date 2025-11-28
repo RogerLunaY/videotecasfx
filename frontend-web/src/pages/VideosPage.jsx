@@ -148,12 +148,12 @@ const VideosPage = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
         {/* Header */}
-        <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-salesiano-azul-500 text-white py-12">
+        <div className="bg-gradient-to-r from-primary-600 via-primary-500 to-salesiano-azul-500 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 text-white py-12">
           <div className="container mx-auto px-4">
             <h1 className="text-4xl md:text-5xl font-bold mb-3">Catálogo de Videos</h1>
-            <p className="text-primary-100 text-lg">
+            <p className="text-primary-100 dark:text-gray-300 text-lg">
               Explora nuestra colección de contenido educativo
             </p>
           </div>
@@ -162,22 +162,22 @@ const VideosPage = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Barra de búsqueda y controles - Oculta para estudiantes */}
           {!isEstudiante() && (
-            <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 mb-6">
               <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
                 {/* Búsqueda con debounce */}
                 <div className="flex-1 relative w-full">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Buscar videos por título, descripción, tema..."
-                    className="input-field pl-10 w-full"
+                    className="input-field pl-10 w-full dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400"
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -191,22 +191,22 @@ const VideosPage = () => {
                     onClick={() => setShowFilters(!showFilters)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all ${
                       showFilters
-                        ? 'border-primary-500 bg-primary-50 text-primary-700'
-                        : 'border-gray-200 hover:border-primary-300'
+                        ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400'
+                        : 'border-gray-200 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-600 dark:text-gray-300'
                     }`}
                   >
                     <SlidersHorizontal className="w-4 h-4" />
                     <span className="hidden sm:inline">Filtros</span>
                     {hasActiveFilters && (
-                      <span className="w-2 h-2 bg-primary-600 rounded-full"></span>
+                      <span className="w-2 h-2 bg-primary-600 dark:bg-primary-400 rounded-full"></span>
                     )}
                   </button>
 
                   {/* Toggle vista */}
-                  <div className="flex items-center gap-1 border border-gray-300 rounded-lg p-1">
+                  <div className="flex items-center gap-1 border border-gray-300 dark:border-gray-600 rounded-lg p-1 dark:bg-gray-700">
                     <button
                       onClick={() => setViewMode('grid')}
-                      className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-600 hover:bg-gray-100'}`}
+                      className={`p-2 rounded ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-600'}`}
                       title="Vista de cuadrícula"
                     >
                       <LayoutGrid className="w-4 h-4" />
