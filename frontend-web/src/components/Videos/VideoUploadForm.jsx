@@ -18,9 +18,8 @@ import GradoSelector from '../Common/GradoSelector';
 
 const STEPS = [
   { id: 1, title: 'Seleccionar Video', icon: FileVideo },
-  { id: 2, title: 'Información', icon: Info },
-  { id: 3, title: 'Clasificación', icon: Check },
-  { id: 4, title: 'Thumbnail', icon: ImageIcon },
+  { id: 2, title: 'Información y Clasificación', icon: Info },
+  { id: 3, title: 'Thumbnail', icon: ImageIcon },
 ];
 
 const VideoUploadForm = () => {
@@ -201,11 +200,11 @@ const VideoUploadForm = () => {
         }
         break;
       case 2:
+        // Validar información
         if (!formData.titulo.trim()) {
           newErrors.titulo = 'El título es requerido';
         }
-        break;
-      case 3:
+        // Validar clasificación
         if (!formData.materia_id) {
           newErrors.materia_id = 'Selecciona una materia';
         }
@@ -233,7 +232,7 @@ const VideoUploadForm = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateStep(3)) return;
+    if (!validateStep(2)) return;
 
     setLoading(true);
     setUploadProgress(0);
@@ -454,90 +453,100 @@ const VideoUploadForm = () => {
           </div>
         )}
 
-        {/* STEP 2: Información */}
+        {/* STEP 2: Información y Clasificación */}
         {currentStep === 2 && (
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Información del video</h2>
+            <h2 className="text-2xl font-bold text-gray-900">Información y Clasificación</h2>
 
-            <div>
-              <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
-                Título *
-              </label>
-              <input
-                type="text"
-                id="titulo"
-                name="titulo"
-                value={formData.titulo}
-                onChange={handleChange}
-                className={`input-field ${errors.titulo ? 'border-red-500' : ''}`}
-                placeholder="Ej: Introducción al Álgebra"
-              />
-              {errors.titulo && <p className="mt-1 text-sm text-red-600">{errors.titulo}</p>}
+            {/* Información del Video */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Información del Video</h3>
+
+              <div>
+                <label htmlFor="titulo" className="block text-sm font-medium text-gray-700 mb-2">
+                  Título *
+                </label>
+                <input
+                  type="text"
+                  id="titulo"
+                  name="titulo"
+                  value={formData.titulo}
+                  onChange={handleChange}
+                  className={`input-field ${errors.titulo ? 'border-red-500' : ''}`}
+                  placeholder="Ej: Introducción al Álgebra"
+                />
+                {errors.titulo && <p className="mt-1 text-sm text-red-600">{errors.titulo}</p>}
+              </div>
+
+              <div>
+                <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-2">
+                  Descripción
+                </label>
+                <textarea
+                  id="descripcion"
+                  name="descripcion"
+                  value={formData.descripcion}
+                  onChange={handleChange}
+                  rows={4}
+                  className="input-field"
+                  placeholder="Describe el contenido del video, temas que cubre, objetivos de aprendizaje..."
+                />
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="descripcion" className="block text-sm font-medium text-gray-700 mb-2">
-                Descripción
-              </label>
-              <textarea
-                id="descripcion"
-                name="descripcion"
-                value={formData.descripcion}
-                onChange={handleChange}
-                rows={6}
-                className="input-field"
-                placeholder="Describe el contenido del video, temas que cubre, objetivos de aprendizaje..."
-              />
+            {/* Clasificación Académica */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Clasificación Académica</h3>
+
+              {/* Materia - Color Azul */}
+              <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4">
+                <MateriaSelector
+                  campos={campos}
+                  materias={materias}
+                  value={formData.materia_id}
+                  onChange={(value) => setFormData(prev => ({ ...prev, materia_id: value, tema_id: '' }))}
+                  error={errors.materia_id}
+                  required
+                />
+              </div>
+
+              {/* Grado/Curso - Color Verde */}
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
+                <GradoSelector
+                  grados={gradosDisponibles}
+                  value={formData.grado_id}
+                  onChange={(value) => setFormData(prev => ({ ...prev, grado_id: value }))}
+                  error={errors.grado_id}
+                  required
+                />
+              </div>
+
+              {/* Tema */}
+              <div>
+                <label htmlFor="tema_id" className="block text-sm font-medium text-gray-700 mb-2">
+                  Tema *
+                </label>
+                <select
+                  id="tema_id"
+                  name="tema_id"
+                  value={formData.tema_id}
+                  onChange={handleChange}
+                  className={`input-field ${errors.tema_id ? 'border-red-500' : ''}`}
+                  disabled={!formData.materia_id}
+                >
+                  <option value="">Seleccionar tema</option>
+                  {filteredTemas.map(tema => (
+                    <option key={tema.id} value={tema.id}>{tema.nombre}</option>
+                  ))}
+                </select>
+                {errors.tema_id && <p className="mt-1 text-sm text-red-600">{errors.tema_id}</p>}
+              </div>
             </div>
           </div>
         )}
 
-        {/* STEP 3: Clasificación */}
+        {/* STEP 3: Thumbnail */}
         {currentStep === 3 && (
-          <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-gray-900">Clasificación académica</h2>
-
-            <MateriaSelector
-              campos={campos}
-              materias={materias}
-              value={formData.materia_id}
-              onChange={(value) => setFormData(prev => ({ ...prev, materia_id: value, tema_id: '' }))}
-              error={errors.materia_id}
-              required
-            />
-
-            <GradoSelector
-              grados={gradosDisponibles}
-              value={formData.grado_id}
-              onChange={(value) => setFormData(prev => ({ ...prev, grado_id: value }))}
-              error={errors.grado_id}
-              required
-            />
-
-            <div>
-              <label htmlFor="tema_id" className="block text-sm font-medium text-gray-700 mb-2">
-                Tema *
-              </label>
-              <select
-                id="tema_id"
-                name="tema_id"
-                value={formData.tema_id}
-                onChange={handleChange}
-                className={`input-field ${errors.tema_id ? 'border-red-500' : ''}`}
-                disabled={!formData.materia_id}
-              >
-                <option value="">Seleccionar tema</option>
-                {filteredTemas.map(tema => (
-                  <option key={tema.id} value={tema.id}>{tema.nombre}</option>
-                ))}
-              </select>
-              {errors.tema_id && <p className="mt-1 text-sm text-red-600">{errors.tema_id}</p>}
-            </div>
-          </div>
-        )}
-
-        {/* STEP 4: Thumbnail */}
-        {currentStep === 4 && (
           <div className="space-y-6">
             <h2 className="text-2xl font-bold text-gray-900">Miniatura del video</h2>
             <p className="text-gray-600">
