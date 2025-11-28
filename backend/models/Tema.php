@@ -144,20 +144,22 @@ class Tema
      */
     public function obtenerPorMateriaYGrado(?int $materiaId = null, ?int $gradoId = null)
     {
-        $where = ["t.estado = 'activo'"];
+        $onConditions = ["t.materia_id = m.id", "t.grado_id = g.id", "t.estado = 'activo'"];
+        $whereConditions = ["g.estado = 'activo'", "m.estado = 'activo'"];
         $params = [];
 
         if ($materiaId) {
-            $where[] = "t.materia_id = :materia_id";
+            $whereConditions[] = "m.id = :materia_id";
             $params[':materia_id'] = $materiaId;
         }
 
         if ($gradoId) {
-            $where[] = "t.grado_id = :grado_id";
+            $whereConditions[] = "g.id = :grado_id";
             $params[':grado_id'] = $gradoId;
         }
 
-        $whereClause = 'WHERE ' . implode(' AND ', $where);
+        $onClause = implode(' AND ', $onConditions);
+        $whereClause = 'WHERE ' . implode(' AND ', $whereConditions);
 
         $query = "SELECT
                     g.id as grado_id,
@@ -173,11 +175,8 @@ class Tema
                     t.orden as tema_orden
                   FROM grados g
                   CROSS JOIN materias m
-                  LEFT JOIN {$this->table} t
-                    ON t.materia_id = m.id
-                    AND t.grado_id = g.id
-                    {$whereClause}
-                  WHERE g.estado = 'activo' AND m.estado = 'activo'
+                  LEFT JOIN {$this->table} t ON {$onClause}
+                  {$whereClause}
                   ORDER BY g.nivel ASC, m.nombre ASC, t.orden ASC";
 
         try {

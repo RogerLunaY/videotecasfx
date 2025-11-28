@@ -154,7 +154,7 @@ class Usuario
                 if ($usuario['rol_id'] == 2) {
                     // Obtener materias asignadas
                     $queryMaterias = "SELECT m.id, m.nombre, m.sigla
-                                    FROM docente_asignaciones da
+                                    FROM asignaciones da
                                     INNER JOIN materias m ON da.materia_id = m.id
                                     WHERE da.docente_id = :docente_id AND da.materia_id IS NOT NULL
                                     GROUP BY m.id
@@ -167,7 +167,7 @@ class Usuario
 
                     // Obtener grados asignados
                     $queryGrados = "SELECT g.id, g.nombre, g.nivel
-                                   FROM docente_asignaciones da
+                                   FROM asignaciones da
                                    INNER JOIN grados g ON da.grado_id = g.id
                                    WHERE da.docente_id = :docente_id AND da.grado_id IS NOT NULL
                                    GROUP BY g.id
@@ -218,10 +218,11 @@ class Usuario
                 if ($row['rol_id'] == 2) { // 2 = Docente
                     // Obtener materias asignadas
                     $queryMaterias = "SELECT m.id, m.nombre, m.sigla, m.color, cs.nombre as campo_nombre
-                                    FROM docente_asignaciones da
+                                    FROM asignaciones da
                                     INNER JOIN materias m ON da.materia_id = m.id
                                     LEFT JOIN campos_saberes cs ON m.campo_saber_id = cs.id
                                     WHERE da.docente_id = :docente_id AND da.materia_id IS NOT NULL
+                                    GROUP BY m.id
                                     ORDER BY m.nombre";
 
                     $stmtMaterias = $this->conn->prepare($queryMaterias);
@@ -231,9 +232,10 @@ class Usuario
 
                     // Obtener grados asignados
                     $queryGrados = "SELECT g.id, g.nombre, g.nivel
-                                   FROM docente_asignaciones da
+                                   FROM asignaciones da
                                    INNER JOIN grados g ON da.grado_id = g.id
                                    WHERE da.docente_id = :docente_id AND da.grado_id IS NOT NULL
+                                   GROUP BY g.id
                                    ORDER BY g.nivel";
 
                     $stmtGrados = $this->conn->prepare($queryGrados);
