@@ -131,17 +131,21 @@ class AuthController
         // Log de login exitoso
         $this->logger->auth('login', $email, true, $usuario['id']);
 
+        // Obtener datos completos del usuario con asignaciones
+        $usuarioCompleto = $this->usuarioModel->obtenerPorId($usuario['id']);
+
         // Respuesta exitosa
         $this->enviarRespuesta(200, true, [
             'user' => [
-                'id' => $usuario['id'],
-                'nombre' => $usuario['nombre'],
-                'apellido_paterno' => $usuario['apellido_paterno'],
-                'apellido_materno' => $usuario['apellido_materno'],
-                'email' => $usuario['email'],
-                'rol' => $usuario['rol_nombre'],
-                'materia_id' => $usuario['materia_id'],
-                'grado_id' => $usuario['grado_id']
+                'id' => $usuarioCompleto['id'],
+                'nombre' => $usuarioCompleto['nombre'],
+                'apellido_paterno' => $usuarioCompleto['apellido_paterno'],
+                'apellido_materno' => $usuarioCompleto['apellido_materno'],
+                'email' => $usuarioCompleto['email'],
+                'rol' => $usuarioCompleto['rol_nombre'],
+                'rol_id' => $usuarioCompleto['rol_id'],
+                'materias' => $usuarioCompleto['materias'] ?? [],
+                'grados' => $usuarioCompleto['grados'] ?? []
             ],
             'tokens' => [
                 'access_token' => $accessToken,
@@ -351,8 +355,9 @@ class AuthController
             'email' => $usuarioCompleto['email'],
             'ci' => $usuarioCompleto['ci'],
             'rol' => $usuarioCompleto['rol_nombre'],
-            'materia' => $usuarioCompleto['materia_nombre'] ?? null,
-            'grado' => $usuarioCompleto['grado_nombre'] ?? null,
+            'rol_id' => $usuarioCompleto['rol_id'],
+            'materias' => $usuarioCompleto['materias'] ?? [],
+            'grados' => $usuarioCompleto['grados'] ?? [],
             'telefono' => $usuarioCompleto['telefono'],
             'estado' => $usuarioCompleto['estado'],
             'ultimo_acceso' => $usuarioCompleto['ultimo_acceso']

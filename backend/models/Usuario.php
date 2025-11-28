@@ -176,12 +176,9 @@ class Usuario
      */
     public function obtenerPorId(int $id)
     {
-        $query = "SELECT u.*, r.nombre as rol_nombre, m.nombre as materia_nombre,
-                         m.sigla as materia_sigla, g.nombre as grado_nombre
+        $query = "SELECT u.*, r.nombre as rol_nombre
                 FROM {$this->table} u
                 LEFT JOIN roles r ON u.rol_id = r.id
-                LEFT JOIN materias m ON u.materia_id = m.id
-                LEFT JOIN grados g ON u.grado_id = g.id
                 WHERE u.id = :id
                 LIMIT 1";
 
@@ -194,6 +191,38 @@ class Usuario
             if ($row) {
                 // Eliminar el hash del password por seguridad
                 unset($row['password_hash']);
+
+                // Si es docente, cargar sus asignaciones de materias y grados
+                if ($row['rol_id'] == 2) { // 2 = Docente
+                    // Obtener materias asignadas
+                    $queryMaterias = "SELECT m.id, m.nombre, m.sigla, m.color, cs.nombre as campo_nombre
+                                    FROM docente_asignaciones da
+                                    INNER JOIN materias m ON da.materia_id = m.id
+                                    LEFT JOIN campos_saberes cs ON m.campo_saber_id = cs.id
+                                    WHERE da.docente_id = :docente_id AND da.materia_id IS NOT NULL
+                                    ORDER BY m.nombre";
+
+                    $stmtMaterias = $this->conn->prepare($queryMaterias);
+                    $stmtMaterias->bindParam(':docente_id', $id, PDO::PARAM_INT);
+                    $stmtMaterias->execute();
+                    $row['materias'] = $stmtMaterias->fetchAll(PDO::FETCH_ASSOC);
+
+                    // Obtener grados asignados
+                    $queryGrados = "SELECT g.id, g.nombre, g.nivel
+                                   FROM docente_asignaciones da
+                                   INNER JOIN grados g ON da.grado_id = g.id
+                                   WHERE da.docente_id = :docente_id AND da.grado_id IS NOT NULL
+                                   ORDER BY g.nivel";
+
+                    $stmtGrados = $this->conn->prepare($queryGrados);
+                    $stmtGrados->bindParam(':docente_id', $id, PDO::PARAM_INT);
+                    $stmtGrados->execute();
+                    $row['grados'] = $stmtGrados->fetchAll(PDO::FETCH_ASSOC);
+                } else {
+                    $row['materias'] = [];
+                    $row['grados'] = [];
+                }
+
                 return $row;
             }
 
