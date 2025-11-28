@@ -112,92 +112,14 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Sección de Búsqueda por Categoría */}
-      <div className="container mx-auto px-4 py-20">
-        {/* Título de Sección */}
-        <div className="text-center mb-16">
-          <h3 className="text-4xl md:text-5xl font-extrabold text-primary-700 dark:text-primary-400 mb-4">
-            BUSCAR POR CATEGORÍA
-          </h3>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Encuentra el contenido educativo que necesitas de manera rápida
-          </p>
-        </div>
-
-        {/* Cards de Categorías */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-5xl mx-auto">
-          {/* Card: MATERIA */}
-          <Link
-            to="/materias"
-            className="group relative overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10"></div>
-            <div className="relative p-12 md:p-16 text-center">
-              {/* Icono */}
-              <div className="mb-8 flex justify-center">
-                <div className="w-28 h-28 md:w-32 md:h-32 bg-white rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                  <BookOpen className="w-16 h-16 md:w-20 md:h-20 text-primary-600" strokeWidth={2} />
-                </div>
-              </div>
-
-              {/* Título */}
-              <h4 className="text-4xl md:text-5xl font-extrabold text-white mb-3">
-                MATERIA
-              </h4>
-              <p className="text-primary-100 mb-6">
-                Busca por área de conocimiento
-              </p>
-
-              {/* Flecha */}
-              <div className="flex justify-center">
-                <div className="w-14 h-14 bg-salesiano-amarillo-400 rounded-full flex items-center justify-center group-hover:scale-125 group-hover:shadow-lg transition-all duration-300">
-                  <ArrowRight className="w-7 h-7 text-salesiano-azul-900" strokeWidth={3} />
-                </div>
-              </div>
-            </div>
-          </Link>
-
-          {/* Card: CURSO */}
-          <Link
-            to="/cursos"
-            className="group relative overflow-hidden bg-gradient-to-br from-salesiano-amarillo-400 to-salesiano-amarillo-500 rounded-3xl shadow-2xl hover:shadow-3xl transform hover:scale-105 transition-all duration-300"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/10"></div>
-            <div className="relative p-12 md:p-16 text-center">
-              {/* Icono */}
-              <div className="mb-8 flex justify-center">
-                <div className="w-28 h-28 md:w-32 md:h-32 bg-white rounded-3xl flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-transform duration-300">
-                  <GraduationCap className="w-16 h-16 md:w-20 md:h-20 text-salesiano-amarillo-600" strokeWidth={2} />
-                </div>
-              </div>
-
-              {/* Título */}
-              <h4 className="text-4xl md:text-5xl font-extrabold text-salesiano-azul-900 mb-3">
-                CURSO
-              </h4>
-              <p className="text-salesiano-azul-800 mb-6">
-                Busca por nivel académico
-              </p>
-
-              {/* Flecha */}
-              <div className="flex justify-center">
-                <div className="w-14 h-14 bg-salesiano-azul-600 rounded-full flex items-center justify-center group-hover:scale-125 group-hover:shadow-lg transition-all duration-300">
-                  <ArrowRight className="w-7 h-7 text-white" strokeWidth={3} />
-                </div>
-              </div>
-            </div>
-          </Link>
-        </div>
-      </div>
-
       {/* Sección de Valores Salesianos */}
-      <div className="bg-white py-16 border-t border-gray-200">
+      <div className="bg-white dark:bg-gray-800 py-16 border-t border-gray-200 dark:border-gray-700">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+            <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-6">
               Educación Salesiana de Calidad
             </h3>
-            <p className="text-lg text-gray-600 leading-relaxed mb-8">
+            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed mb-8">
               Nuestra videoteca digital ofrece contenido educativo de alta calidad,
               diseñado para complementar el aprendizaje en el aula y fomentar el
               estudio autónomo bajo los valores salesianos de excelencia académica
@@ -206,14 +128,14 @@ const HomePage = () => {
             <div className="flex flex-wrap justify-center gap-4">
               <Link
                 to="/acerca-de"
-                className="inline-flex items-center gap-2 px-6 py-3 text-primary-600 hover:text-primary-700 font-semibold transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-semibold transition-colors"
               >
                 Conoce más sobre nosotros
                 <ArrowRight className="w-4 h-4" />
               </Link>
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-primary-600 dark:bg-primary-700 text-white font-semibold rounded-lg hover:bg-primary-700 dark:hover:bg-primary-600 transition-colors"
               >
                 <Play className="w-4 h-4" />
                 Iniciar Sesión
